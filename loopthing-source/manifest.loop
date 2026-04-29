@@ -56,6 +56,9 @@ files:
   - Artifacts/Media/ralph-loop-cycle.svg
   - Artifacts/Media/container-cutaway.svg
   - Artifacts/Screenshots/README.md
+  - Artifacts/Screenshots/01-meta-artifact-stage.png
+  - Artifacts/Screenshots/02-meta-journey-map.png
+  - Artifacts/Screenshots/03-meta-problem-statement.png
   - Artifacts/Screenshots/01-package-start.png
   - Artifacts/Screenshots/02-lineage-track-changes.png
   - Artifacts/Screenshots/03-thought-graph.png

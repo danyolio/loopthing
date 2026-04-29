@@ -1,6 +1,6 @@
 # LoopThing
 
-LoopThing is a portable exploration tree for AI work: a `.loopthing` file captures the prompts, follow-ups, branches, self-critiques, killed paths, generated explainers, media, slides, prototypes, and code that show how an idea arrived.
+LoopThing is a portable exploration tree for AI work. You LoopThing your chat session, sessions, or project to generate artifacts that demonstrate the thinking behind the work: prompts, follow-ups, branches, self-critiques, killed paths, generated explainers, media, slides, prototypes, and code.
 
 Tagline: **The human is the loop**
 
@@ -18,7 +18,7 @@ Git tracks code. LoopThing tracks exploration.
 
 A `.loopthing` is not JSON, not a folder, and not a transcript. It is a single portable container file with a MIME marker: `application/vnd.loopthing+zip`.
 
-This repo includes `loopthing-source/` only so GitHub can show the unpacked contents. The thing you share is `loopthing.loopthing`.
+This repo includes `loopthing-source/` only so GitHub can show the unpacked contents. The thing you share is a project-specific container such as `agent-docs.loopthing`, `openclaw-origin.loopthing`, or `yourproject.loopthing`. In this repo, the example container is `loopthing.loopthing`.
 
 Inside this demo container:
 
@@ -34,13 +34,15 @@ Inside this demo container:
 
 ## Ralph Loop
 
-Ralph Loop is the technique. LoopThing is the artifact.
+Ralph Loop is not the product headline here. It is a useful background process for generating the artifacts inside a `.loopthing`.
 
 ```text
 EXPLORE -> JUDGE -> DEEPEN -> SEAL
 ```
 
-An agent generates, critiques itself harshly, regenerates, diverges across siblings, and then the human kills weak branches with written reasons. A survivor can be deepened into another generation of branches. The sealed `.loopthing` preserves both the winning path and the rejected paths.
+In this context, a Ralph Loop means an agent generates, critiques itself, regenerates with fresh context, uses feedback, and repeats until the artifact set is good enough to seal. The name references [`snarktank/ralph`](https://github.com/snarktank/ralph), an autonomous AI coding loop where fresh AI instances repeatedly work through PRD items, persist learnings, and use feedback checks.
+
+LoopThing uses that looping idea as generation machinery. The sealed `.loopthing` is the shareable artifact that preserves the winning path, the rejected paths, and the generated context.
 
 That is the core thesis: **pruned thought is evidence. The losing branch still teaches.**
 
@@ -52,7 +54,7 @@ The first demo concept was built around Andrej Karpathy's LLMWiki gist: simulate
 
 The demo script then sharpened into a product idea: a Ralph Loop exploration around the question, "What could documentation be when agents read it?" Four agents would fan out under constraint vectors: covenant, conversation, test suite, and theatre. The human would judge, kill, deepen, and seal the final `.loopthing`.
 
-The live repo then pivoted to an OpenClaw viewer because it could be built quickly as a static hackathon demo. Later feedback killed the "LoopThing a GitHub repo" direction. A repo is usually an output of the thinking process, not the process itself.
+The early live repo then tried to understand the thinking process behind what Peter Steinberger was building with OpenClaw by working backward from the repo. That helped ship a static viewer fast, but it was the wrong long-term center of gravity. A repo is usually an output of the thinking process, not the process itself.
 
 The current version is the LoopThing of LoopThing: a rich portable file generated from this conversation, containing the prompt spine, discarded ideas, generated explainers, media, screenshots, slides, prototype, and code.
 
@@ -64,31 +66,19 @@ No build step. No backend. No framework. Just the viewer and the container.
 
 ## Screenshots
 
-The viewer starts as an artifact stage: the thought loop stays visible while the selected prompt, media object, explainer, slide, prototype, or code artifact opens in the lens.
+These are meta screenshots of the LoopThing viewer explaining this repo: why the artifact exists, how the idea changed, and what context a `.loopthing` generates for someone new.
 
-These shots are captured from the viewer with `loopthing.loopthing` open.
+The artifact stage keeps the thought object visible while a selected prompt, decision, explainer, slide, prototype, or code artifact opens in the lens.
 
-![LoopThing container start](docs/screenshots/01-package-start.png)
+![LoopThing meta artifact stage](docs/screenshots/01-meta-artifact-stage.png)
 
-The prompt spine now includes the real earlier context: Karpathy, LLMWiki, Ralph Loops, constraint vectors, OpenClaw, and the killed repo-input branch.
+The journey map is the readable lineage: hackathon idea, Karpathy origin demo, Ralph Loop, OpenClaw detour, killed repo branch, and the richer container direction.
 
-![LoopThing prompt lineage](docs/screenshots/02-lineage-track-changes.png)
+![LoopThing meta journey map](docs/screenshots/02-meta-journey-map.png)
 
-The journey map shows the idea moving through EXPLORE, JUDGE, DEEPEN, and SEAL instead of presenting a vague graph.
+Generated explainers turn the chat session into context that a coworker, judge, or future collaborator can understand quickly.
 
-![LoopThing journey map](docs/screenshots/03-thought-graph.png)
-
-Media is first-class in the container. A `.loopthing` should feel closer to a rich PDF with code and provenance than a directory of markdown files.
-
-![LoopThing generated media](docs/screenshots/04-slide-artifact.png)
-
-Generated explainers turn the chat session into context that a coworker, judge, or future collaborator can skim.
-
-![LoopThing generated explainer](docs/screenshots/06-generated-explainer.png)
-
-The same container can carry working artifacts such as slides, prototypes, and the viewer code.
-
-![LoopThing code artifact](docs/screenshots/05-viewer-code-artifact.png)
+![LoopThing meta problem statement](docs/screenshots/03-meta-problem-statement.png)
 
 Previous screenshot sets are kept for comparison in `docs/screenshots/archive/`.
 
@@ -130,9 +120,18 @@ loopthing-source/
 
 The artifact can contain structured graph data, but the product promise is bigger than graph storage. It packages the generated context someone needs to inherit the work.
 
-## Notes
+## Potential Future Directions
 
-This is still a static demo of generated output, not a live multi-agent runtime. The intended product flow is:
+The final `.loopthing` file is the entire exploration: portable, forkable, auditable.
+
+This repo is still a static demo of generated output, not a live multi-agent runtime. The higher-level direction is:
+
+- Generate `.loopthing` files from one chat, many chats, or a project workspace.
+- Produce useful artifacts automatically: problem statements, decision maps, literature/context notes, slides, screenshots, prototypes, and code references.
+- Let humans judge and preserve killed branches with reasons.
+- Make the result feel like a modern rich PDF for AI work: portable, visual, inspectable, and worth sending to another person.
+
+A future product flow could look like:
 
 ```text
 loopthing explore "<brief>" --canonical=documentation.loopthing
@@ -141,5 +140,3 @@ loopthing kill node-003 --reason "Too close to existing docs portals"
 loopthing deepen node-002
 loopthing seal
 ```
-
-The final file is the entire exploration: portable, forkable, auditable.

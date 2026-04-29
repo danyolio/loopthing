@@ -4,16 +4,13 @@ Screenshots are generated artifacts inside the LoopThing.
 
 They let someone understand the viewer quickly without running the project first.
 
-The current set is captured from the viewer with `loopthing.loopthing` open.
+The current README set is captured from the viewer with `loopthing.loopthing` open. These are meta screenshots: the viewer is explaining the repo's own why, lineage, and generated context.
 
 Included examples:
 
-- `01-package-start.png`: artifact stage entrypoint
-- `02-lineage-track-changes.png`: true prompt lineage
-- `03-thought-graph.png`: journey map with killed repo branch
-- `04-slide-artifact.png`: generated media gallery
-- `05-viewer-code-artifact.png`: code artifact
-- `06-generated-explainer.png`: generated explainer artifact
+- `01-meta-artifact-stage.png`: artifact-stage overview
+- `02-meta-journey-map.png`: zoomed journey-map lineage
+- `03-meta-problem-statement.png`: zoomed generated problem statement
 
 Archived previous sets:
 
