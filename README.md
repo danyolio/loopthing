@@ -1,12 +1,15 @@
 # LoopThing
 
-LoopThing is a file format for turning AI chat into a shareable artifact that shows how an idea arrived.
+LoopThing is an exportable file format combining AI-generated outputs with the AI chats that created them, showing exactly how the idea arrived and was refined.
 
 **In this meta demo:** LoopThing itself was created from 67 chat messages across 3 AI tools. `loopthing.loopthing` contains 3 primitives and 5 artifact families.
 
 ## Why It Exists
 
-Have you ever written "summarize this chat" to share your AI project with a friend, but the response lacked depth?
+Have you ever:
+* Gotten an AI-generated doc from your boss and wished you knew what their prompts were?
+* Seen a super-impressive prototype on AI Twitter and wondered how they made it?
+* Written "summarize this chat" to share your AI project with a friend, but the response just wasn't there?
 
 LoopThing is for that. You LoopThing your messages across multiple chat sessions to generate artifacts that demonstrate your thinking: prompts, metadata, maps, discarded ideas, explainers, media, slides, prototypes, and code.
 
