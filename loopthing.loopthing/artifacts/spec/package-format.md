@@ -2,6 +2,8 @@
 
 This version treats `.loopthing` as a package directory, not a JSON file.
 
+This example began as an OpenAI Codex hackathon demo and briefly tried a GitHub-repo input direction. That direction is preserved as a killed branch: a repo may be one artifact in the package, but the `.loopthing` tracks the exploratory session that produced it.
+
 ## Required
 
 - `manifest.loop`: package metadata and entrypoint

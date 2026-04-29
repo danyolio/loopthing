@@ -3,11 +3,19 @@ title: The Missing Artifact
 kind: sanitized-session-package
 created: 2026-04-29T07:18:00Z
 start: START.md
+origin: OpenAI Codex hackathon demo
 
 summary:
   A .loopthing is a package for AI work: a forkable, auditable collection
   of sanitized prompts, user-input track changes, killed ideas, reasons,
   and produced artifacts that shows how an idea arrived.
+
+lineage:
+  - Began as a static OpenAI Codex hackathon viewer.
+  - Used OpenClaw as the first source artifact.
+  - Tried a GitHub repo input direction.
+  - Killed "LoopThing a repo" because the repo is not the thinking process.
+  - Landed on a package whose spine is sanitized user input plus artifacts.
 
 principles:
   - Not a JSON file

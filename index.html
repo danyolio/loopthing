@@ -542,11 +542,19 @@ title: The Missing Artifact
 kind: sanitized-session-package
 created: 2026-04-29T07:18:00Z
 start: START.md
+origin: OpenAI Codex hackathon demo
 
 summary:
   A .loopthing is a package for AI work: a forkable, auditable collection
   of sanitized prompts, user-input track changes, killed ideas, reasons,
   and produced artifacts that shows how an idea arrived.
+
+lineage:
+  - Began as a static OpenAI Codex hackathon viewer.
+  - Used OpenClaw as the first source artifact.
+  - Tried a GitHub repo input direction.
+  - Killed "LoopThing a repo" because the repo is not the thinking process.
+  - Landed on a package whose spine is sanitized user input plus artifacts.
 
 principles:
   - Not a JSON file
@@ -568,11 +576,17 @@ A .loopthing is a file format for AI work: a forkable, auditable collection of t
 
 Create the LoopThing of LoopThing itself.
 
+The project began as an OpenAI Codex hackathon demo: ship something static, fast, and browser-openable that could explain a new .loopthing artifact under time pressure. The first implementation used OpenClaw as the example source and treated .loopthing like a single viewer data file.
+
+That was useful scaffolding, but it was not the final idea. Through this chat thread, the concept moved through several revisions, including a repo-oriented version where you could "LoopThing a GitHub repo." That branch was killed. A repo is not the thinking process; it is only one possible output of the process.
+
 The artifact should not be a single JSON file. It should be a portable package: a folder-like .loopthing bundle that contains the cleaned-up prompt trail, prompt-level track changes, killed directions, reasons, and the actual artifacts produced along the way.
 
 The first thing a reader sees should be the sanitized prompt: the best, clearest version of the idea after the whole session. From there, the reader can open sub-investigations:
 
 - the true initial prompt
+- the OpenAI Codex hackathon origin
+- the killed GitHub repo interpretation
 - line-by-line user-input track changes
 - the thought DAG
 - the presentation slide
@@ -596,9 +610,24 @@ The output is no longer the only artifact. The thinking ships too.`
 
 This investigation shows how the idea moved from the true initial prompt to the current LoopThing package concept.
 
-The spine is user input only. AI responses are not treated as the canonical record; they are supporting material. The proof is the sequence of human directions, edits, constraints, and reversals.
+The spine is user input only from this exact chat thread. AI responses are not treated as the canonical record; they are supporting material. The proof is the sequence of human directions, edits, constraints, and reversals.
+
+## Lineage Summary
+
+LoopThing began here as an OpenAI Codex hackathon demo: a static viewer that had to open in a browser quickly and explain the missing artifact behind AI work.
+
+The idea then moved through several revisions:
+
+1. A single-page .loopthing viewer for an OpenClaw origin trace.
+2. A repo-input demo where pressing Enter on the OpenClaw repo populated the viewer.
+3. A more professional repo artifact with .loopthing instead of .json.
+4. A clearer one-line definition centered on "file format."
+5. A broad critique that killed the "LoopThing a repo" direction.
+6. A package correction: .loopthing is a collection of files and artifacts, with a sanitized prompt as the entrypoint and user-input track changes as the lineage.
 
 ## True Initial Prompt
+
+The first concrete request was made for the OpenAI Codex hackathon context. It asked for a fast static demo, grounded in OpenClaw:
 
 \`\`\`text
 Build a static, single-page demo viewer for a .loopthing file in 5 minutes.
@@ -609,6 +638,7 @@ Must open in a browser by minute 6.
 ## Track Changes By User Direction
 
 \`\`\`diff
++ Build for the OpenAI Codex hackathon.
 + Build a static, single-page demo viewer.
 + Use index.html and one .loopthing-shaped data file.
 + Show prompts, critiques, revisions, kills, and kill reasons as a DAG.
@@ -647,9 +677,31 @@ Must open in a browser by minute 6.
 
 \`\`\`diff
 - "GitHub for thought"
+- "LoopThing a GitHub repo"
 \`\`\`
 
-Kill reason: it is catchy but structurally wrong. GitHub shows code diffs and repo history. LoopThing shows exploratory user-input loops and the artifacts they produced.`
+Kill reason: it is catchy but structurally wrong. GitHub shows code diffs and repo history. LoopThing shows exploratory user-input loops and the artifacts they produced. A repo can be included inside a .loopthing package as an artifact, but it is not the unit being tracked.
+
+## Subsequent User Input Summaries
+
+\`\`\`diff
++ Build the hackathon demo quickly: static, no backend, browser-openable.
++ Use OpenClaw as the first source artifact and simulate its missing thought process.
++ Add a repo input so hitting Enter on OpenClaw populates the viewer.
++ Commit the project to the GitHub repo.
++ Make the repo more professional and stop calling the file .json.
++ Refine the title and TLDR until "file format" becomes the core phrase.
++ Simplify the explanation to "looping of thoughts."
++ Treat LoopThing as safe portability and version control for knowledge.
+- Do not reduce LoopThing to summarizing chat.
+- Do not say you LoopThing a repo.
++ Track exploratory AI work: prompts, branches, killed ideas, revisions, and artifacts.
++ Make .loopthing a package of files, not one JSON file.
++ Make the viewer feel like an OS for browsing the package.
++ Start from the sanitized prompt.
++ Include the true initial prompt and line-by-line changes to later user inputs.
++ Explicitly capture this lineage, including the hackathon origin and the killed GitHub repo direction.
+\`\`\``
       },
       {
         path: "graph/thought-dag.loopgraph",
@@ -664,9 +716,10 @@ Kill reason: it is catchy but structurally wrong. GitHub shows code diffs and re
             { id: "multiplayer", color: "#D4537E", thesis: "LoopThing makes exploratory work shareable and auditable." }
           ],
           nodes: [
+            { id: "format.0", agent: "format", type: "prompt", content: "OpenAI Codex hackathon: ship a static browser demo fast, first using OpenClaw as the source artifact." },
             { id: "format.a", agent: "format", type: "prompt", content: "What is the actual file innovation?" },
             { id: "format.b", agent: "format", type: "critique", content: "GitHub tracks code changes. LoopThing tracks thinking loops." },
-            { id: "format.c.kill", agent: "format", type: "kill", content: "Call it GitHub for thought.", kill_reason: "Memorable, but wrong. Repos show outputs and code history, not the prompt process." },
+            { id: "format.c.kill", agent: "format", type: "kill", content: "Call it GitHub for thought and let people LoopThing repos.", kill_reason: "Memorable, but wrong. Repos show outputs and code history, not the prompt process. A repo can be an artifact inside the package, but it is not the unit being tracked." },
             { id: "format.c", agent: "format", type: "revision", content: "Define .loopthing as a package for a thinking loop." },
             { id: "editorial.a", agent: "editorial", type: "prompt", content: "How do you make session history readable?" },
             { id: "editorial.c.kill", agent: "editorial", type: "kill", content: "Just summarize the chat.", kill_reason: "A summary hides branches, reversals, killed ideas, and taste decisions." },
@@ -701,6 +754,8 @@ Kill reason: it is catchy but structurally wrong. GitHub shows code diffs and re
         content: `# LoopThing Package Format
 
 This version treats .loopthing as a package directory, not a JSON file.
+
+This example began as an OpenAI Codex hackathon demo and briefly tried a GitHub-repo input direction. That direction is preserved as a killed branch: a repo may be one artifact in the package, but the .loopthing tracks the exploratory session that produced it.
 
 ## Required
 

@@ -2,6 +2,8 @@
 
 Build a static, single-page demo for `loopthing.loopthing/`: a `.loopthing` package that explains LoopThing by showing the messy thought loop that created LoopThing.
 
+The lineage must be explicit: the idea began as an OpenAI Codex hackathon demo, first used OpenClaw as a source artifact, briefly became a GitHub-repo input concept, and then killed that direction. The package should preserve that evolution from this exact chat thread as cleaned user-input summaries.
+
 ## Core Definition
 
 A `.loopthing` is a package format for AI work: a forkable, auditable collection of the looping thoughts, branches, killed ideas, revisions, and artifacts behind how an idea arrived.
@@ -27,6 +29,8 @@ The MVP stores sanitized user inputs and artifact references as the canonical tr
 ## Demo Artifact
 
 Create `loopthing.loopthing/` as the self-referential example. It should contain the sanitized prompt, the true initial prompt investigation, track changes, thought graph, slide artifact, viewer-code artifact, and package-format notes.
+
+The true initial prompt investigation must name the OpenAI Codex hackathon context and show the subsequent user-authored revisions, especially the abandoned "LoopThing a GitHub repo" branch.
 
 The thought graph should show four plausible lenses on the idea:
 

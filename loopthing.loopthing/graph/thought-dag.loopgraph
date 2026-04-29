@@ -2,10 +2,10 @@
   "format": "loopthing/v0.1",
   "meta": {
     "title": "The Missing Artifact",
-    "source_label": "LoopThing feedback session",
+    "source_label": "OpenAI Codex hackathon feedback session",
     "source_url": "loopthing://feedback-session",
     "source_kind": "sanitized-session",
-    "note": "A self-referential LoopThing trace distilled from feedback on what the file format should actually mean.",
+    "note": "A self-referential LoopThing trace distilled from this chat thread. It began as an OpenAI Codex hackathon demo, passed through an OpenClaw/GitHub-repo interpretation, and killed that branch in favor of a session package format.",
     "created": "2026-04-29T06:58:00Z",
     "tldr": "A .loopthing is a file format for AI work: a forkable, auditable record of the looping thoughts, branches, killed ideas, and revisions behind how an idea arrived."
   },
@@ -33,10 +33,19 @@
   ],
   "nodes": [
     {
-      "id": "format.a",
+      "id": "format.0",
       "agent": "format",
       "type": "prompt",
       "parent": null,
+      "content": "OpenAI Codex hackathon constraint: ship a static, browser-openable demo quickly, initially using OpenClaw as the source artifact.",
+      "timestamp": "2026-04-29T06:57:55Z",
+      "source_refs": ["user: \"openai codex hackathon\"", "initial prompt: \"Build a static, single-page demo viewer\""]
+    },
+    {
+      "id": "format.a",
+      "agent": "format",
+      "type": "prompt",
+      "parent": "format.0",
       "content": "What is the actual file innovation? Not a feature, not a repo trick, but the missing file format for AI work.",
       "timestamp": "2026-04-29T06:58:03Z",
       "source_refs": ["feedback: \"it's a file format. i like that the most\""]
@@ -55,8 +64,8 @@
       "agent": "format",
       "type": "kill",
       "parent": "format.b",
-      "content": "Call it GitHub for thought and let people LoopThing repos.",
-      "kill_reason": "Memorable, but wrong. A repo contains outputs and code history; it does not contain the prompt process, session mess, or exploratory loop that produced the artifacts.",
+      "content": "Call it GitHub for thought and let people LoopThing GitHub repos.",
+      "kill_reason": "Memorable, but wrong. A repo contains outputs and code history; it does not contain the prompt process, session mess, or exploratory loop that produced the artifacts. Repos can be artifacts inside a package, but they are not the unit being tracked.",
       "killed_at": "2026-04-29T06:58:13Z",
       "timestamp": "2026-04-29T06:58:13Z",
       "source_refs": ["feedback: \"You can't do a loop thing on a repo.\"", "feedback: \"not code is NOT the process of the prompt\""]
@@ -230,6 +239,7 @@
     }
   ],
   "edges": [
+    {"from": "format.0", "to": "format.a", "kind": "branch"},
     {"from": "format.a", "to": "format.b", "kind": "branch"},
     {"from": "format.b", "to": "format.c.kill", "kind": "pruned"},
     {"from": "format.b", "to": "format.c", "kind": "branch"},

@@ -6,6 +6,8 @@ It is not just a chat summary. It is a portable artifact for exploratory work: t
 
 Git tracks code diffs. LoopThing packages thinking loops.
 
+This example began as an OpenAI Codex hackathon demo. It went through several revisions, including a GitHub-repo input version, before landing on the current idea: you do not LoopThing a repo; you LoopThing the exploratory AI session that produced the repo, slides, docs, code, and decisions.
+
 ## What Is In This Repo
 
 - `index.html` is the vanilla JS viewer. No build step, backend, framework, login, or install.
@@ -31,6 +33,8 @@ The viewer renders a `.loopthing` package like a tiny file OS:
 - package format notes
 
 The core entrypoint is the sanitized prompt. The sub-investigation shows how the user's directions changed over time, including killed ideas and the reasons they were killed.
+
+The lineage explicitly captures the OpenAI Codex hackathon origin, the OpenClaw demo phase, the killed GitHub-repo direction, and the subsequent user-input summaries from this chat thread.
 
 ## Why It Exists
 
