@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>openclaw.loopthing</title>
+  <title>loopthing.loopthing</title>
   <style>
     :root {
       color-scheme: light dark;
@@ -503,6 +503,36 @@
       line-height: 1.45;
     }
 
+    .artifact-list {
+      display: grid;
+      gap: 7px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .artifact-item {
+      padding: 8px;
+      border: .5px solid var(--line-soft);
+      border-radius: 6px;
+      background: var(--panel-soft);
+    }
+
+    .artifact-item strong {
+      display: block;
+      margin-bottom: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .artifact-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
     .footer {
       justify-content: space-between;
       padding: 0 14px;
@@ -582,10 +612,10 @@
         <span class="dot yellow"></span>
         <span class="dot green"></span>
       </div>
-      <div class="filename">openclaw.loopthing</div>
+      <div class="filename">loopthing.loopthing</div>
       <form class="repo-form" id="repoForm">
-        <label class="repo-label" for="repoInput">repo</label>
-        <input class="repo-input" id="repoInput" value="https://github.com/steipete/OpenClaw" autocomplete="off" spellcheck="false">
+        <label class="repo-label" for="repoInput">session</label>
+        <input class="repo-input" id="repoInput" value="LoopThing feedback session" autocomplete="off" spellcheck="false">
       </form>
       <div class="meta-line" id="topMeta"></div>
     </header>
@@ -597,11 +627,11 @@
       <h2 class="rail-title">File Contains</h2>
       <div class="file-box">
         <ul>
-          <li>prompts</li>
+          <li>sanitized prompts</li>
           <li>critiques</li>
           <li>revisions</li>
           <li>kills + reasons</li>
-          <li>DAG of thought</li>
+          <li>artifact bundle</li>
         </ul>
       </div>
     </aside>
@@ -622,7 +652,7 @@
         <span class="chip">shareable</span>
         <span class="chip mono">.loopthing v0.1</span>
       </div>
-      <div class="tagline">pruned thought is evidence · the losing branch still teaches</div>
+      <div class="tagline">the output is no longer the only artifact · the thinking ships too</div>
     </footer>
   </div>
 
@@ -631,60 +661,68 @@
 {
   "format": "loopthing/v0.1",
   "meta": {
-    "title": "Origin trace: Steinberger's OpenClaw",
-    "source_url": "https://github.com/steipete/OpenClaw",
-    "source_kind": "reverse-engineered",
-    "note": "Original chats unavailable. Four agents simulate plausible origin DAGs from the published OpenClaw artifact and supplied source notes.",
-    "created": "2026-04-29T05:04:00Z"
+    "title": "The Missing Artifact",
+    "source_label": "LoopThing feedback session",
+    "source_url": "loopthing://feedback-session",
+    "source_kind": "sanitized-session",
+    "note": "A self-referential LoopThing trace distilled from feedback on what the file format should actually mean.",
+    "created": "2026-04-29T06:58:00Z",
+    "tldr": "A .loopthing is a file format for AI work: a forkable, auditable record of the looping thoughts, branches, killed ideas, and revisions behind how an idea arrived."
   },
   "agents": [
-    {"id": "lock-in", "color": "#7F77DD", "thesis": "OpenClaw reads as a refusal to let the coding-agent loop belong to one vendor: model, runner, prompts, tools, and billing all need to be swappable."},
-    {"id": "craft", "color": "#1D9E75", "thesis": "OpenClaw turns Steinberger-style developer ergonomics toward agents: inspect the loop the way you would inspect an IDE, debugger, or build tool."},
-    {"id": "infrastructure", "color": "#D85A30", "thesis": "OpenClaw treats the agent loop as shared infrastructure: tool routing, shell access, schemas, retries, and safety policy should not be rebuilt badly by every team."},
-    {"id": "canon", "color": "#D4537E", "thesis": "OpenClaw is the Unix promise applied to AI tools: small, composable, scriptable, model-agnostic pieces instead of a closed monolithic agent."}
+    {"id": "format", "color": "#7F77DD", "thesis": "LoopThing is a new file format for AI work, not a chat summary and not a repo diff."},
+    {"id": "editorial", "color": "#1D9E75", "thesis": "LoopThing beautifies messy session history into a readable, skimmable artifact others can learn from."},
+    {"id": "artifacts", "color": "#D85A30", "thesis": "LoopThing is a collection of artifacts, not only a graph: prompts, docs, slides, prototypes, code, and references travel together."},
+    {"id": "multiplayer", "color": "#D4537E", "thesis": "LoopThing gives exploratory knowledge work a collaboration primitive: forkable, auditable, portable proof of thinking."}
   ],
   "nodes": [
-    {"id": "lock.a", "agent": "lock-in", "type": "prompt", "parent": null, "content": "Why should \"the AI that actually does things\" be boxed inside one vendor's model, CLI, billing meter, and hidden prompts?", "timestamp": "2026-04-29T05:04:03Z"},
-    {"id": "lock.b", "agent": "lock-in", "type": "critique", "parent": "lock.a", "content": "The model is the obvious lock-in. The quieter lock-in is the loop: prompts, tool schemas, retries, provider routing, and the control plane you cannot inspect.", "timestamp": "2026-04-29T05:04:08Z"},
-    {"id": "lock.c.kill", "agent": "lock-in", "type": "kill", "parent": "lock.b", "content": "Just proxy the existing closed CLI and rewrite the API calls.", "kill_reason": "A proxy treats the invoice as the problem and leaves the loop inside the vendor boundary. The prompts, tool schemas, retry policy, and safety defaults still belong to somebody else.", "killed_at": "2026-04-29T05:04:13Z", "timestamp": "2026-04-29T05:04:13Z"},
-    {"id": "lock.c", "agent": "lock-in", "type": "revision", "parent": "lock.b", "content": "Make the agent loop the open thing: `AGENTS.md` operating memory, skills that teach tools, plugin manifests, safe defaults, and model/provider choice under the operator's rules.", "supersedes": "lock.c.kill", "why_won": "It moves freedom from the billing layer into the actual loop: prompts, tools, config, providers, and runtime policy become inspectable and forkable.", "timestamp": "2026-04-29T05:04:19Z"},
-    {"id": "lock.d", "agent": "lock-in", "type": "synthesis", "parent": "lock.c", "content": "The open unit is not just the model. It is the whole loop: prompt, runner, tool, policy, channel, and audit trail.", "timestamp": "2026-04-29T05:04:25Z"},
-    {"id": "craft.a", "agent": "craft", "type": "prompt", "parent": null, "content": "What would serious developer ergonomics demand from an assistant that clears inboxes, sends emails, manages calendars, and checks flights?", "timestamp": "2026-04-29T05:04:04Z"},
-    {"id": "craft.b", "agent": "craft", "type": "critique", "parent": "craft.a", "content": "Black-box agent theater is the opposite of craft. OpenClaw keeps the loop visible: terminal-first onboarding, config files, high-confidence answers when fixing, and strong defaults without killing capability.", "timestamp": "2026-04-29T05:04:09Z"},
-    {"id": "craft.c.kill", "agent": "craft", "type": "kill", "parent": "craft.b", "content": "Build a fancier UI on top of Claude Code and call the polish the product.", "kill_reason": "Polish on closed plumbing is decoration, not craft. If prompts, tool contracts, and runtime behavior remain hidden, the UI only makes the black box easier to tolerate.", "killed_at": "2026-04-29T05:04:14Z", "timestamp": "2026-04-29T05:04:14Z"},
-    {"id": "craft.c", "agent": "craft", "type": "revision", "parent": "craft.b", "content": "Make the craft inspectable: `AGENTS.md` as maintained operating memory, config schema as contract, skills that teach the agent, and plugin manifests instead of mystery behavior.", "supersedes": "craft.c.kill", "why_won": "The user can audit the assistant's working memory, tools, and defaults. That is the ergonomic move: confidence through inspectability.", "timestamp": "2026-04-29T05:04:20Z"},
-    {"id": "craft.d", "agent": "craft", "type": "synthesis", "parent": "craft.c", "content": "Craft is not a shinier chat window. It is an assistant whose permissions, tools, memory, and failure modes are legible before they become dangerous.", "timestamp": "2026-04-29T05:04:26Z"},
-    {"id": "infra.a", "agent": "infrastructure", "type": "prompt", "parent": null, "content": "Why is every team rebuilding the same agent loop primitives: tool calls, file edits, shell access, browser control, retries, and channel routing?", "timestamp": "2026-04-29T05:04:05Z"},
-    {"id": "infra.b", "agent": "infrastructure", "type": "critique", "parent": "infra.a", "content": "OpenClaw names the primitives: a Gateway owns messaging surfaces, a single embedded agent runtime runs the loop, and everything beyond text happens through tools.", "timestamp": "2026-04-29T05:04:10Z"},
-    {"id": "infra.c.kill", "agent": "infrastructure", "type": "kill", "parent": "infra.b", "content": "Publish a clean spec and let everyone implement their own runner later.", "kill_reason": "Specs without a reference loop do not ship behavior. The hard semantics live in the runner: retries, tools, permissions, channel state, and safe defaults under pressure.", "killed_at": "2026-04-29T05:04:15Z", "timestamp": "2026-04-29T05:04:15Z"},
-    {"id": "infra.c", "agent": "infrastructure", "type": "revision", "parent": "infra.b", "content": "Ship the loop as infrastructure: Gateway, embedded runtime, plugin manifests, schema validation, allowlists, sandboxing, and tool profiles that make power explicit.", "supersedes": "infra.c.kill", "why_won": "A reference runner makes the contract executable. Teams can still compete on products, channels, and taste instead of re-implementing the same loop plumbing.", "timestamp": "2026-04-29T05:04:21Z"},
-    {"id": "infra.d", "agent": "infrastructure", "type": "synthesis", "parent": "infra.c", "content": "The loop is the infrastructure. Products should differentiate on judgment and experience, not on who wrote the least-bad shell wrapper.", "timestamp": "2026-04-29T05:04:27Z"},
-    {"id": "canon.a", "agent": "canon", "type": "prompt", "parent": null, "content": "What if Licklider, Engelbart, and Knowledge Navigator were waiting for a model that could operate real tools on a real computer?", "timestamp": "2026-04-29T05:04:06Z"},
-    {"id": "canon.b", "agent": "canon", "type": "critique", "parent": "canon.a", "content": "A closed coding agent is a regression from small, composable tools. Peter's own workflow says to start with the model and a CLI first, because durable external handles beat bespoke UI wrappers.", "timestamp": "2026-04-29T05:04:11Z"},
-    {"id": "canon.c.kill", "agent": "canon", "type": "kill", "parent": "canon.b", "content": "Rebuild it as one big AI-native monolithic agent.", "kill_reason": "That breaks the Unix lesson exactly where OpenClaw needs it most. A monolith hides composition, makes policy harder to audit, and turns tools back into a private ceremony.", "killed_at": "2026-04-29T05:04:16Z", "timestamp": "2026-04-29T05:04:16Z"},
-    {"id": "canon.c", "agent": "canon", "type": "revision", "parent": "canon.b", "content": "Keep it Unix-native: model plus CLI first, manifest-first control plane, tools as inspectable contracts, and a Gateway that lets the assistant run real tasks through ordinary channels.", "supersedes": "canon.c.kill", "why_won": "Composable interfaces let the operator swap, script, audit, and fork. That is why the old command-line lesson still matters for agents.", "timestamp": "2026-04-29T05:04:22Z"},
-    {"id": "canon.d", "agent": "canon", "type": "synthesis", "parent": "canon.c", "content": "The old personal-computing loop closes when the assistant becomes a scriptable operator, not another destination app.", "timestamp": "2026-04-29T05:04:28Z"}
+    {"id": "format.a", "agent": "format", "type": "prompt", "parent": null, "content": "What is the actual file innovation? Not a feature, not a repo trick, but the missing file format for AI work.", "timestamp": "2026-04-29T06:58:03Z"},
+    {"id": "format.b", "agent": "format", "type": "critique", "parent": "format.a", "content": "GitHub tracks code changes. LoopThing tracks the looping thoughts behind AI work: prompts, branches, killed ideas, revisions, and why the idea arrived.", "timestamp": "2026-04-29T06:58:08Z"},
+    {"id": "format.c.kill", "agent": "format", "type": "kill", "parent": "format.b", "content": "Call it GitHub for thought and let people LoopThing repos.", "kill_reason": "Memorable, but wrong. A repo contains outputs and code history; it does not contain the prompt process, session mess, or exploratory loop that produced the artifacts.", "killed_at": "2026-04-29T06:58:13Z", "timestamp": "2026-04-29T06:58:13Z"},
+    {"id": "format.c", "agent": "format", "type": "revision", "parent": "format.b", "content": "Define `.loopthing` as the file format for a thinking loop: sanitized prompts, critique, branches, killed ideas, revisions, and artifact links.", "supersedes": "format.c.kill", "why_won": "It names the real unit of value: not the repo, not the chat log, but the readable loop that explains how the work arrived.", "timestamp": "2026-04-29T06:58:20Z"},
+    {"id": "format.d", "agent": "format", "type": "synthesis", "parent": "format.c", "content": "The output is no longer the only artifact. The thinking ships too, as a file.", "timestamp": "2026-04-29T06:58:27Z"},
+    {"id": "editorial.a", "agent": "editorial", "type": "prompt", "parent": null, "content": "How do you make session history readable without pretending the mess never happened?", "timestamp": "2026-04-29T06:58:04Z"},
+    {"id": "editorial.b", "agent": "editorial", "type": "critique", "parent": "editorial.a", "content": "Raw chat is chaos, but a final slide deck or code demo is dead without process. LoopThing needs the cleaned-up initial prompt plus a track-changes trail for subsequent prompts.", "timestamp": "2026-04-29T06:58:09Z"},
+    {"id": "editorial.c.kill", "agent": "editorial", "type": "kill", "parent": "editorial.b", "content": "Just summarize the chat transcript.", "kill_reason": "A summary compresses the useful parts away. It hides branches, reversals, prompt edits, killed ideas, and the taste decisions that made the final artifact worth trusting.", "killed_at": "2026-04-29T06:58:14Z", "timestamp": "2026-04-29T06:58:14Z"},
+    {"id": "editorial.c", "agent": "editorial", "type": "revision", "parent": "editorial.b", "content": "Sanitize the chat into a beautiful prompt history: the best version of the initial prompt, then one-line track changes for later turns.", "supersedes": "editorial.c.kill", "why_won": "It preserves motion without making the reader wade through noise. The loop becomes skimmable and collaborative.", "timestamp": "2026-04-29T06:58:21Z"},
+    {"id": "editorial.d", "agent": "editorial", "type": "synthesis", "parent": "editorial.c", "content": "LoopThing is edited memory: not the camera roll, not the final poster, but the contact sheet with taste.", "timestamp": "2026-04-29T06:58:28Z"},
+    {"id": "artifacts.a", "agent": "artifacts", "type": "prompt", "parent": null, "content": "What does the file actually contain if the thinking loop produces more than text?", "timestamp": "2026-04-29T06:58:05Z"},
+    {"id": "artifacts.b", "agent": "artifacts", "type": "critique", "parent": "artifacts.a", "content": "The work is not only prompts. It includes raw chat, slides, Markdoc docs, coded prototypes, webpages, and the sanitized process that connects them.", "timestamp": "2026-04-29T06:58:10Z"},
+    {"id": "artifacts.c.kill", "agent": "artifacts", "type": "kill", "parent": "artifacts.b", "content": "Ship only the final slides or only the code.", "kill_reason": "Final artifacts are legible but dead. They show the output, not the exploratory decisions, discarded directions, or prompt moves that would help someone fork the work intelligently.", "killed_at": "2026-04-29T06:58:15Z", "timestamp": "2026-04-29T06:58:15Z"},
+    {"id": "artifacts.c", "agent": "artifacts", "type": "revision", "parent": "artifacts.b", "content": "Store the loop as an artifact bundle: sanitized inputs as the spine, with references to outputs in folders like `slides/`, `docs/`, `prototype/`, and `raw/`.", "supersedes": "artifacts.c.kill", "why_won": "It makes the file portable and useful as a portfolio artifact: the reader gets process and outputs together.", "timestamp": "2026-04-29T06:58:22Z"},
+    {"id": "artifacts.d", "agent": "artifacts", "type": "synthesis", "parent": "artifacts.c", "content": "The `.loopthing` file is the spine. The artifacts are the body. Together they make the idea portable.", "timestamp": "2026-04-29T06:58:29Z"},
+    {"id": "multiplayer.a", "agent": "multiplayer", "type": "prompt", "parent": null, "content": "Who needs a LoopThing if code teams already have PRDs, tickets, and commits?", "timestamp": "2026-04-29T06:58:06Z"},
+    {"id": "multiplayer.b", "agent": "multiplayer", "type": "critique", "parent": "multiplayer.a", "content": "Exploratory knowledge work has weaker handoffs. Ideas move through chats, branches, docs, and prototypes, but there is no good PR for the thinking itself.", "timestamp": "2026-04-29T06:58:11Z"},
+    {"id": "multiplayer.c.kill", "agent": "multiplayer", "type": "kill", "parent": "multiplayer.b", "content": "Keep LoopThing as a private archive of everything that happened.", "kill_reason": "A private archive is safe but not collaborative. The format needs sanitized portability so others can skim it, fork it, audit it, and build from it without inheriting the whole messy chat history.", "killed_at": "2026-04-29T06:58:16Z", "timestamp": "2026-04-29T06:58:16Z"},
+    {"id": "multiplayer.c", "agent": "multiplayer", "type": "revision", "parent": "multiplayer.b", "content": "Make LoopThing a multiplayer proof-of-work artifact for exploratory AI projects: readable session history, reasons, outputs, and fork points.", "supersedes": "multiplayer.c.kill", "why_won": "It gives non-linear idea work a handoff format. Another person can understand the path, not only inspect the result.", "timestamp": "2026-04-29T06:58:23Z"},
+    {"id": "multiplayer.d", "agent": "multiplayer", "type": "synthesis", "parent": "multiplayer.c", "content": "The modern primitive is the chat. LoopThing makes that primitive readable enough to share.", "timestamp": "2026-04-29T06:58:30Z"}
   ],
   "edges": [
-    {"from": "lock.a", "to": "lock.b", "kind": "branch"},
-    {"from": "lock.b", "to": "lock.c.kill", "kind": "pruned"},
-    {"from": "lock.b", "to": "lock.c", "kind": "branch"},
-    {"from": "lock.c", "to": "lock.d", "kind": "branch"},
-    {"from": "craft.a", "to": "craft.b", "kind": "branch"},
-    {"from": "craft.b", "to": "craft.c.kill", "kind": "pruned"},
-    {"from": "craft.b", "to": "craft.c", "kind": "branch"},
-    {"from": "craft.c", "to": "craft.d", "kind": "branch"},
-    {"from": "infra.a", "to": "infra.b", "kind": "branch"},
-    {"from": "infra.b", "to": "infra.c.kill", "kind": "pruned"},
-    {"from": "infra.b", "to": "infra.c", "kind": "branch"},
-    {"from": "infra.c", "to": "infra.d", "kind": "branch"},
-    {"from": "canon.a", "to": "canon.b", "kind": "branch"},
-    {"from": "canon.b", "to": "canon.c.kill", "kind": "pruned"},
-    {"from": "canon.b", "to": "canon.c", "kind": "branch"},
-    {"from": "canon.c", "to": "canon.d", "kind": "branch"},
-    {"from": "lock.c", "to": "infra.c", "kind": "cites", "reason": "Owning the loop exposes the shared primitives that infrastructure can standardize."},
-    {"from": "craft.c", "to": "infra.c", "kind": "cites", "reason": "Inspectable craft depends on executable schemas, manifests, and tool contracts."},
-    {"from": "canon.c", "to": "lock.c", "kind": "cites", "reason": "Unix-style composability only matters if the runner, prompts, tools, and providers stay open."}
+    {"from": "format.a", "to": "format.b", "kind": "branch"},
+    {"from": "format.b", "to": "format.c.kill", "kind": "pruned"},
+    {"from": "format.b", "to": "format.c", "kind": "branch"},
+    {"from": "format.c", "to": "format.d", "kind": "branch"},
+    {"from": "editorial.a", "to": "editorial.b", "kind": "branch"},
+    {"from": "editorial.b", "to": "editorial.c.kill", "kind": "pruned"},
+    {"from": "editorial.b", "to": "editorial.c", "kind": "branch"},
+    {"from": "editorial.c", "to": "editorial.d", "kind": "branch"},
+    {"from": "artifacts.a", "to": "artifacts.b", "kind": "branch"},
+    {"from": "artifacts.b", "to": "artifacts.c.kill", "kind": "pruned"},
+    {"from": "artifacts.b", "to": "artifacts.c", "kind": "branch"},
+    {"from": "artifacts.c", "to": "artifacts.d", "kind": "branch"},
+    {"from": "multiplayer.a", "to": "multiplayer.b", "kind": "branch"},
+    {"from": "multiplayer.b", "to": "multiplayer.c.kill", "kind": "pruned"},
+    {"from": "multiplayer.b", "to": "multiplayer.c", "kind": "branch"},
+    {"from": "multiplayer.c", "to": "multiplayer.d", "kind": "branch"},
+    {"from": "format.c", "to": "editorial.c", "kind": "cites", "reason": "Once LoopThing is a file format, the key design question becomes what cleaned-up version of the session belongs in the file."},
+    {"from": "editorial.c", "to": "artifacts.c", "kind": "cites", "reason": "The sanitized prompt trail becomes the spine that can organize slides, docs, prototypes, code, and raw material."},
+    {"from": "artifacts.c", "to": "multiplayer.c", "kind": "cites", "reason": "Portable artifact bundles are what make exploratory AI work shareable, forkable, and useful to collaborators."}
+  ],
+  "artifacts": [
+    {"id": "prompt", "path": "PROMPT.md", "kind": "prompt", "description": "The refined prompt for building the LoopThing of LoopThing itself."},
+    {"id": "viewer", "path": "index.html", "kind": "prototype", "description": "The static viewer that reads a .loopthing artifact."},
+    {"id": "self", "path": "loopthing.loopthing", "kind": "trace", "description": "The self-referential LoopThing trace."},
+    {"id": "sample-openclaw", "path": "openclaw.loopthing", "kind": "sample", "description": "Earlier OpenClaw origin trace kept as a secondary example."}
   ]
 }
   </script>
@@ -721,7 +759,7 @@
     async function loadData() {
       if (location.protocol !== "file:") {
         try {
-          const response = await fetch("openclaw.loopthing", { cache: "no-store" });
+          const response = await fetch("loopthing.loopthing", { cache: "no-store" });
           if (response.ok) return response.json();
         } catch (error) {
           /* Direct file opening uses the embedded copy below. */
@@ -730,10 +768,10 @@
       return JSON.parse(document.getElementById("embedded-loopthing").textContent);
     }
 
-    function setEmptyState(message = "repo staged") {
+    function setEmptyState(message = "session staged") {
       document.getElementById("topMeta").textContent = message;
       document.getElementById("agentList").innerHTML = "";
-      document.getElementById("cards").innerHTML = '<div class="empty-pane">awaiting repository</div>';
+      document.getElementById("cards").innerHTML = '<div class="empty-pane">awaiting session</div>';
       document.getElementById("details").innerHTML = '<div class="empty-pane">.loopthing will populate here</div>';
       d3.select("#graph").selectAll("*").remove();
     }
@@ -743,16 +781,16 @@
       nodeById = new Map(data.nodes.map(node => [node.id, node]));
       activeAgentId = data.agents[0].id;
       selectedNodeId = defaultNodeForAgent(activeAgentId).id;
-      repoInput.value = data.meta.source_url || repoInput.value;
+      repoInput.value = data.meta.source_label || data.meta.source_url || repoInput.value;
       render();
       startWalk();
     }
 
     function submitRepo(event) {
       event.preventDefault();
-      const repo = repoInput.value.trim();
-      if (!repo) {
-        setEmptyState("repo required");
+      const source = repoInput.value.trim();
+      if (!source) {
+        setEmptyState("session required");
         repoInput.focus();
         return;
       }
@@ -843,7 +881,9 @@
 
     function renderTopMeta() {
       const kills = countType("kill");
-      document.getElementById("topMeta").textContent = `${data.agents.length} agents · ${data.nodes.length} nodes · ${kills} kills`;
+      const artifactCount = data.artifacts?.length || 0;
+      const artifactMeta = artifactCount ? ` · ${artifactCount} artifacts` : "";
+      document.getElementById("topMeta").textContent = `${data.agents.length} agents · ${data.nodes.length} nodes · ${kills} kills${artifactMeta}`;
     }
 
     function depthFor(node, memo = new Map()) {
@@ -988,6 +1028,14 @@
             </li>
           `).join("")}</ul>`
         : `<p class="detail-copy">No pruned siblings recorded near this node.</p>`;
+      const artifactHtml = data.artifacts?.length
+        ? `<ul class="artifact-list">${data.artifacts.map(item => `
+            <li class="artifact-item">
+              <strong>${escapeHtml(item.path)}</strong>
+              <span>${escapeHtml(item.kind)} · ${escapeHtml(item.description)}</span>
+            </li>
+          `).join("")}</ul>`
+        : `<p class="detail-copy">No artifact bundle recorded.</p>`;
 
       document.getElementById("details").innerHTML = `
         <section class="detail-section">
@@ -1008,6 +1056,10 @@
         <section class="detail-section">
           <h2 class="rail-title">Pruned Siblings</h2>
           ${prunedHtml}
+        </section>
+        <section class="detail-section">
+          <h2 class="rail-title">Artifact Bundle</h2>
+          ${artifactHtml}
         </section>
       `;
     }
