@@ -1,4 +1,4 @@
-# Killed Directions
+# Discarded Ideas
 
 Killed branches are not embarrassing. They are evidence of judgment.
 
@@ -33,3 +33,11 @@ Reason: JSON is good for machines, but the product is a portable knowledge artif
 ```
 
 Reason: summaries hide the important parts: reversals, branches, critique, taste, and why certain paths were abandoned.
+
+## Killed: Preserve Without Generating
+
+```diff
+- Treat LoopThing as a container that only stores what already exists.
+```
+
+Reason: preservation is not enough. The valuable product move is generating new explainers and artifacts from the session so the recipient can understand the work without reconstructing the context themselves.

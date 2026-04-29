@@ -1,41 +1,61 @@
-format: loopthing/container-v0.3
+format: loopthing/container-v0.4
 title: The Missing Artifact
-kind: portable-thinking-container
+kind: rich-ai-work-container
 created: 2026-04-29T07:18:00Z
-entry: User Prompts/Master Prompt.md
+entry: Prompts/Master Prompt.md
 origin: OpenAI Codex hackathon demo
 mimetype: application/vnd.loopthing+zip
 
 summary:
-  A .loopthing is a single portable container for AI work: a forkable,
-  auditable record of the user prompts, decisions, killed branches,
-  journey map, and artifacts behind how an idea arrived.
+  A .loopthing is a rich portable file for AI work: prompts, follow-ups,
+  discarded ideas, rough drafts, generated explainers, screenshots, docs,
+  slides, prototypes, and code that show how an idea arrived.
+
+generator:
+  input: messy AI chat session
+  output: net new artifacts and explainers for sharing the work
+  promise: make the creator look clear, deliberate, intelligent, and easy to learn from
 
 lineage:
   - Began as a static OpenAI Codex hackathon viewer.
   - Used OpenClaw as the first source artifact.
   - Tried a GitHub repo input direction.
   - Killed "LoopThing a repo" because the repo is not the thinking process.
-  - Landed on a portable container whose spine is user prompts plus artifacts.
+  - Became a portable rich-file container for AI work.
+  - Added generated explainers as a core function, not a side effect.
 
 principles:
-  - One .loopthing file is the shareable container
-  - loopthing-source/ is only the unpacked editing source
-  - User Prompts is the canonical spine
-  - Not a raw chat dump
-  - Not a repo diff
-  - Killed branches make the sharer look clearer, not messier
-  - Produced artifacts travel with the thought process
+  - One .loopthing file is the shareable container.
+  - loopthing-source/ is only the unpacked editing source.
+  - Prompts are the canonical spine.
+  - The container generates context artifacts, not just summaries.
+  - Discarded ideas make the sharer look clearer, not messier.
+  - Screenshots, docs, slides, prototypes, and code travel with the thought process.
 
 files:
-  - User Prompts/Master Prompt.md
-  - User Prompts/Raw User Prompts.md
-  - User Prompts/Prompt Change Log.md
-  - Thought Process/Sanitized Thought Process.md
-  - Thought Process/Journey Map.md
-  - Thought Process/Killed Directions.md
-  - Thought Process/Container Format.md
+  - Prompts/Master Prompt.md
+  - Prompts/Initial Prompt.md
+  - Prompts/Follow Ups.md
+  - Prompts/Prompt Change Log.md
+  - Thinking/Process Narrative.md
+  - Thinking/Journey Map.md
+  - Thinking/Discarded Ideas.md
+  - Drafts/Rough Drafts.md
+  - Generated Explainers/Problem Statement.md
+  - Generated Explainers/Solution Overview.md
+  - Generated Explainers/How It Works.md
+  - Generated Explainers/Relevant Context.md
+  - Generated Explainers/Share Brief.md
+  - Artifacts/Screenshots/README.md
+  - Artifacts/Screenshots/01-package-start.png
+  - Artifacts/Screenshots/02-lineage-track-changes.png
+  - Artifacts/Screenshots/03-thought-graph.png
+  - Artifacts/Screenshots/04-slide-artifact.png
+  - Artifacts/Screenshots/05-viewer-code-artifact.png
+  - Artifacts/Screenshots/06-generated-explainer.png
+  - Artifacts/Docs/Container Format.md
   - Artifacts/Slides/Problem Solution How It Works.html
-  - Artifacts/Viewer Repo/README.md
-  - Artifacts/Viewer Repo/index.html
+  - Artifacts/Prototypes/Viewer Prototype.html
+  - Artifacts/Code/Viewer Repo/README.md
+  - Artifacts/Code/Viewer Repo/index.html
   - Artifacts/One Liner.md

@@ -11,6 +11,7 @@ OpenAI Codex hackathon
   -> killed: LoopThing a GitHub repo
   -> file format for AI work
   -> portable container
+  -> generated explainers
   -> shareable proof of thought
 ```
 
@@ -51,3 +52,9 @@ Why it matters: people understand the difference between a working folder and a 
 The final idea is a container that makes exploratory thinking look intentional: user prompts, prompt changes, killed branches, reasons, journey map, and artifacts.
 
 Why it wins: it turns messy process into something skimmable, forkable, and confidence-building.
+
+### 7. Generated Context
+
+The latest move is that LoopThing does not merely store the loop. It generates new artifacts from it: problem statements, solution explainers, relevant context, slides, screenshots, prototypes, and code views.
+
+Why it wins: this makes the file useful to the recipient immediately, like a rich PDF for AI work.

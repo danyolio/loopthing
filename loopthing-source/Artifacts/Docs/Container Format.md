@@ -10,9 +10,11 @@ This example began as an OpenAI Codex hackathon demo and briefly tried a GitHub-
 
 - `mimetype`: `application/vnd.loopthing+zip`
 - `manifest.loop`: metadata and entrypoint
-- `User Prompts/`: master prompt, raw user prompts, and one-line change log
-- `Thought Process/`: sanitized process, journey map, killed directions, format notes
-- `Artifacts/`: slides, docs, code, prototypes, webpages, references
+- `Prompts/`: master prompt, initial prompt, follow-ups, and one-line change log
+- `Thinking/`: sanitized process, journey map, and discarded ideas
+- `Drafts/`: rough drafts and intermediate shapes
+- `Generated Explainers/`: problem statement, solution overview, how it works, relevant context, share brief
+- `Artifacts/`: screenshots, docs, slides, prototypes, code, references
 
 ## Optional
 
@@ -22,7 +24,7 @@ This example began as an OpenAI Codex hackathon demo and briefly tried a GitHub-
 
 ## Canonical Spine
 
-The canonical spine is `User Prompts`.
+The canonical spine is `Prompts`.
 
 AI responses can be included as supporting material, but they are not the primary proof. The container should show what the human asked, how the direction changed, what got killed, and which artifacts shipped.
 
@@ -30,15 +32,20 @@ AI responses can be included as supporting material, but they are not the primar
 
 A single JSON file is good for machines. A folder is good while editing. Neither feels like the artifact you hand to another person.
 
-The `.loopthing` container carries multiple artifact types:
+The `.loopthing` container carries and generates multiple artifact types:
 
 - markdown prompts
+- follow-ups
 - prompt change logs
 - journey maps
-- killed directions
+- discarded ideas
+- rough drafts
+- generated explainers
+- screenshots
+- docs
 - slides
-- code
 - prototypes
+- code
 - exports
 
 The `.loopthing` extension marks the whole container as one portable thinking artifact.

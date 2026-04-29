@@ -66,7 +66,7 @@
     .app {
       min-height: 100vh;
       display: grid;
-      grid-template-columns: 270px minmax(0, 1fr) 290px;
+      grid-template-columns: 282px minmax(0, 1fr) 292px;
       grid-template-rows: 48px minmax(0, 1fr) 38px;
       border: .5px solid var(--line);
       background: var(--panel);
@@ -123,7 +123,7 @@
 
     .session-form {
       flex: 1 1 420px;
-      max-width: 640px;
+      max-width: 650px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -278,7 +278,7 @@
 
     .doc,
     .journey {
-      max-width: 940px;
+      max-width: 960px;
       margin: 0 auto;
       padding: 24px;
       border: .5px solid var(--line);
@@ -355,6 +355,16 @@
     .html-frame {
       width: 100%;
       height: min(720px, calc(100vh - 150px));
+      border: .5px solid var(--line);
+      border-radius: 8px;
+      background: white;
+    }
+
+    .image-frame {
+      display: block;
+      max-width: 100%;
+      max-height: calc(100vh - 150px);
+      margin: 0 auto;
       border: .5px solid var(--line);
       border-radius: 8px;
       background: white;
@@ -451,7 +461,7 @@
     @media (max-width: 980px) {
       body { overflow: auto; }
       .app {
-        grid-template-columns: 220px minmax(0, 1fr);
+        grid-template-columns: 230px minmax(0, 1fr);
         grid-template-rows: 72px minmax(640px, auto) auto 38px;
       }
       .topbar { flex-wrap: wrap; align-content: center; gap: 7px 10px; }
@@ -474,14 +484,14 @@
       <div class="filename">loopthing.loopthing</div>
       <form class="session-form" id="sessionForm">
         <label for="sessionInput">container</label>
-        <input id="sessionInput" value="LoopThing of LoopThing" autocomplete="off" spellcheck="false">
+        <input id="sessionInput" value="LoopThing rich file" autocomplete="off" spellcheck="false">
       </form>
-      <div class="meta" id="packageMeta">portable container staged</div>
+      <div class="meta" id="packageMeta">rich artifact staged</div>
     </header>
 
     <aside class="sidebar">
       <h2 class="section-title">Container</h2>
-      <p class="package-note">A .loopthing is one shareable file. This viewer shows the unpacked contents so the thinking loop feels clean, inspectable, and easy to fork.</p>
+      <p class="package-note">LoopThing turns a messy AI session into a rich shareable file: prompts, follow-ups, discarded ideas, drafts, generated explainers, screenshots, docs, slides, prototypes, and code.</p>
       <div class="tree" id="fileTree"></div>
     </aside>
 
@@ -491,66 +501,53 @@
         <strong id="pathText">awaiting container</strong>
       </div>
       <section class="content" id="content">
-        <div class="empty">press Enter to open the container</div>
+        <div class="empty">press Enter to open the rich file</div>
       </section>
     </main>
 
     <aside class="inspector" id="inspector"></aside>
 
     <footer class="footer">
-      <span>one file - user prompts - journey map - artifacts</span>
-      <span>the thinking ships too</span>
+      <span>rich PDF for AI work - prompts - explainers - artifacts - code</span>
+      <span>make the thinking easy to share</span>
     </footer>
   </div>
 
   <script>
     const packageFiles = [
       {
-        path: "User Prompts/Master Prompt.md",
+        path: "Prompts/Master Prompt.md",
         kind: "master prompt",
-        group: "User Prompts",
+        group: "Prompts",
         description: "The clean prompt someone could use to recreate the project without reading the whole chat.",
         content: `# Master Prompt
 
 Build the LoopThing of LoopThing itself.
 
-A .loopthing is a portable container file for AI work. It packages the user prompts, cleaned thought process, journey map, killed directions, and produced artifacts that explain how an idea arrived.
+A .loopthing is a rich portable container file for AI work. It turns a chat session into generated explainers and artifacts that help another person understand, visualize, and appreciate the thinking behind a project.
 
-The demo should make the sharer look thoughtful, not messy. It should turn a chaotic AI session into something another person can skim, trust, fork, and learn from.
-
-## Product Shape
-
-Create a static viewer for loopthing.loopthing, the actual container file.
-
-The repo may keep loopthing-source/ as the unpacked source tree so GitHub can display the contents, but the artifact people share is the single loopthing.loopthing file.
+The demo should make the sharer look thoughtful, not messy. It should turn a chaotic AI session into something another person can skim, trust, fork, and learn from. The creator should feel powerful sharing it, like sending a modern PDF or slide deck that also contains prompts, code, screenshots, prototypes, and provenance.
 
 ## Container Contents
 
-- User Prompts: the master prompt, raw user prompts, and a one-line change log for each later user direction.
-- Thought Process: the sanitized narrative, journey map, killed directions, and container format.
-- Artifacts: slides, viewer repo code, and the one-liner.
-- Container: manifest and filetype metadata.
-
-## Must Communicate
-
-LoopThing began as an OpenAI Codex hackathon demo. It first used OpenClaw as the source artifact, then briefly explored "LoopThing a GitHub repo." That branch was killed because a repo is an output, not the thinking loop.
-
-The winning idea is that AI work needs a filetype for the loop itself.
+- Prompts: the master prompt, initial prompt, follow-ups, and a one-line change log.
+- Thinking: the sanitized narrative, journey map, and discarded ideas.
+- Drafts: rough drafts that show the idea getting better.
+- Generated Explainers: problem statement, solution overview, how it works, relevant context, and share brief.
+- Artifacts: screenshots, docs, slides, prototypes, code, and the one-liner.
 
 ## One-Liner
 
-A .loopthing is a portable file for AI work: the prompts, decisions, killed branches, journey map, and artifacts behind how an idea arrived.`
+A .loopthing is a rich portable file for AI work: prompts, follow-ups, discarded ideas, drafts, generated explainers, screenshots, docs, slides, prototypes, and code that show how an idea arrived.`
       },
       {
-        path: "User Prompts/Raw User Prompts.md",
-        kind: "raw prompts",
-        group: "User Prompts",
-        description: "High-signal raw user prompts from this exact chat thread.",
-        content: `# Raw User Prompts
+        path: "Prompts/Initial Prompt.md",
+        kind: "initial prompt",
+        group: "Prompts",
+        description: "The first user prompt that started the loop.",
+        content: `# Initial Prompt
 
-This file keeps the high-signal raw user prompts from this chat thread. The one-line summary of each subsequent direction lives in Prompt Change Log.md.
-
-## True Initial Prompt
+The project started as an OpenAI Codex hackathon sprint.
 
 \`\`\`text
 Build a static, single-page demo viewer for a .loopthing file in 5 minutes.
@@ -558,14 +555,25 @@ No build step, no backend, no framework - just index.html + one openclaw.loopthi
 Must open in a browser by minute 6.
 \`\`\`
 
-## Key Corrections
+The seed definition was already there:
+
+\`\`\`text
+GitHub tracks how code changed. loopThing tracks how an idea arrived.
+Every commit in git is a diff between two states of code.
+But ideas don't arrive as diffs - they arrive as loops.
+\`\`\``
+      },
+      {
+        path: "Prompts/Follow Ups.md",
+        kind: "follow-ups",
+        group: "Prompts",
+        description: "The later user directions that changed the product.",
+        content: `# Follow Ups
+
+Follow-ups are first-class primitives in AI work. They are where the idea actually changes.
 
 \`\`\`text
 make the actual file .loopthing instead of the .json.
-\`\`\`
-
-\`\`\`text
-A .loopthing is a file format for AI work: a forkable, auditable record of the looping thoughts, branches, killed ideas, and revisions behind how an idea arrived.
 \`\`\`
 
 \`\`\`text
@@ -578,132 +586,272 @@ a .loopthing is NOT a json file. it is a collection of multiple types of files a
 
 \`\`\`text
 It looks like loopthing.loopthing is a FOLDER not an actual container or filetype.
+\`\`\`
+
+\`\`\`text
+the loopthing itself GENERATES net new artefacts and explainers.
 \`\`\``
       },
       {
-        path: "User Prompts/Prompt Change Log.md",
+        path: "Prompts/Prompt Change Log.md",
         kind: "change log",
-        group: "User Prompts",
+        group: "Prompts",
         description: "One-line summaries of later user directions.",
         content: `# Prompt Change Log
 
-Each line summarizes one user-authored direction from this chat thread. AI responses are supporting material, not the canonical spine.
+Each line summarizes one user-authored direction from this chat thread.
 
 \`\`\`diff
 + Start with an OpenAI Codex hackathon demo that opens in a browser fast.
 + Use OpenClaw as the first source artifact and simulate the missing thought process.
 + Add an input so pressing Enter on the OpenClaw repo populates the viewer.
-+ Commit the demo to the GitHub repo.
-+ Make the repo more professional and make the file .loopthing, not .json.
-+ Refine the title and TLDR until "file format" becomes the strongest phrase.
-+ Simplify the explanation to "looping of thoughts."
-+ Treat LoopThing as safe portability and version control for knowledge.
-- Do not reduce LoopThing to a chat summary.
++ Make the file .loopthing, not .json.
 - Do not make "LoopThing a repo" the product direction.
 + Make the unit an exploratory AI session, not a GitHub repository.
-+ Treat .loopthing as a collection of artifacts: prompts, slides, docs, code, webpage, and sanitized thought process.
-+ Make the viewer feel like an OS for browsing the package.
-+ Start from the sanitized prompt.
-+ Include true initial prompts and line-by-line user-input changes.
-+ Capture the hackathon origin and killed GitHub-repo branch explicitly.
-+ Make .loopthing feel like an actual portable container file, not just a folder.
-+ Rename confusing structures into simple ones: User Prompts, Thought Process, Journey Map, Artifacts.
++ Make .loopthing an actual portable container file, not just a folder.
++ Use primitives as the taxonomy: prompts, follow-ups, discarded ideas, rough drafts, screenshots, docs, slides, prototypes, and code.
++ Make LoopThing generate net new explainers and context artifacts, not just preserve a session.
 \`\`\``
       },
       {
-        path: "Thought Process/Sanitized Thought Process.md",
-        kind: "sanitized process",
-        group: "Thought Process",
-        description: "The cleaned explanation of how the idea sharpened.",
-        content: `# Sanitized Thought Process
-
-The original pressure was a hackathon constraint: build a static demo fast enough to show in a browser.
+        path: "Thinking/Process Narrative.md",
+        kind: "process narrative",
+        group: "Thinking",
+        description: "The cleaned narrative of how the project evolved.",
+        content: `# Process Narrative
 
 The first solution was a viewer for an OpenClaw origin trace. It worked as a demo, but the artifact still felt too much like a JSON data file behind a UI.
 
-The second move was repo-oriented: hit Enter on a GitHub repo and generate the LoopThing. That was useful because it made the demo feel interactive, but it pointed at the wrong unit. A repo is usually an output of the thinking loop. It is not the loop.
+The second move was repo-oriented: hit Enter on a GitHub repo and generate the LoopThing. That made the demo interactive, but it pointed at the wrong unit. A repo is usually an output of the thinking loop. It is not the loop.
 
-The third move was the important one: define .loopthing as a filetype for exploratory AI work. The file contains user prompts, decisions, killed directions, and artifacts. It is not a transcript and not a summary. It is edited provenance.
+The third move was the important one: define .loopthing as a filetype for exploratory AI work.
 
-The current shape is a portable container file.
+The current move is the product insight: LoopThing does not merely preserve the session. It generates net new explainers, visuals, drafts, and artifacts that help someone else understand the work.
 
-This is why the file makes the creator look good. It shows judgment. It does not expose every messy token. It shows the decisions that mattered.`
+This is why the file makes the creator look good. It shows judgment and generates the context needed to appreciate the intelligence of the process.`
       },
       {
-        path: "Thought Process/Journey Map.md",
+        path: "Thinking/Journey Map.md",
         kind: "journey map",
-        group: "Thought Process",
+        group: "Thinking",
         description: "A human-readable flow chart of how the idea became sharper.",
         journey: [
           { title: "Hackathon Spark", color: "var(--blue)", copy: "Build a static demo that opens quickly and explains the missing artifact behind AI work.", why: "Pressure forced a concrete artifact instead of a theory." },
           { title: "OpenClaw Origin Trace", color: "var(--amber)", copy: "Use OpenClaw as the first visible output with a missing thought process.", why: "It showed the gap between final code and idea lineage." },
           { title: "Repo Input Branch", color: "var(--red)", type: "kill", copy: "Paste a GitHub repo and generate a LoopThing.", why: "Killed because a repo is an output, not the thinking loop." },
-          { title: "File Format Shift", color: "var(--green)", copy: "Define .loopthing as the filetype for exploratory AI work.", why: "File formats travel. Features stay inside apps." },
-          { title: "Container Shift", color: "var(--purple)", copy: "Make loopthing.loopthing one portable container, with loopthing-source only as editable source.", why: "People understand a file they can send." },
-          { title: "Shareable Proof", color: "var(--green)", copy: "Package prompts, decisions, killed branches, journey map, and artifacts.", why: "The creator looks clear, deliberate, and worth learning from." }
+          { title: "Container Shift", color: "var(--purple)", copy: "Make loopthing.loopthing one portable file, with loopthing-source only as editable source.", why: "People understand a file they can send." },
+          { title: "Generated Context", color: "var(--green)", copy: "Generate problem statements, solution explainers, relevant context, slides, screenshots, prototypes, and code views.", why: "The recipient gets useful context immediately." },
+          { title: "Shareable Proof", color: "var(--green)", copy: "Package prompts, decisions, discarded ideas, drafts, explainers, and artifacts.", why: "The creator looks clear, deliberate, and worth learning from." }
         ]
       },
       {
-        path: "Thought Process/Killed Directions.md",
-        kind: "killed directions",
-        group: "Thought Process",
+        path: "Thinking/Discarded Ideas.md",
+        kind: "discarded ideas",
+        group: "Thinking",
         description: "The dead ends are preserved because they explain judgment.",
-        content: `# Killed Directions
+        content: `# Discarded Ideas
 
-Killed branches are not embarrassing. They are evidence of judgment.
+Discarded ideas are not embarrassing. They are evidence of judgment.
 
-## Killed: GitHub For Thought
-
-\`\`\`diff
-- Position LoopThing as GitHub for thought.
-\`\`\`
+## Discarded: GitHub For Thought
 
 Reason: memorable, but too loose. GitHub tracks code diffs. LoopThing tracks the user-prompt loop behind exploratory AI work.
 
-## Killed: LoopThing A GitHub Repo
-
-\`\`\`diff
-- Make the core action "paste a repo URL and generate a LoopThing."
-\`\`\`
+## Discarded: LoopThing A GitHub Repo
 
 Reason: a repo is often one artifact created by the thinking process. The .loopthing should track the session, decisions, and artifacts that produced the repo.
 
-## Killed: One JSON File
+## Discarded: Preserve Without Generating
 
-\`\`\`diff
-- Store the whole thing as one JSON document.
-\`\`\`
+Reason: preservation is not enough. The valuable product move is generating new explainers and artifacts from the session so the recipient can understand the work without reconstructing the context themselves.`
+      },
+      {
+        path: "Drafts/Rough Drafts.md",
+        kind: "rough drafts",
+        group: "Drafts",
+        description: "Intermediate framings that show the idea improving.",
+        content: `# Rough Drafts
 
-Reason: JSON is good for machines, but the product is a portable knowledge artifact for humans.`
+## Draft 1: GitHub For Thought
+
+Useful, but too broad. It makes the analogy clear and the product wrong.
+
+## Draft 2: LoopThing A Repo
+
+Demo-friendly, but the repo is usually the output. The process happened before and around it.
+
+## Draft 3: A Folder Of Artifacts
+
+Closer, but still not a filetype. It felt like a project folder with branding.
+
+## Current Draft: Rich PDF For AI Work
+
+A .loopthing is a portable container that generates and carries the explainers, maps, drafts, screenshots, slides, prototypes, and code needed to understand the work.`
+      },
+      {
+        path: "Generated Explainers/Problem Statement.md",
+        kind: "generated explainer",
+        group: "Generated Explainers",
+        description: "A net-new explainer generated from the session.",
+        content: `# Problem Statement
+
+AI work now happens inside chat sessions, but chat sessions are terrible as public artifacts.
+
+Raw chat is too noisy. Final outputs are too compressed.
+
+The missing artifact is a shareable file that turns the session into a readable explanation of the work: what was asked, what changed, what was discarded, what was generated, and what someone else should understand before forking the idea.`
+      },
+      {
+        path: "Generated Explainers/Solution Overview.md",
+        kind: "generated explainer",
+        group: "Generated Explainers",
+        description: "A generated overview that did not exist in the raw chat.",
+        content: `# Solution Overview
+
+A .loopthing is a rich portable file for AI work.
+
+It takes a messy session and generates a clean set of artifacts:
+
+- a master prompt
+- follow-up prompt history
+- discarded ideas and reasons
+- a journey map
+- rough drafts
+- problem and solution explainers
+- relevant context
+- screenshots
+- docs
+- slides
+- prototypes
+- code
+
+The point is not to expose the whole transcript. The point is to generate the right artifacts so another person can understand the thinking and feel the quality of the work.`
+      },
+      {
+        path: "Generated Explainers/How It Works.md",
+        kind: "generated explainer",
+        group: "Generated Explainers",
+        description: "A generated explanation of the mechanism.",
+        content: `# How It Works
+
+1. Start with the session.
+
+2. Extract the user-prompt spine.
+
+3. Generate explainers: problem statements, solution summaries, journey maps, relevant context, and share briefs.
+
+4. Preserve judgment through discarded ideas and reasons.
+
+5. Package prompts, drafts, screenshots, docs, slides, prototypes, code, and generated explainers as one shareable object.`
+      },
+      {
+        path: "Generated Explainers/Relevant Context.md",
+        kind: "generated explainer",
+        group: "Generated Explainers",
+        description: "Relevant analogies and adjacent artifacts generated from the session.",
+        content: `# Relevant Context
+
+## Git
+
+Git tracks code changes. LoopThing tracks the thinking loop that produced the work.
+
+## PDF
+
+A PDF is portable and polished, but mostly static. LoopThing is a rich portable artifact that can include code, screenshots, prototypes, slides, and process.
+
+## Slide Deck
+
+A slide deck explains a story, but usually loses the evidence behind it. LoopThing can include the deck and the provenance.
+
+## Chat Export
+
+A chat export is complete but socially awkward and hard to skim. LoopThing turns the session into generated artifacts that make the author look clear.`
+      },
+      {
+        path: "Generated Explainers/Share Brief.md",
+        kind: "generated explainer",
+        group: "Generated Explainers",
+        description: "A shareable brief for friends, coworkers, judges, and collaborators.",
+        content: `# Share Brief
+
+LoopThing is for the moment when you want to show someone not only what you made, but how smart the path was.
+
+Send a .loopthing when you want a friend, collaborator, coworker, judge, teacher, or future teammate to understand the original idea, the turns it took, the discarded directions, the generated explainers, and the artifacts that shipped.
+
+\`\`\`text
+I did not just prompt until something happened.
+I shaped an idea, made decisions, and packaged the thinking so you can see it.
+\`\`\``
+      },
+      {
+        path: "Artifacts/Screenshots/README.md",
+        kind: "screenshots",
+        group: "Artifacts",
+        description: "Screenshots generated so someone can understand the work visually.",
+        content: `# Screenshots
+
+Screenshots are generated artifacts inside the LoopThing.
+
+They let someone understand the viewer quickly without running the project first.
+
+- 01-package-start.png: container entrypoint
+- 06-generated-explainer.png: generated explainer artifact`
+      },
+      {
+        path: "Artifacts/Screenshots/01-package-start.png",
+        kind: "screenshot",
+        group: "Artifacts",
+        description: "A generated screenshot that explains the container entrypoint visually.",
+        image: "loopthing-source/Artifacts/Screenshots/01-package-start.png"
+      },
+      {
+        path: "Artifacts/Screenshots/06-generated-explainer.png",
+        kind: "screenshot",
+        group: "Artifacts",
+        description: "A generated screenshot showing the net-new explainer artifacts.",
+        image: "loopthing-source/Artifacts/Screenshots/06-generated-explainer.png"
+      },
+      {
+        path: "Artifacts/Docs/Container Format.md",
+        kind: "docs",
+        group: "Artifacts",
+        description: "Container-format notes generated from the product decisions.",
+        content: `# LoopThing Container Format
+
+A .loopthing is a single portable container file.
+
+The source tree is only the unpacked editing source. The shareable artifact is the .loopthing file.
+
+## Required
+
+- Prompts
+- Thinking
+- Drafts
+- Generated Explainers
+- Artifacts
+
+The container carries and generates multiple artifact types: prompts, follow-ups, discarded ideas, rough drafts, generated explainers, screenshots, docs, slides, prototypes, code, and exports.`
       },
       {
         path: "Artifacts/Slides/Problem Solution How It Works.html",
-        kind: "slide artifact",
+        kind: "slides",
         group: "Artifacts",
-        description: "A slide artifact that explains problem, solution, and how the container works.",
+        description: "Generated slides explaining problem, solution, and how it works.",
         external: "loopthing-source/Artifacts/Slides/Problem Solution How It Works.html"
       },
       {
-        path: "Artifacts/Viewer Repo/README.md",
-        kind: "viewer repo",
+        path: "Artifacts/Prototypes/Viewer Prototype.html",
+        kind: "prototype",
         group: "Artifacts",
-        description: "A code artifact carried inside the container.",
-        content: `# Viewer Repo
-
-This folder is the code artifact carried inside the .loopthing.
-
-The full repo-level viewer is index.html at the root of the public GitHub repo. This contained version is a small static viewer example that proves a .loopthing can carry code alongside prompts, slides, and thought process.
-
-## Why It Is Here
-
-Code alone does not explain how the idea arrived. Inside a .loopthing, the code artifact travels with the prompts, journey map, and killed directions that shaped it.`
+        description: "A generated prototype carried inside the rich file.",
+        external: "loopthing-source/Artifacts/Prototypes/Viewer Prototype.html"
       },
       {
-        path: "Artifacts/Viewer Repo/index.html",
-        kind: "code artifact",
+        path: "Artifacts/Code/Viewer Repo/index.html",
+        kind: "code",
         group: "Artifacts",
-        description: "The tiny viewer example bundled as code.",
-        external: "loopthing-source/Artifacts/Viewer Repo/index.html"
+        description: "The viewer code artifact carried with the process.",
+        external: "loopthing-source/Artifacts/Code/Viewer Repo/index.html"
       },
       {
         path: "Artifacts/One Liner.md",
@@ -712,41 +860,26 @@ Code alone does not explain how the idea arrived. Inside a .loopthing, the code 
         description: "The simplest explanation of the filetype.",
         content: `# One Liner
 
-A .loopthing is a portable file for AI work: the prompts, decisions, killed branches, journey map, and artifacts behind how an idea arrived.
-
-## Shorter
-
-A .loopthing packages the thinking loop so the process is readable, portable, and shareable.`
+A .loopthing is a rich portable file for AI work: prompts, follow-ups, discarded ideas, drafts, generated explainers, screenshots, docs, slides, prototypes, and code that show how an idea arrived.`
       },
       {
         path: "manifest.loop",
         kind: "manifest",
         group: "Container",
-        description: "Container metadata and entrypoint.",
-        content: `format: loopthing/container-v0.3
+        description: "Container metadata and generated-file inventory.",
+        content: `format: loopthing/container-v0.4
 title: The Missing Artifact
-kind: portable-thinking-container
-entry: User Prompts/Master Prompt.md
-mimetype: application/vnd.loopthing+zip
+kind: rich-ai-work-container
+entry: Prompts/Master Prompt.md
 
-summary:
-  A .loopthing is a single portable container for AI work.
-
-files:
-  - User Prompts/Master Prompt.md
-  - User Prompts/Raw User Prompts.md
-  - User Prompts/Prompt Change Log.md
-  - Thought Process/Sanitized Thought Process.md
-  - Thought Process/Journey Map.md
-  - Thought Process/Killed Directions.md
-  - Artifacts/Slides/Problem Solution How It Works.html
-  - Artifacts/Viewer Repo/README.md
-  - Artifacts/Viewer Repo/index.html
-  - Artifacts/One Liner.md`
+generator:
+  input: messy AI chat session
+  output: net new artifacts and explainers for sharing the work
+  promise: make the creator look clear, deliberate, intelligent, and easy to learn from`
       }
     ];
 
-    const groups = ["User Prompts", "Thought Process", "Artifacts", "Container"];
+    const groups = ["Prompts", "Thinking", "Drafts", "Generated Explainers", "Artifacts", "Container"];
 
     let containerOpen = false;
     let selectedPath = null;
@@ -841,7 +974,7 @@ files:
       content.innerHTML = `
         <article class="journey">
           <h1>Journey Map</h1>
-          <p>This is the shareable flow of the idea. It shows how the work became sharper without exposing raw chat noise.</p>
+          <p>This shareable map shows how the idea got sharper and where LoopThing generated new context.</p>
           <div class="journey-flow">
             ${file.journey.map((step, index) => `
               <section class="journey-step ${step.type === "kill" ? "kill" : ""}" style="--step-color:${step.color}">
@@ -889,17 +1022,17 @@ files:
           <dl class="kv">
             <dt>path</dt><dd class="mono">${escapeHtml(file?.path || "none")}</dd>
             <dt>kind</dt><dd>${escapeHtml(file?.kind || "")}</dd>
-            <dt>container</dt><dd class="mono">loopthing/container-v0.3</dd>
+            <dt>container</dt><dd class="mono">loopthing/container-v0.4</dd>
             <dt>source files</dt><dd>${packageFiles.length}</dd>
           </dl>
         </section>
         <section class="inspector-box">
           <h2 class="section-title">Why This Matters</h2>
-          <p>${escapeHtml(file?.description || "Open the container to inspect the user prompts, thought process, and artifacts.")}</p>
+          <p>${escapeHtml(file?.description || "Open the rich file to inspect prompts, generated explainers, and artifacts.")}</p>
         </section>
         <section class="inspector-box">
-          <h2 class="section-title">Sharing Thesis</h2>
-          <p>A .loopthing should make the creator look clear and deliberate. It shows the work behind the output without dumping the messy chat.</p>
+          <h2 class="section-title">Sharing Promise</h2>
+          <p>A .loopthing should make the creator look clear, clever, and deliberate. It generates the context someone else needs to appreciate the work.</p>
         </section>
       `;
     }
@@ -914,6 +1047,8 @@ files:
 
       if (file.journey) {
         renderJourney(file);
+      } else if (file.image) {
+        content.innerHTML = `<img class="image-frame" alt="${escapeHtml(file.path)}" src="${escapeHtml(file.image)}">`;
       } else if (file.external) {
         content.innerHTML = `<iframe class="html-frame" title="${escapeHtml(file.path)}" src="${escapeHtml(file.external)}"></iframe>`;
       } else {
@@ -929,8 +1064,8 @@ files:
         return;
       }
       containerOpen = true;
-      packageMeta.textContent = `1 .loopthing file - ${packageFiles.length} source files`;
-      selectFile("User Prompts/Master Prompt.md");
+      packageMeta.textContent = `1 rich .loopthing - ${packageFiles.length} generated/source files`;
+      selectFile("Prompts/Master Prompt.md");
     }
 
     form.addEventListener("submit", openContainer);

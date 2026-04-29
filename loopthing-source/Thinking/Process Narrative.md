@@ -8,13 +8,14 @@ The second move was repo-oriented: hit Enter on a GitHub repo and generate the L
 
 The third move was the important one: define `.loopthing` as a filetype for exploratory AI work. The file contains user prompts, decisions, killed directions, and artifacts. It is not a transcript and not a summary. It is edited provenance.
 
-The current shape is a portable container file:
+The current shape is a rich portable container file:
 
 - user prompts as the spine
 - a master prompt to recreate the project
 - one-line prompt changes for later user directions
 - a journey map that makes the idea easy to explain
 - killed branches with reasons
+- generated explainers that did not exist in the chat
 - artifacts that prove the loop produced something real
 
-This is why the file makes the creator look good. It shows judgment. It does not expose every messy token. It shows the decisions that mattered.
+This is why the file makes the creator look good. It shows judgment. It does not expose every messy token. It generates the problem statement, context, visuals, drafts, and artifacts that help someone else understand the intelligence of the work.

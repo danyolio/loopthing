@@ -10,4 +10,4 @@ The full repo-level viewer is `index.html` at the root of the public GitHub repo
 
 ## Why It Is Here
 
-Code alone does not explain how the idea arrived. Inside a `.loopthing`, the code artifact travels with the prompts, journey map, and killed directions that shaped it.
+Code alone does not explain how the idea arrived. Inside a `.loopthing`, the code artifact travels with prompts, follow-ups, discarded ideas, generated explainers, screenshots, slides, and the journey map that shaped it.

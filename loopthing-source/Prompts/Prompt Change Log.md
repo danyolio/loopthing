@@ -21,10 +21,12 @@ Each line summarizes one user-authored direction from this chat thread. AI respo
 + Capture the hackathon origin and killed GitHub-repo branch explicitly.
 + Make `.loopthing` feel like an actual portable container file, not just a folder.
 + Rename confusing structures into simple ones: User Prompts, Thought Process, Journey Map, Artifacts.
++ Use primitives as the taxonomy: prompts, follow-ups, discarded ideas, rough drafts, screenshots, docs, slides, prototypes, and code.
++ Make LoopThing generate net new explainers and context artifacts, not just preserve a session.
 ```
 
 ## Current Meta Direction
 
-The idea is no longer "show a graph of a chat." It is "ship a file that makes exploratory thinking legible."
+The idea is no longer "show a graph of a chat." It is "ship a rich file that generates the artifacts needed to make exploratory thinking legible."
 
 That is the emotional promise: sharing a `.loopthing` should make the creator look clear, deliberate, and worth learning from.
