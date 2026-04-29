@@ -19,6 +19,28 @@ This example began as an OpenAI Codex hackathon demo. It went through several re
 
 Open `index.html` in a browser. The top bar is prefilled with the sanitized LoopThing feedback session; press `Enter` to open the package browser.
 
+## Screenshots
+
+The viewer opens a `.loopthing` as a browsable package, with the sanitized prompt as the entrypoint.
+
+![LoopThing package start](docs/screenshots/01-package-start.png)
+
+The lineage investigation shows the true initial prompt, the OpenAI Codex hackathon origin, and the killed GitHub-repo direction.
+
+![LoopThing lineage and track changes](docs/screenshots/02-lineage-track-changes.png)
+
+The thought graph keeps the pruned branches visible, including why "LoopThing a GitHub repo" lost.
+
+![LoopThing thought graph](docs/screenshots/03-thought-graph.png)
+
+Generated artifacts travel inside the package too, such as the slide artifact below.
+
+![LoopThing slide artifact](docs/screenshots/04-slide-artifact.png)
+
+The package can also carry working code artifacts, like the tiny viewer example included here.
+
+![LoopThing viewer code artifact](docs/screenshots/05-viewer-code-artifact.png)
+
 ## What It Shows
 
 The viewer renders a `.loopthing` package like a tiny file OS:
