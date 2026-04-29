@@ -1,6 +1,6 @@
 # Journey Map
 
-This is the readable flow of the project. It replaces an esoteric graph with a shareable map of how the idea became sharper.
+This is the readable flow of the project. It replaces an esoteric graph with a shareable whiteboard-style lineage map: boxes, arrows, killed branches, and short reasons.
 
 ## Flow
 
@@ -12,6 +12,7 @@ OpenAI Codex hackathon
   -> documentation-for-agents demo
   -> OpenClaw static viewer
   -> killed: LoopThing a GitHub repo
+  -> chat metadata as primitive
   -> portable .loopthing container
   -> generated explainers and media
   -> rich shareable artifact
@@ -60,3 +61,9 @@ Why it lost: a repo is usually an output of the loop, not the loop itself.
 The winning shape is a single portable `.loopthing` file that contains prompts, decisions, killed branches, generated explainers, media, slides, prototype, and code.
 
 Why it wins: it feels like a modern PDF for AI work, except it carries the evidence and artifacts too.
+
+### 8. Chat Metadata
+
+The source conversation gets counted and tagged: messages, topics, primitives, and artifact families.
+
+Why it matters: someone can understand the shape of the thinking before reading the full prompt spine.

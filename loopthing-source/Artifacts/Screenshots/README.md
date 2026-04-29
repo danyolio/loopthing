@@ -9,8 +9,8 @@ The current README set is captured from the viewer with `loopthing.loopthing` op
 Included examples:
 
 - `01-meta-artifact-stage.png`: artifact-stage overview
-- `02-meta-journey-map.png`: zoomed journey-map lineage
-- `03-meta-problem-statement.png`: zoomed generated problem statement
+- `02-meta-chat-metadata.png`: chat message counts and topic tags
+- `03-meta-journey-map.png`: hand-drawn journey-map lineage
 
 Archived previous sets:
 

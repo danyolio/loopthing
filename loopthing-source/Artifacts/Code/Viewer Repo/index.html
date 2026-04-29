@@ -511,43 +511,199 @@
     .track-line.del { background: rgba(255, 111, 105, .12); color: var(--red); text-decoration: line-through; }
     .track-line.note { color: var(--muted); }
 
-    .journey-grid {
+    .metadata-board {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      gap: 16px;
     }
 
-    .journey-card {
-      min-height: 160px;
-      padding: 14px;
+    .metadata-hero {
+      padding: 20px;
       border: .5px solid var(--line);
-      border-top: 4px solid var(--step-color);
-      border-radius: 13px;
+      border-radius: 16px;
       background: #0d0f0c;
     }
 
+    .metadata-hero h1 {
+      margin: 0 0 14px;
+      color: var(--text);
+      font-size: 36px;
+      line-height: 1;
+    }
+
+    .metadata-hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.48;
+    }
+
+    .metadata-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metadata-stat {
+      min-height: 100px;
+      padding: 14px;
+      border: .5px solid var(--line);
+      border-radius: 14px;
+      background: #11140f;
+    }
+
+    .metadata-stat strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text);
+      font-size: 34px;
+      line-height: 1;
+    }
+
+    .metadata-stat span {
+      display: block;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      line-height: 1.3;
+      text-transform: uppercase;
+    }
+
+    .topic-panel {
+      padding: 16px;
+      border: .5px solid var(--line);
+      border-radius: 16px;
+      background: #0d0f0c;
+    }
+
+    .topic-panel h2 {
+      margin: 0 0 12px;
+      color: var(--text);
+      font-size: 18px;
+    }
+
+    .topic-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .topic-pill {
+      padding: 8px 10px;
+      border: .5px solid color-mix(in srgb, var(--pill) 72%, white 8%);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--pill) 18%, transparent);
+      color: color-mix(in srgb, var(--pill) 82%, white 18%);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .primitive-flow {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .primitive-card {
+      padding: 14px;
+      border: .5px solid var(--line);
+      border-radius: 14px;
+      background: #11140f;
+    }
+
+    .primitive-card strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .primitive-card span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .journey-grid {
+      position: relative;
+      min-width: 0;
+      min-height: 650px;
+      border: 2px solid rgba(31, 33, 28, .86);
+      border-radius: 17px 21px 15px 19px;
+      background:
+        radial-gradient(circle at 30px 30px, rgba(31, 33, 28, .1) 0 1px, transparent 1px),
+        #f7f0df;
+      background-size: 22px 22px, auto;
+      color: #171813;
+      overflow: hidden;
+    }
+
+    .journey-grid::before {
+      content: "lineage map";
+      position: absolute;
+      left: 22px;
+      top: 18px;
+      color: rgba(31, 33, 28, .6);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    .journey-lines {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .journey-lines path {
+      fill: none;
+      stroke: #24251f;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: .7;
+    }
+
+    .journey-lines path.kill-edge {
+      stroke: #bd3831;
+      stroke-dasharray: 9 8;
+    }
+
+    .journey-card {
+      position: absolute;
+      width: 210px;
+      min-height: 122px;
+      padding: 14px;
+      border: 2px solid var(--step-color);
+      border-radius: 15px 18px 13px 20px;
+      background: rgba(255, 251, 239, .94);
+      transform: rotate(var(--tilt, -1deg));
+    }
+
     .journey-card.kill {
-      background: rgba(255, 111, 105, .1);
+      background: #fee5df;
     }
 
     .journey-card strong {
       display: block;
       margin-bottom: 8px;
-      color: var(--text);
+      color: #161711;
       font-size: 16px;
     }
 
     .journey-card p {
       margin: 0 0 10px;
-      color: var(--muted);
+      color: #545044;
       font-size: 13px;
       line-height: 1.45;
     }
 
     .journey-card .why {
       padding-top: 9px;
-      border-top: .5px dashed var(--line);
-      color: #f0ece1;
+      border-top: 1px dashed rgba(31, 33, 28, .35);
+      color: #171813;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 12px;
       line-height: 1.42;
@@ -714,7 +870,8 @@
       .thought-node[data-path="Artifacts/Code/Viewer Repo/index.html"] { left: 34% !important; bottom: 12% !important; }
       .stage-pills { grid-template-columns: 1fr 1fr; }
       .media-grid,
-      .journey-grid { grid-template-columns: 1fr; }
+      .primitive-flow,
+      .metadata-stats { grid-template-columns: 1fr 1fr; }
       .shelf { grid-template-columns: 1fr; }
       .shelf-title { width: auto; }
     }
@@ -859,7 +1016,45 @@
       }
     ];
 
+    const chatMetadata = {
+      source: "LoopThing of this project",
+      stats: [
+        { value: "67", label: "user chat messages" },
+        { value: "14", label: "topic tags" },
+        { value: "3", label: "core primitives" },
+        { value: "5", label: "artifact families" }
+      ],
+      topics: [
+        ["hackathon", "var(--blue)"],
+        ["OpenAI Codex", "var(--blue)"],
+        ["Karpathy", "var(--amber)"],
+        ["LLMWiki", "var(--amber)"],
+        ["OpenClaw", "var(--green)"],
+        ["Ralph Loop", "var(--purple)"],
+        ["file format", "var(--purple)"],
+        ["prompt lineage", "var(--blue)"],
+        ["killed branches", "var(--red)"],
+        ["generated artifacts", "var(--green)"],
+        ["rich PDF", "var(--amber)"],
+        ["viewer UI", "var(--green)"],
+        ["screenshots", "var(--amber)"],
+        ["GitHub", "var(--purple)"]
+      ],
+      primitives: [
+        { title: "Prompt Spine", copy: "Initial ask, follow-ups, and one-line changes." },
+        { title: "Chat Metadata", copy: "Message counts, topics, tags, and source shape." },
+        { title: "Journey Map", copy: "Lineage, killed paths, and why the direction changed." }
+      ]
+    };
+
     const packageFiles = [
+      {
+        path: "Metadata/Chat Messages.md",
+        kind: "chat metadata",
+        accent: "var(--green)",
+        description: "Message counts and topic tags become a primitive, not hidden analytics.",
+        metadata: chatMetadata
+      },
       {
         path: "Prompts/Master Prompt.md",
         kind: "master prompt",
@@ -1001,14 +1196,21 @@ The current shape is a rich portable container: prompts, follow-ups, discarded i
         path: "Thinking/Journey Map.md",
         kind: "journey map",
         accent: "var(--purple)",
-        description: "A human-readable journey map, not an esoteric graph file.",
+        description: "A hand-drawn lineage map, not an esoteric graph file.",
+        lines: [
+          { d: "M236 130 C260 130 278 130 300 130" },
+          { d: "M405 194 C405 206 405 218 405 230" },
+          { d: "M300 292 C276 292 258 292 236 292" },
+          { d: "M130 356 C130 378 130 396 130 416", kind: "kill" },
+          { d: "M236 484 C268 500 288 512 302 528" }
+        ],
         journey: [
-          { title: "Missing Artifact", color: "var(--blue)", copy: "GitHub tracks code, but not how ideas arrive.", why: "Creates a category rather than a feature." },
-          { title: "Karpathy Origin Demo", color: "var(--amber)", copy: "Use LLMWiki as a finished artifact and simulate compression, pedagogy, tooling, and canon origin paths.", why: "Makes origin trace visible." },
-          { title: "Ralph Loop", color: "var(--purple)", copy: "Generate, critique, regenerate, diverge, kill, deepen, and seal.", why: "Gives the product an interaction model." },
-          { title: "Docs For Agents", color: "var(--green)", copy: "Explore what documentation could be when agents read it under constraints.", why: "Shows exploration rather than answer generation." },
-          { title: "Killed Repo Branch", color: "var(--red)", type: "kill", copy: "Paste a GitHub repo and generate a LoopThing.", why: "Killed because a repo is usually an output, not the thinking loop." },
-          { title: "Rich Container", color: "var(--purple)", copy: "Make .loopthing one portable file containing prompts, media, slides, prototype, code, and generated explainers.", why: "People share files, not app state." }
+          { title: "Missing Artifact", color: "var(--blue)", x: 22, y: 70, tilt: -1.2, copy: "GitHub tracks code, not how ideas arrive.", why: "Category, not feature." },
+          { title: "Karpathy Origin Demo", color: "var(--amber)", x: 302, y: 76, tilt: 1.1, copy: "Recover the origin story behind LLMWiki.", why: "Makes thought visible." },
+          { title: "Docs For Agents", color: "var(--green)", x: 302, y: 230, tilt: -1, copy: "Ask what docs become when agents read them.", why: "Exploration, not answers." },
+          { title: "Ralph Loop", color: "var(--purple)", x: 22, y: 230, tilt: 1.4, copy: "Generate, critique, regenerate, judge.", why: "Loop as machinery." },
+          { title: "Killed Repo Branch", color: "var(--red)", type: "kill", x: 22, y: 416, tilt: -1.5, copy: "Paste a GitHub repo and generate a LoopThing.", why: "Repo is output, not process." },
+          { title: "Rich Container", color: "var(--purple)", x: 302, y: 520, tilt: .9, copy: "Package prompts, metadata, explainers, media, slides, prototype, and code.", why: "People share files." }
         ]
       },
       {
@@ -1177,8 +1379,8 @@ Screenshots are generated artifacts inside the LoopThing.
 They tell the product story without requiring someone to run the viewer first. In this repo, they are meta screenshots: the viewer explains the why behind the README and the container itself.
 
 - 01-meta-artifact-stage.png: artifact-stage overview
-- 02-meta-journey-map.png: zoomed journey-map lineage
-- 03-meta-problem-statement.png: zoomed generated problem statement`
+- 02-meta-chat-metadata.png: chat message counts and topic tags
+- 03-meta-journey-map.png: hand-drawn lineage map`
       },
       {
         path: "Artifacts/Screenshots/01-meta-artifact-stage.png",
@@ -1188,18 +1390,18 @@ They tell the product story without requiring someone to run the viewer first. I
         image: "loopthing-source/Artifacts/Screenshots/01-meta-artifact-stage.png"
       },
       {
-        path: "Artifacts/Screenshots/02-meta-journey-map.png",
+        path: "Artifacts/Screenshots/02-meta-chat-metadata.png",
         kind: "png screenshot",
         accent: "var(--amber)",
-        description: "The zoomed journey-map screenshot used in the README.",
-        image: "loopthing-source/Artifacts/Screenshots/02-meta-journey-map.png"
+        description: "The chat-metadata screenshot used in the README.",
+        image: "loopthing-source/Artifacts/Screenshots/02-meta-chat-metadata.png"
       },
       {
-        path: "Artifacts/Screenshots/03-meta-problem-statement.png",
+        path: "Artifacts/Screenshots/03-meta-journey-map.png",
         kind: "png screenshot",
         accent: "var(--amber)",
-        description: "The zoomed generated-explainer screenshot used in the README.",
-        image: "loopthing-source/Artifacts/Screenshots/03-meta-problem-statement.png"
+        description: "The hand-drawn journey-map screenshot used in the README.",
+        image: "loopthing-source/Artifacts/Screenshots/03-meta-journey-map.png"
       },
       {
         path: "Artifacts/Screenshots/01-package-start.png",
@@ -1309,6 +1511,7 @@ generator:
     ];
 
     const shelfFiles = [
+      "Metadata/Chat Messages.md",
       "Prompts/Master Prompt.md",
       "Prompts/Follow Ups.md",
       "Thinking/Journey Map.md",
@@ -1415,13 +1618,54 @@ generator:
     function renderJourney(file) {
       content.innerHTML = `
         <div class="journey-grid">
+          <svg class="journey-lines" viewBox="0 0 540 670" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <marker id="arrowhead" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+                <path d="M0,0 L9,4 L0,8 Z" fill="#24251f"></path>
+              </marker>
+            </defs>
+            ${file.lines.map(line => `<path class="${line.kind === "kill" ? "kill-edge" : ""}" d="${escapeHtml(line.d)}" marker-end="url(#arrowhead)"></path>`).join("")}
+          </svg>
           ${file.journey.map(step => `
-            <section class="journey-card ${step.type === "kill" ? "kill" : ""}" style="--step-color:${step.color}">
+            <section class="journey-card ${step.type === "kill" ? "kill" : ""}" style="--step-color:${step.color}; left:${step.x}px; top:${step.y}px; --tilt:${step.tilt}deg">
               <strong>${escapeHtml(step.title)}</strong>
               <p>${escapeHtml(step.copy)}</p>
               <div class="why">${escapeHtml(step.why)}</div>
             </section>
           `).join("")}
+        </div>
+      `;
+    }
+
+    function renderMetadata(file) {
+      content.innerHTML = `
+        <div class="metadata-board">
+          <section class="metadata-hero">
+            <h1>67 msgs -> 14 topics -> 3 primitives -> 5 artifact families</h1>
+            <p>LoopThing treats chat metadata as a primitive. Message counts, topic tags, and source shape help a new reader understand the work before they open a single artifact.</p>
+          </section>
+          <section class="metadata-stats">
+            ${file.metadata.stats.map(stat => `
+              <div class="metadata-stat">
+                <strong>${escapeHtml(stat.value)}</strong>
+                <span>${escapeHtml(stat.label)}</span>
+              </div>
+            `).join("")}
+          </section>
+          <section class="topic-panel">
+            <h2>Topics Detected</h2>
+            <div class="topic-cloud">
+              ${file.metadata.topics.map(([topic, color]) => `<span class="topic-pill" style="--pill:${color}">${escapeHtml(topic)}</span>`).join("")}
+            </div>
+          </section>
+          <section class="primitive-flow">
+            ${file.metadata.primitives.map(primitive => `
+              <div class="primitive-card">
+                <strong>${escapeHtml(primitive.title)}</strong>
+                <span>${escapeHtml(primitive.copy)}</span>
+              </div>
+            `).join("")}
+          </section>
         </div>
       `;
     }
@@ -1477,7 +1721,9 @@ generator:
       lensTitle.textContent = path.split("/").pop();
       pathText.textContent = path;
 
-      if (file.journey) {
+      if (file.metadata) {
+        renderMetadata(file);
+      } else if (file.journey) {
         renderJourney(file);
       } else if (file.gallery) {
         renderGallery(file);

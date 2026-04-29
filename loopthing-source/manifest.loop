@@ -9,9 +9,9 @@ tagline: The thinking ships too.
 
 summary:
   A .loopthing is a portable exploration tree for AI work: prompts,
-  follow-ups, branches, critiques, killed paths, generated explainers,
-  media, screenshots, docs, slides, prototypes, and code that show how
-  an idea arrived.
+  follow-ups, chat metadata, branches, critiques, killed paths,
+  generated explainers, media, screenshots, docs, slides, prototypes,
+  and code that show how an idea arrived.
 
 generator:
   input: messy AI chat session
@@ -38,6 +38,7 @@ principles:
   - Screenshots, media, docs, slides, prototypes, and code travel with the thought process.
 
 files:
+  - Metadata/Chat Messages.md
   - Prompts/Master Prompt.md
   - Prompts/Initial Prompt.md
   - Prompts/Follow Ups.md
@@ -57,8 +58,8 @@ files:
   - Artifacts/Media/container-cutaway.svg
   - Artifacts/Screenshots/README.md
   - Artifacts/Screenshots/01-meta-artifact-stage.png
-  - Artifacts/Screenshots/02-meta-journey-map.png
-  - Artifacts/Screenshots/03-meta-problem-statement.png
+  - Artifacts/Screenshots/02-meta-chat-metadata.png
+  - Artifacts/Screenshots/03-meta-journey-map.png
   - Artifacts/Screenshots/01-package-start.png
   - Artifacts/Screenshots/02-lineage-track-changes.png
   - Artifacts/Screenshots/03-thought-graph.png
