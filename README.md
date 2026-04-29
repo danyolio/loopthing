@@ -1,20 +1,14 @@
 # LoopThing
 
-LoopThing is a file format for turning AI chat or project history into a shareable artifact that shows how an idea arrived.
+LoopThing is a file format for turning AI chat into a shareable artifact that shows how an idea arrived.
 
-**In this demo:** 67 chat messages and 14 topic tags become 3 primitives and 5 artifact families.
-
-Tagline: **The human is the loop**
+**In this meta demo:** LoopThing itself was created from 67 chat messages across 3 AI tools. `loopthing.loopthing` contains 3 primitives and 5 artifact families.
 
 ## Why It Exists
 
-Have you ever wondered what your boss's initial prompt was?
+Have you ever written "summarize this chat" to share your AI project with a friend, but the response lacked depth?
 
-Have you ever wondered how someone came up with an idea?
-
-Have you ever wanted to share an AI project without dumping the whole messy chat?
-
-LoopThing is for that. You LoopThing a chat session, multiple sessions, or a project workspace. It generates artifacts that demonstrate the thinking: prompts, metadata, maps, discarded ideas, explainers, media, slides, prototypes, and code.
+LoopThing is for that. You LoopThing your messages across multiple chat sessions to generate artifacts that demonstrate your thinking: prompts, metadata, maps, discarded ideas, explainers, media, slides, prototypes, and code.
 
 The final output is not the only artifact. The thinking can ship too.
 
@@ -60,7 +54,7 @@ Chat metadata becomes a primitive: message counts, topic tags, and source-shape 
 
 ![LoopThing chat metadata](docs/screenshots/02-meta-chat-metadata.png)
 
-The journey map is a whiteboard-style lineage view with boxes and arrows.
+The journey map is a whiteboard-style lineage view with boxes and arrows, inspired by Excalidraw's hand-drawn diagram style.
 
 ![LoopThing journey map](docs/screenshots/03-meta-journey-map.png)
 
