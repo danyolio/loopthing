@@ -721,7 +721,7 @@
     async function loadData() {
       if (location.protocol !== "file:") {
         try {
-          const response = await fetch("openclaw.loopthing.json", { cache: "no-store" });
+          const response = await fetch("openclaw.loopthing", { cache: "no-store" });
           if (response.ok) return response.json();
         } catch (error) {
           /* Direct file opening uses the embedded copy below. */
