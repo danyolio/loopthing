@@ -6,7 +6,7 @@ They let someone understand the viewer quickly without running the project first
 
 Included examples:
 
-- `01-package-start.png`: container entrypoint
+- `01-package-start.png`: artifact stage entrypoint
 - `02-lineage-track-changes.png`: true prompt lineage
 - `03-thought-graph.png`: journey map with killed repo branch
 - `04-slide-artifact.png`: generated media gallery

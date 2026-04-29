@@ -1,10 +1,11 @@
-format: loopthing/container-v0.5
+format: loopthing/container-v0.6
 title: The Missing Artifact
 kind: portable-exploration-tree
 created: 2026-04-30T00:24:00+10:00
 entry: Prompts/Master Prompt.md
 origin: OpenAI Codex hackathon demo
 mimetype: application/vnd.loopthing+zip
+tagline: The thinking ships too.
 
 summary:
   A .loopthing is a portable exploration tree for AI work: prompts,
@@ -26,6 +27,7 @@ lineage:
   - Killed "LoopThing a repo" because the repo is not the thinking process.
   - Became a portable rich-file container for AI work.
   - Added generated explainers and media as core functions, not side effects.
+  - Reframed the viewer as an artifact stage rather than a file browser.
 
 principles:
   - One .loopthing file is the shareable container.

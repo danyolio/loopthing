@@ -6,38 +6,22 @@
   <title>loopthing.loopthing</title>
   <style>
     :root {
-      color-scheme: light dark;
-      --bg: #f4f3ee;
-      --panel: #ffffff;
-      --panel-soft: #ecebe5;
-      --text: #191917;
-      --muted: #6f706a;
-      --line: rgba(25, 25, 23, .25);
-      --line-soft: rgba(25, 25, 23, .12);
-      --blue: #356fd1;
-      --green: #1d8f65;
-      --amber: #a96d12;
-      --red: #c8453e;
-      --purple: #8058bd;
-      --ink: #191917;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #111210;
-        --panel: #181917;
-        --panel-soft: #22231f;
-        --text: #efeee8;
-        --muted: #a8a9a2;
-        --line: rgba(239, 238, 232, .28);
-        --line-soft: rgba(239, 238, 232, .13);
-        --blue: #8eaff4;
-        --green: #68c89d;
-        --amber: #dfad61;
-        --red: #ef7c74;
-        --purple: #bf9ae8;
-        --ink: #efeee8;
-      }
+      color-scheme: dark;
+      --bg: #080908;
+      --panel: #10120f;
+      --panel-2: #151712;
+      --text: #f4f1e8;
+      --muted: #a6a296;
+      --dim: #6e6b62;
+      --line: rgba(244, 241, 232, .22);
+      --line-soft: rgba(244, 241, 232, .1);
+      --blue: #79a7ff;
+      --green: #62d192;
+      --amber: #f0b65f;
+      --red: #ff6f69;
+      --purple: #c49bff;
+      --paper: #f6f3ea;
+      --ink: #141512;
     }
 
     * { box-sizing: border-box; }
@@ -63,35 +47,45 @@
       color: inherit;
     }
 
+    button {
+      cursor: pointer;
+    }
+
+    .mono,
+    .filename,
+    .node-id,
+    .path,
+    code,
+    pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
     .app {
       min-height: 100vh;
       display: grid;
-      grid-template-columns: 300px minmax(0, 1fr) 310px;
-      grid-template-rows: 50px minmax(0, 1fr) 40px;
-      border: .5px solid var(--line);
-      background: var(--panel);
-    }
-
-    .topbar,
-    .footer {
-      grid-column: 1 / -1;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: var(--panel-soft);
+      grid-template-rows: 54px minmax(0, 1fr) 112px;
+      background:
+        linear-gradient(90deg, rgba(244, 241, 232, .045) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(244, 241, 232, .045) 1px, transparent 1px),
+        var(--bg);
+      background-size: 64px 64px;
     }
 
     .topbar {
-      padding: 0 14px;
+      display: grid;
+      grid-template-columns: auto minmax(260px, 1fr) auto;
+      align-items: center;
+      gap: 16px;
+      padding: 0 18px;
       border-bottom: .5px solid var(--line);
+      background: rgba(8, 9, 8, .96);
     }
 
-    .footer {
-      justify-content: space-between;
-      padding: 0 14px;
-      border-top: .5px solid var(--line);
-      font-size: 12px;
-      color: var(--muted);
+    .window-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
     }
 
     .traffic {
@@ -103,244 +97,371 @@
     .dot {
       width: 11px;
       height: 11px;
-      border-radius: 999px;
-      border: .5px solid rgba(0, 0, 0, .18);
+      border-radius: 50%;
+      border: .5px solid rgba(0, 0, 0, .34);
     }
 
     .dot.red { background: #ed6a5e; }
     .dot.yellow { background: #f4bf4f; }
     .dot.green { background: #61c554; }
 
-    .mono,
     .filename {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-
-    .filename {
+      color: var(--text);
       font-size: 13px;
       white-space: nowrap;
     }
 
+    .tagline {
+      min-width: 0;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
     .session-form {
-      flex: 1 1 440px;
-      max-width: 720px;
       display: flex;
       align-items: center;
+      justify-content: flex-end;
       gap: 8px;
-      min-width: 220px;
+      min-width: 310px;
     }
 
     .session-form label {
-      color: var(--muted);
+      color: var(--dim);
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 11px;
+      text-transform: uppercase;
     }
 
     .session-form input {
-      width: 100%;
-      height: 29px;
-      padding: 0 9px;
+      width: min(380px, 42vw);
+      height: 30px;
+      padding: 0 10px;
       border: .5px solid var(--line);
-      border-radius: 6px;
+      border-radius: 999px;
       outline: 0;
-      background: var(--panel);
+      background: #0f110e;
+      color: var(--text);
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 12px;
     }
 
-    .meta {
-      margin-left: auto;
-      color: var(--muted);
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
-    .sidebar,
-    .inspector {
+    .stage {
       min-height: 0;
-      overflow: auto;
-      background: var(--panel);
-    }
-
-    .sidebar {
-      border-right: .5px solid var(--line);
-      padding: 14px 10px;
-    }
-
-    .inspector {
-      border-left: .5px solid var(--line);
-      padding: 14px 12px;
-    }
-
-    .section-title {
-      margin: 0 0 8px;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 750;
-      text-transform: uppercase;
-    }
-
-    .package-note {
-      margin: 0 0 12px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.42;
-    }
-
-    .mix {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 7px;
-      margin-bottom: 14px;
+      grid-template-columns: 1fr minmax(430px, 36vw);
+      gap: 18px;
+      padding: 18px;
+      overflow: hidden;
     }
 
-    .mix div {
-      padding: 7px;
-      border: .5px solid var(--line-soft);
-      border-radius: 6px;
-      background: var(--panel-soft);
-    }
-
-    .mix strong {
-      display: block;
-      font-size: 15px;
-    }
-
-    .mix span {
-      display: block;
-      color: var(--muted);
-      font-size: 10px;
-      text-transform: uppercase;
-    }
-
-    .folder {
-      margin-top: 10px;
-      padding: 7px 8px 3px;
-      color: var(--muted);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 11px;
-      text-transform: uppercase;
-    }
-
-    .file-button {
-      width: 100%;
-      min-height: 38px;
-      display: grid;
-      grid-template-columns: 34px minmax(0, 1fr) auto;
-      gap: 8px;
-      align-items: center;
-      padding: 7px 8px;
-      border: .5px solid transparent;
-      border-radius: 6px;
-      background: transparent;
-      text-align: left;
-      cursor: pointer;
-    }
-
-    .file-button:hover,
-    .file-button.active {
-      border-color: var(--line);
-      background: var(--panel-soft);
-    }
-
-    .file-icon {
-      height: 23px;
-      display: grid;
-      place-items: center;
+    .world {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
       border: .5px solid var(--line);
-      border-radius: 4px;
-      background: var(--panel);
-      color: var(--muted);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 50% 48%, rgba(244, 241, 232, .06) 0 1px, transparent 1px),
+        var(--panel);
+      background-size: 18px 18px, auto;
+    }
+
+    .world-head {
+      position: absolute;
+      z-index: 4;
+      top: 24px;
+      left: 26px;
+      width: min(500px, 38%);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--green);
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 9px;
+      font-size: 12px;
       text-transform: uppercase;
     }
 
-    .file-button[data-ext="svg"] .file-icon,
-    .file-button[data-ext="png"] .file-icon { color: var(--green); border-color: color-mix(in srgb, var(--green), transparent 45%); }
-    .file-button[data-ext="html"] .file-icon { color: var(--purple); border-color: color-mix(in srgb, var(--purple), transparent 45%); }
-    .file-button[data-ext="loop"] .file-icon { color: var(--amber); border-color: color-mix(in srgb, var(--amber), transparent 45%); }
+    .world h1 {
+      margin: 0;
+      max-width: 640px;
+      font-size: clamp(48px, 6.8vw, 98px);
+      line-height: .88;
+      letter-spacing: 0;
+    }
 
-    .file-name {
-      overflow-wrap: anywhere;
+    .world-sub {
+      margin: 18px 0 0;
+      max-width: 520px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .file-object {
+      position: absolute;
+      top: 42%;
+      left: 58%;
+      width: min(500px, 38vw);
+      aspect-ratio: 1 / 1.14;
+      transform: translate(-50%, -50%) rotate(-2deg);
+      border: .5px solid rgba(244, 241, 232, .38);
+      border-radius: 26px 26px 34px 34px;
+      background: #f6f3ea;
+      color: var(--ink);
+      overflow: hidden;
+    }
+
+    .file-object::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 82px;
+      height: 82px;
+      border-left: .5px solid rgba(20, 21, 18, .26);
+      border-bottom: .5px solid rgba(20, 21, 18, .26);
+      background: #ded8ca;
+      clip-path: polygon(100% 0, 100% 100%, 0 0);
+    }
+
+    .file-label {
+      position: absolute;
+      top: 28px;
+      left: 30px;
+      right: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      color: #22231f;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+    }
+
+    .file-title {
+      position: absolute;
+      top: 84px;
+      left: 30px;
+      right: 30px;
+      margin: 0;
+      color: #11120f;
+      font-size: 39px;
+      line-height: .95;
+      font-weight: 800;
+    }
+
+    .xray {
+      position: absolute;
+      left: 30px;
+      right: 30px;
+      bottom: 30px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .layer {
+      min-height: 86px;
+      padding: 11px;
+      border: .5px solid rgba(20, 21, 18, .24);
+      border-radius: 11px;
+      background: rgba(255, 255, 255, .44);
+    }
+
+    .layer strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #12130f;
+      font-size: 13px;
+    }
+
+    .layer span {
+      display: block;
+      color: #505147;
+      font-size: 12px;
+      line-height: 1.32;
+    }
+
+    .map-lines {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .map-lines path {
+      fill: none;
+      stroke: rgba(244, 241, 232, .28);
+      stroke-width: 1;
+    }
+
+    .map-lines .kill-line {
+      stroke: var(--red);
+      stroke-dasharray: 8 8;
+      opacity: .72;
+    }
+
+    .thought-node {
+      position: absolute;
+      z-index: 3;
+      width: 188px;
+      min-height: 112px;
+      padding: 12px;
+      border: .5px solid var(--line);
+      border-radius: 14px;
+      background: rgba(16, 18, 15, .92);
+      text-align: left;
+      transition: transform .16s ease, border-color .16s ease, background .16s ease;
+    }
+
+    .thought-node:hover,
+    .thought-node.active {
+      border-color: var(--node-color);
+      background: #181b15;
+      transform: translateY(-3px);
+    }
+
+    .thought-node.kill {
+      opacity: .76;
+      background: rgba(40, 18, 18, .92);
+    }
+
+    .thought-node.kill .node-title {
+      text-decoration: line-through;
+      text-decoration-color: var(--red);
+      text-decoration-thickness: 2px;
+    }
+
+    .node-id {
+      display: block;
+      margin-bottom: 9px;
+      color: var(--node-color);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .node-title {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.12;
+      font-weight: 750;
+    }
+
+    .node-copy {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .stage-pills {
+      position: absolute;
+      z-index: 5;
+      left: 26px;
+      right: 26px;
+      bottom: 22px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stage-pill {
+      min-height: 74px;
+      padding: 12px;
+      border: .5px solid var(--line);
+      border-radius: 14px;
+      background: rgba(8, 9, 8, .68);
+    }
+
+    .stage-pill strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text);
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 12px;
     }
 
-    .kind-pill {
+    .stage-pill span {
+      display: block;
       color: var(--muted);
-      font-size: 10px;
-      text-transform: uppercase;
+      font-size: 12px;
+      line-height: 1.34;
     }
 
-    .workspace {
+    .lens {
       min-width: 0;
       min-height: 0;
       display: grid;
-      grid-template-rows: 46px minmax(0, 1fr);
-      background: var(--bg);
+      grid-template-rows: auto minmax(0, 1fr);
+      border: .5px solid var(--line);
+      border-radius: 18px;
+      background: rgba(16, 18, 15, .96);
+      overflow: hidden;
     }
 
-    .pathbar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 0 14px;
+    .lens-head {
+      padding: 18px 18px 14px;
       border-bottom: .5px solid var(--line);
-      background: var(--panel);
+    }
+
+    .lens-kind {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
       color: var(--muted);
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12px;
-      overflow: hidden;
+      font-size: 11px;
+      text-transform: uppercase;
     }
 
-    .pathbar strong {
+    .lens-title {
+      margin: 0;
       color: var(--text);
-      font-weight: 600;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      font-size: 31px;
+      line-height: 1;
+      overflow-wrap: anywhere;
     }
 
-    .content {
+    .path {
+      margin-top: 12px;
+      color: var(--green);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .lens-body {
       min-height: 0;
       overflow: auto;
-      padding: 20px;
+      padding: 18px;
     }
 
-    .empty {
-      min-height: 100%;
-      display: grid;
-      place-items: center;
-      color: var(--muted);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12px;
-      text-align: center;
-    }
-
-    .doc,
-    .journey,
-    .media-gallery,
-    .media-view {
-      max-width: 1040px;
+    .doc {
+      max-width: 720px;
       margin: 0 auto;
-      padding: 24px;
+      padding: 20px;
       border: .5px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
+      border-radius: 15px;
+      background: #0d0f0c;
     }
 
-    .doc h1,
-    .journey h1,
-    .media-gallery h1 {
-      font-size: 34px;
-      line-height: 1.08;
-      margin: 0 0 14px;
+    .doc h1 {
+      margin: 0 0 16px;
+      color: var(--text);
+      font-size: 38px;
+      line-height: 1;
     }
 
     .doc h2 {
-      margin: 28px 0 10px;
-      font-size: 19px;
+      margin: 26px 0 10px;
+      color: var(--text);
+      font-size: 20px;
     }
 
     .doc h3 {
@@ -351,27 +472,25 @@
     }
 
     .doc p,
-    .doc li,
-    .journey p,
-    .media-gallery p {
+    .doc li {
+      color: #ddd8cc;
       font-size: 15px;
       line-height: 1.55;
     }
 
     .doc ul {
-      margin-top: 0;
-      padding-left: 22px;
+      padding-left: 21px;
     }
 
     .doc pre {
       overflow: auto;
       white-space: pre-wrap;
       overflow-wrap: anywhere;
-      padding: 12px;
+      padding: 14px;
       border: .5px solid var(--line-soft);
-      border-radius: 6px;
-      background: var(--panel-soft);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      border-radius: 12px;
+      background: #1c1f19;
+      color: #f2efe6;
       font-size: 12px;
       line-height: 1.5;
     }
@@ -381,56 +500,84 @@
       grid-template-columns: 28px minmax(0, 1fr);
       gap: 10px;
       padding: 7px 9px;
-      border-radius: 5px;
+      border-radius: 6px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 12px;
       line-height: 1.45;
       white-space: pre-wrap;
     }
 
-    .track-line.add { background: rgba(29, 143, 101, .11); color: var(--green); }
-    .track-line.del { background: rgba(200, 69, 62, .1); color: var(--red); text-decoration: line-through; }
+    .track-line.add { background: rgba(98, 209, 146, .12); color: var(--green); }
+    .track-line.del { background: rgba(255, 111, 105, .12); color: var(--red); text-decoration: line-through; }
     .track-line.note { color: var(--muted); }
 
-    .html-frame {
-      width: 100%;
-      height: min(760px, calc(100vh - 150px));
-      border: .5px solid var(--line);
-      border-radius: 8px;
-      background: white;
+    .journey-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
     }
 
-    .image-frame,
-    .media-view img {
-      display: block;
-      width: 100%;
-      max-height: calc(100vh - 180px);
-      object-fit: contain;
+    .journey-card {
+      min-height: 160px;
+      padding: 14px;
       border: .5px solid var(--line);
-      border-radius: 8px;
-      background: white;
+      border-top: 4px solid var(--step-color);
+      border-radius: 13px;
+      background: #0d0f0c;
+    }
+
+    .journey-card.kill {
+      background: rgba(255, 111, 105, .1);
+    }
+
+    .journey-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text);
+      font-size: 16px;
+    }
+
+    .journey-card p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .journey-card .why {
+      padding-top: 9px;
+      border-top: .5px dashed var(--line);
+      color: #f0ece1;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.42;
     }
 
     .media-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
-      margin-top: 18px;
     }
 
     .media-card {
+      padding: 0;
       border: .5px solid var(--line);
-      border-radius: 8px;
+      border-radius: 14px;
       overflow: hidden;
-      background: var(--panel-soft);
+      background: #0d0f0c;
+      text-align: left;
+    }
+
+    .media-card img,
+    .image-view img {
+      display: block;
+      width: 100%;
+      background: var(--paper);
     }
 
     .media-card img {
-      display: block;
-      width: 100%;
       aspect-ratio: 7 / 4.5;
       object-fit: cover;
-      background: white;
       border-bottom: .5px solid var(--line);
     }
 
@@ -450,163 +597,246 @@
       line-height: 1.35;
     }
 
-    .journey-flow {
+    .image-view {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 12px;
-      margin-top: 18px;
     }
 
-    .journey-step {
-      min-height: 180px;
-      padding: 14px;
+    .image-view img {
+      max-height: calc(100vh - 230px);
+      object-fit: contain;
       border: .5px solid var(--line);
-      border-top: 5px solid var(--step-color);
-      border-radius: 7px;
-      background: var(--panel);
+      border-radius: 14px;
     }
 
-    .journey-step.kill {
-      background: rgba(200, 69, 62, .1);
-      opacity: .78;
+    .html-frame {
+      width: 100%;
+      height: min(760px, calc(100vh - 210px));
+      border: .5px solid var(--line);
+      border-radius: 14px;
+      background: white;
     }
 
-    .step-number {
-      width: 30px;
-      height: 30px;
+    .shelf {
       display: grid;
-      place-items: center;
-      margin-bottom: 10px;
-      border: .5px solid var(--line);
-      border-radius: 999px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12px;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+      padding: 14px 18px;
+      border-top: .5px solid var(--line);
+      background: rgba(8, 9, 8, .97);
+      overflow: hidden;
     }
 
-    .step-copy strong {
+    .shelf-title {
+      width: 170px;
+    }
+
+    .shelf-title strong {
       display: block;
-      margin-bottom: 6px;
-      font-size: 15px;
+      margin-bottom: 4px;
+      color: var(--text);
+      font-size: 13px;
+      text-transform: uppercase;
     }
 
-    .step-copy p {
-      margin: 0 0 10px;
+    .shelf-title span {
+      display: block;
       color: var(--muted);
+      font-size: 12px;
+      line-height: 1.32;
+    }
+
+    .artifact-strip {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .artifact-card {
+      flex: 0 0 172px;
+      height: 78px;
+      padding: 11px;
+      border: .5px solid var(--line);
+      border-left: 5px solid var(--accent);
+      border-radius: 14px;
+      background: var(--panel);
+      text-align: left;
+    }
+
+    .artifact-card.active,
+    .artifact-card:hover {
+      background: #191c16;
+      border-color: var(--accent);
+    }
+
+    .artifact-card strong {
+      display: block;
+      margin-bottom: 5px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--text);
       font-size: 13px;
     }
 
-    .step-copy .why {
-      margin: 0;
-      padding-top: 8px;
-      border-top: .5px dashed var(--line);
-      color: var(--text);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12px;
-      line-height: 1.45;
-    }
-
-    .kv {
-      display: grid;
-      grid-template-columns: 86px minmax(0, 1fr);
-      gap: 7px 9px;
-      margin-bottom: 16px;
-      font-size: 12px;
-      line-height: 1.4;
-    }
-
-    .kv dt {
+    .artifact-card span {
       color: var(--muted);
-    }
-
-    .kv dd {
-      margin: 0;
-      overflow-wrap: anywhere;
-    }
-
-    .inspector-box {
-      margin-bottom: 14px;
-      padding-bottom: 14px;
-      border-bottom: .5px solid var(--line-soft);
-    }
-
-    .inspector-box:last-child {
-      border-bottom: 0;
-      margin-bottom: 0;
-      padding-bottom: 0;
-    }
-
-    .inspector-box p,
-    .inspector-box li {
-      margin: 0;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.45;
-    }
-
-    .inspector-box ul {
-      margin: 0;
-      padding-left: 18px;
+      font-size: 11px;
+      text-transform: uppercase;
     }
 
     @media (max-width: 1100px) {
       body { overflow: auto; }
-      .app {
-        grid-template-columns: 260px minmax(0, 1fr);
-        grid-template-rows: 78px minmax(680px, auto) auto 40px;
-      }
-      .topbar { flex-wrap: wrap; align-content: center; gap: 7px 10px; }
-      .session-form { order: 4; flex-basis: 100%; max-width: none; }
-      .sidebar { grid-column: 1; grid-row: 2; }
-      .workspace { grid-column: 2; grid-row: 2; }
-      .inspector { grid-column: 1 / -1; grid-row: 3; border-left: 0; border-top: .5px solid var(--line); }
-      .footer { grid-row: 4; }
-      .journey-flow,
-      .media-grid { grid-template-columns: 1fr; }
+      .app { min-height: 100vh; grid-template-rows: auto auto auto; }
+      .topbar { grid-template-columns: 1fr; padding: 12px; }
+      .tagline { text-align: left; }
+      .session-form { justify-content: flex-start; min-width: 0; }
+      .session-form input { width: 100%; }
+      .stage { grid-template-columns: 1fr; overflow: visible; }
+      .world { min-height: 780px; }
+      .file-object { width: min(310px, 54vw); top: 59%; left: 50%; }
+      .file-label { top: 20px; left: 20px; right: 72px; font-size: 11px; }
+      .file-title { top: 72px; left: 20px; right: 20px; font-size: 30px; }
+      .xray { left: 20px; right: 20px; bottom: 20px; gap: 7px; }
+      .layer { min-height: 62px; padding: 8px; }
+      .layer strong { margin-bottom: 3px; font-size: 12px; }
+      .layer span { font-size: 11px; }
+      .world-head { width: auto; right: 24px; }
+      .world h1 { max-width: 360px; font-size: 55px; }
+      .world-sub { max-width: 360px; }
+      .thought-node { width: 154px; }
+      .thought-node[data-path="Thinking/Process Narrative.md"] { left: auto !important; right: 8% !important; top: 34% !important; }
+      .thought-node[data-path="Generated Explainers/How It Works.md"] { right: 8% !important; top: 16% !important; }
+      .thought-node[data-path="Thinking/Discarded Ideas.md"] { right: 6% !important; top: 55% !important; }
+      .thought-node[data-path="Artifacts/Media/README.md"] { right: 8% !important; bottom: 14% !important; }
+      .thought-node[data-path="Artifacts/Code/Viewer Repo/index.html"] { left: 34% !important; bottom: 12% !important; }
+      .stage-pills { grid-template-columns: 1fr 1fr; }
+      .media-grid,
+      .journey-grid { grid-template-columns: 1fr; }
+      .shelf { grid-template-columns: 1fr; }
+      .shelf-title { width: auto; }
     }
   </style>
 </head>
 <body>
   <div class="app">
     <header class="topbar">
-      <div class="traffic" aria-hidden="true">
-        <span class="dot red"></span>
-        <span class="dot yellow"></span>
-        <span class="dot green"></span>
+      <div class="window-title">
+        <div class="traffic" aria-hidden="true">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+        </div>
+        <div class="filename">loopthing.loopthing</div>
       </div>
-      <div class="filename">loopthing.loopthing</div>
+      <div class="tagline">The thinking ships too</div>
       <form class="session-form" id="sessionForm">
-        <label for="sessionInput">container</label>
+        <label for="sessionInput">open</label>
         <input id="sessionInput" value="LoopThing rich file" autocomplete="off" spellcheck="false">
       </form>
-      <div class="meta" id="packageMeta">portable artifact staged</div>
     </header>
 
-    <aside class="sidebar">
-      <h2 class="section-title">Container</h2>
-      <p class="package-note">A `.loopthing` is a portable exploration tree: prompts, killed branches, generated explainers, media, slides, prototype, and code in one file.</p>
-      <div class="mix" aria-label="artifact mix">
-        <div><strong>18</strong><span>text</span></div>
-        <div><strong>9</strong><span>images</span></div>
-        <div><strong>3</strong><span>html/code</span></div>
-      </div>
-      <div class="tree" id="fileTree"></div>
-    </aside>
+    <main class="stage">
+      <section class="world" aria-label="LoopThing artifact map">
+        <div class="world-head">
+          <p class="eyebrow">A file for how ideas arrive</p>
+          <h1>The thinking ships too.</h1>
+          <p class="world-sub">A `.loopthing` is a portable exploration tree: prompts, critiques, killed paths, generated explainers, media, slides, prototypes, and code in one file.</p>
+        </div>
 
-    <main class="workspace">
-      <div class="pathbar">
-        <span>loopthing.loopthing /</span>
-        <strong id="pathText">awaiting container</strong>
-      </div>
-      <section class="content" id="content">
-        <div class="empty">press Enter to open the rich file</div>
+        <svg class="map-lines" viewBox="0 0 1000 760" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M180 520 C265 470 300 410 405 360"/>
+          <path d="M405 360 C512 280 603 250 705 214"/>
+          <path d="M405 360 C555 365 654 410 790 452" class="kill-line"/>
+          <path d="M405 360 C500 486 604 570 755 620"/>
+          <path d="M705 214 C780 256 826 318 850 398"/>
+          <path d="M755 620 C676 620 600 612 526 590"/>
+        </svg>
+
+        <div class="file-object" aria-hidden="true">
+          <div class="file-label">
+            <span>loopthing/container-v0.6</span>
+            <span>sealed</span>
+          </div>
+          <p class="file-title">The artifact behind the artifact.</p>
+          <div class="xray">
+            <div class="layer"><strong>Prompts</strong><span>true initial ask, follow-ups, track changes</span></div>
+            <div class="layer"><strong>Judgment</strong><span>discarded branches and why they died</span></div>
+            <div class="layer"><strong>Explain</strong><span>problem, solution, context, share brief</span></div>
+            <div class="layer"><strong>Outputs</strong><span>media, screenshots, slides, prototype, code</span></div>
+          </div>
+        </div>
+
+        <button class="thought-node" style="--node-color:var(--blue); left:6%; top:55%;" data-path="Prompts/Initial Prompt.md">
+          <span class="node-id">prompt.00</span>
+          <span class="node-title">Karpathy origin demo</span>
+          <span class="node-copy">The first idea: recover the missing thought process behind LLMWiki.</span>
+        </button>
+
+        <button class="thought-node" style="--node-color:var(--purple); left:34%; top:12%;" data-path="Thinking/Process Narrative.md">
+          <span class="node-id">loop.01</span>
+          <span class="node-title">Ralph Loop</span>
+          <span class="node-copy">Generate, critique, regenerate, diverge, kill, deepen, seal.</span>
+        </button>
+
+        <button class="thought-node" style="--node-color:var(--green); right:12%; top:16%;" data-path="Generated Explainers/How It Works.md">
+          <span class="node-id">explain.02</span>
+          <span class="node-title">Docs for agents</span>
+          <span class="node-copy">Constraint vectors: covenant, conversation, test suite, theatre.</span>
+        </button>
+
+        <button class="thought-node kill" style="--node-color:var(--red); right:6%; top:47%;" data-path="Thinking/Discarded Ideas.md">
+          <span class="node-id">kill.03</span>
+          <span class="node-title">LoopThing a repo</span>
+          <span class="node-copy">Killed because a repo is output, not the thinking loop.</span>
+        </button>
+
+        <button class="thought-node" style="--node-color:var(--amber); right:15%; bottom:16%;" data-path="Artifacts/Media/README.md">
+          <span class="node-id">media.04</span>
+          <span class="node-title">Generated media</span>
+          <span class="node-copy">Visual explainers make the thought object skimmable.</span>
+        </button>
+
+        <button class="thought-node" style="--node-color:var(--green); left:33%; bottom:12%;" data-path="Artifacts/Code/Viewer Repo/index.html">
+          <span class="node-id">ship.05</span>
+          <span class="node-title">Code travels too</span>
+          <span class="node-copy">The file carries the viewer, slides, prototype, and proof.</span>
+        </button>
+
+        <div class="stage-pills" aria-label="LoopThing stages">
+          <div class="stage-pill"><strong>EXPLORE</strong><span>Agents fan out under constraints.</span></div>
+          <div class="stage-pill"><strong>JUDGE</strong><span>Human kills weak branches with reasons.</span></div>
+          <div class="stage-pill"><strong>DEEPEN</strong><span>Survivors spawn sharper children.</span></div>
+          <div class="stage-pill"><strong>SEAL</strong><span>The whole exploration becomes a file.</span></div>
+        </div>
       </section>
+
+      <aside class="lens" aria-label="Artifact lens">
+        <div class="lens-head">
+          <div class="lens-kind">
+            <span id="lensKind">container</span>
+            <span id="lensCount">24 files</span>
+          </div>
+          <h2 class="lens-title" id="lensTitle">Open the file</h2>
+          <div class="path" id="pathText">press Enter to inspect the thought object</div>
+        </div>
+        <div class="lens-body" id="content">
+          <article class="doc">
+            <h1>The file is the interface.</h1>
+            <p>Press Enter to open `loopthing.loopthing`. The map stays visible while the artifact lens shows prompts, killed branches, media, explainers, slides, prototype, and code.</p>
+          </article>
+        </div>
+      </aside>
     </main>
 
-    <aside class="inspector" id="inspector"></aside>
-
-    <footer class="footer">
-      <span>infrastructure for inheritable thinking</span>
-      <span>portable - forkable - auditable - rich</span>
+    <footer class="shelf">
+      <div class="shelf-title">
+        <strong>Artifact Shelf</strong>
+        <span>A shareable object with evidence inside.</span>
+      </div>
+      <div class="artifact-strip" id="artifactStrip"></div>
     </footer>
   </div>
 
@@ -633,7 +863,7 @@
       {
         path: "Prompts/Master Prompt.md",
         kind: "master prompt",
-        group: "Prompts",
+        accent: "var(--blue)",
         description: "The clean prompt someone could use to recreate this project without reading the full chat.",
         content: `# Master Prompt
 
@@ -654,14 +884,6 @@ This project began as an OpenAI Codex hackathon idea. The earliest version imagi
 
 The shipped static viewer briefly used OpenClaw as a fast source artifact. Later feedback killed the "LoopThing a GitHub repo" branch because a repo is usually an output, not the thought process.
 
-## Product Vocabulary
-
-- Ralph Loop: generate -> critique -> regenerate -> diverge -> kill -> loop again.
-- EXPLORE: agents fan out under different constraint vectors.
-- JUDGE: the human kills weak branches with written reasons.
-- DEEPEN: survivors spawn children that inherit the parent and avoid killed failure modes.
-- SEAL: the exploration becomes a portable .loopthing file.
-
 ## Design Requirement
 
 Do not make the file feel like a pile of markdown. It should feel like opening a rich PDF for AI work: visual, browsable, skimmable, and worth sending to a smart friend or coworker.`
@@ -669,7 +891,7 @@ Do not make the file feel like a pile of markdown. It should feel like opening a
       {
         path: "Prompts/Initial Prompt.md",
         kind: "initial prompt",
-        group: "Prompts",
+        accent: "var(--blue)",
         description: "The true earlier prompt context before the OpenClaw implementation.",
         content: `# Initial Prompt
 
@@ -677,7 +899,6 @@ The true origin was an OpenAI Codex hackathon demo, before the OpenClaw version 
 
 \`\`\`text
 Write a prompt to help me build a demo that can show the most wow parts of my script.
-This must be done in less than 30 minutes.
 Actually loopthing the repo below.
 Use Karpathy's LLMWiki gist.
 Four agents explore origin stories: compression, pedagogy, tooling, canon.
@@ -699,7 +920,7 @@ AI work happens in loops: prompt, response, critique, branch, kill, revise.
       {
         path: "Prompts/Follow Ups.md",
         kind: "follow-ups",
-        group: "Prompts",
+        accent: "var(--blue)",
         description: "Specific user directions from the earlier chats, preserved as the prompt spine.",
         content: `# Follow Ups
 
@@ -708,8 +929,6 @@ Follow-ups are first-class primitives in AI work. This is where the project actu
 ## Earlier Chat Context
 
 \`\`\`text
-Write a prompt to help me build a demo that can show the most wow parts of my script.
-Actually loopthing the repo below.
 Use Karpathy's LLMWiki gist.
 Four agents explore origin stories: compression, pedagogy, tooling, canon.
 Pruned thought is evidence. The losing branch still teaches.
@@ -721,14 +940,6 @@ Pruned thought is evidence. The losing branch still teaches.
 Ralph Loop = the technique.
 loopThing = the artifact.
 Generate -> harsh critique -> regenerate -> force divergence -> kill weak branches -> loop again.
-\`\`\`
-
-## Constraint Vector Demo
-
-\`\`\`text
-Demo question: "What could documentation be when agents read it?"
-Four agents fan out: covenant, conversation, test suite, theatre.
-The user judges, kills one branch with a written reason, deepens a survivor, then seals the file.
 \`\`\`
 
 ## Killed Repo Direction
@@ -749,11 +960,9 @@ It should feel like a modern rich PDF for AI work, with code, graphs, slides, sc
       {
         path: "Prompts/Prompt Change Log.md",
         kind: "change log",
-        group: "Prompts",
+        accent: "var(--blue)",
         description: "One-line track changes across the user input iterations.",
         content: `# Prompt Change Log
-
-Each line is a one-line summary of a user-authored direction.
 
 \`\`\`diff
 + Use Karpathy's LLMWiki gist as the first imagined source artifact.
@@ -763,12 +972,8 @@ Each line is a one-line summary of a user-authored direction.
 + Define loopThing as the artifact: a portable exploration tree.
 + Use the demo question "What could documentation be when agents read it?"
 + Force divergence with covenant, conversation, test suite, theatre.
-+ Collapse the product loop into EXPLORE, JUDGE, DEEPEN, and SEAL.
 + Pivot to a static OpenClaw viewer because it could ship quickly in-browser.
-+ Make the file .loopthing instead of .json.
 - Kill the idea that you LoopThing a GitHub repo.
-+ Reframe the unit as an exploratory AI session.
-+ Make .loopthing a single portable container, not an unpacked folder.
 + Make generated explainers a core output.
 + Add richer media so the artifact does not look like a markdown dump.
 \`\`\``
@@ -776,7 +981,7 @@ Each line is a one-line summary of a user-authored direction.
       {
         path: "Thinking/Process Narrative.md",
         kind: "process narrative",
-        group: "Thinking",
+        accent: "var(--purple)",
         description: "The cleaned narrative of how the project evolved.",
         content: `# Process Narrative
 
@@ -795,23 +1000,21 @@ The current shape is a rich portable container: prompts, follow-ups, discarded i
       {
         path: "Thinking/Journey Map.md",
         kind: "journey map",
-        group: "Thinking",
+        accent: "var(--purple)",
         description: "A human-readable journey map, not an esoteric graph file.",
         journey: [
           { title: "Missing Artifact", color: "var(--blue)", copy: "GitHub tracks code, but not how ideas arrive.", why: "Creates a category rather than a feature." },
           { title: "Karpathy Origin Demo", color: "var(--amber)", copy: "Use LLMWiki as a finished artifact and simulate compression, pedagogy, tooling, and canon origin paths.", why: "Makes origin trace visible." },
           { title: "Ralph Loop", color: "var(--purple)", copy: "Generate, critique, regenerate, diverge, kill, deepen, and seal.", why: "Gives the product an interaction model." },
-          { title: "Docs For Agents", color: "var(--green)", copy: "Explore what documentation could be when agents read it, under covenant, conversation, test suite, and theatre constraints.", why: "Shows exploration rather than answer generation." },
-          { title: "OpenClaw Viewer", color: "var(--blue)", copy: "Ship a static browser demo quickly using OpenClaw as the visible source artifact.", why: "Speed forced a real viewer and a real file." },
+          { title: "Docs For Agents", color: "var(--green)", copy: "Explore what documentation could be when agents read it under constraints.", why: "Shows exploration rather than answer generation." },
           { title: "Killed Repo Branch", color: "var(--red)", type: "kill", copy: "Paste a GitHub repo and generate a LoopThing.", why: "Killed because a repo is usually an output, not the thinking loop." },
-          { title: "Rich Container", color: "var(--purple)", copy: "Make .loopthing one portable file containing prompts, media, slides, prototype, code, and generated explainers.", why: "People share files, not app state." },
-          { title: "Inheritable Thinking", color: "var(--green)", copy: "The recipient can inspect, learn from, and fork the exploration.", why: "The artifact makes the creator look clear and deliberate." }
+          { title: "Rich Container", color: "var(--purple)", copy: "Make .loopthing one portable file containing prompts, media, slides, prototype, code, and generated explainers.", why: "People share files, not app state." }
         ]
       },
       {
         path: "Thinking/Discarded Ideas.md",
         kind: "discarded ideas",
-        group: "Thinking",
+        accent: "var(--red)",
         description: "Killed branches are preserved as evidence of judgment.",
         content: `# Discarded Ideas
 
@@ -836,7 +1039,7 @@ Reason: markdown alone makes the artifact feel like notes. LoopThing needs media
       {
         path: "Drafts/Rough Drafts.md",
         kind: "rough drafts",
-        group: "Drafts",
+        accent: "var(--amber)",
         description: "Intermediate framings that show the idea improving.",
         content: `# Rough Drafts
 
@@ -863,48 +1066,33 @@ A .loopthing generates and carries the explainers, media, maps, drafts, screensh
       {
         path: "Generated Explainers/Problem Statement.md",
         kind: "generated explainer",
-        group: "Generated Explainers",
+        accent: "var(--green)",
         description: "A net-new explainer generated from the session.",
         content: `# Problem Statement
 
 AI work now happens inside chat sessions, but chat sessions are terrible as public artifacts.
 
-Raw chat is too noisy. It contains false starts, half-thoughts, repeated instructions, formatting corrections, and context that made sense only in the moment.
-
-Final outputs are too compressed. A repo, slide deck, document, or prototype shows what shipped, but not how the idea arrived.
+Raw chat is too noisy. Final outputs are too compressed.
 
 The missing artifact is a shareable file that turns the session into a readable explanation of the work: what was asked, what changed, what was discarded, what was generated, and what someone else should understand before forking the idea.`
       },
       {
         path: "Generated Explainers/Solution Overview.md",
         kind: "generated explainer",
-        group: "Generated Explainers",
+        accent: "var(--green)",
         description: "A generated overview that did not exist in the raw chat.",
         content: `# Solution Overview
 
 A .loopthing is a portable exploration tree for AI work.
 
-It takes a messy session and generates a clean set of artifacts:
-
-- master prompt
-- follow-up prompt history
-- discarded ideas and reasons
-- journey map
-- rough drafts
-- generated explainers
-- media diagrams
-- screenshots
-- docs
-- slides
-- prototype
-- code
+It takes a messy session and generates a clean set of artifacts: master prompt, follow-up history, discarded ideas, journey map, rough drafts, generated explainers, media diagrams, screenshots, docs, slides, prototype, and code.
 
 The point is not to expose the whole transcript. The point is to generate the right artifacts so another person can understand the thinking and feel the quality of the work.`
       },
       {
         path: "Generated Explainers/How It Works.md",
         kind: "generated explainer",
-        group: "Generated Explainers",
+        accent: "var(--green)",
         description: "A generated explanation of the mechanism.",
         content: `# How It Works
 
@@ -912,11 +1100,7 @@ The point is not to expose the whole transcript. The point is to generate the ri
 
 The raw material is not a repo. It is the user's prompts, follow-ups, revisions, decisions, and artifacts created during AI work.
 
-## 2. Extract The Prompt Spine
-
-LoopThing treats user direction as the canonical process.
-
-## 3. Run The Ralph Loop
+## 2. Run The Ralph Loop
 
 Agents explore under constraints, critique themselves, regenerate, and diverge from siblings. The human judges what survives.
 
@@ -924,14 +1108,14 @@ Agents explore under constraints, critique themselves, regenerate, and diverge f
 EXPLORE -> JUDGE -> DEEPEN -> SEAL
 \`\`\`
 
-## 4. Generate New Context
+## 3. Generate New Context
 
 LoopThing generates artifacts that did not exist in the chat: problem statements, solution summaries, journey maps, relevant context, share briefs, media diagrams, screenshots, slides, prototypes, and code views.`
       },
       {
         path: "Generated Explainers/Relevant Context.md",
         kind: "generated explainer",
-        group: "Generated Explainers",
+        accent: "var(--green)",
         description: "Relevant analogies and adjacent projects generated from the session.",
         content: `# Relevant Context
 
@@ -949,30 +1133,18 @@ Tree-of-thought style systems explore branches, but the exploration is usually a
 
 ## Agent Audit Trails
 
-Audit logs can record what happened for compliance. LoopThing is designed for inheriting and sharing the thinking, not just proving a system behaved.
-
-## Canonicals
-
-The larger idea includes canonical .loopthing files such as documentation.loopthing, design.loopthing, and pricing.loopthing: starter kits with constraint vocabularies, anti-patterns, and reference branches that others can fork.`
+Audit logs can record what happened for compliance. LoopThing is designed for inheriting and sharing the thinking, not just proving a system behaved.`
       },
       {
         path: "Generated Explainers/Share Brief.md",
         kind: "generated explainer",
-        group: "Generated Explainers",
+        accent: "var(--green)",
         description: "A shareable brief for friends, coworkers, judges, and collaborators.",
         content: `# Share Brief
 
 LoopThing is for the moment when you want to show someone not only what you made, but how smart the path was.
 
-Send a .loopthing when you want a friend, collaborator, coworker, judge, teacher, or future teammate to understand:
-
-- the original idea
-- the turns it took
-- the discarded directions
-- the generated explainers
-- the media and screenshots
-- the docs, slides, prototype, and code
-- why the final version is stronger than the first one
+Send a .loopthing when you want a friend, collaborator, coworker, judge, teacher, or future teammate to understand the original idea, the turns it took, the discarded directions, the generated explainers, the media, the screenshots, the docs, the slides, the prototype, and the code.
 
 \`\`\`text
 I did not just prompt until something happened.
@@ -982,21 +1154,21 @@ I shaped an idea, made decisions, and packaged the thinking so you can see it.
       {
         path: "Artifacts/Media/README.md",
         kind: "media gallery",
-        group: "Media",
+        accent: "var(--amber)",
         description: "Generated media makes the file feel like a rich artifact, not just notes.",
         gallery: mediaItems
       },
       ...mediaItems.map(item => ({
         path: item.path,
         kind: "svg media",
-        group: "Media",
+        accent: "var(--amber)",
         description: item.caption,
         image: `loopthing-source/${item.path}`
       })),
       {
         path: "Artifacts/Screenshots/README.md",
         kind: "screenshots",
-        group: "Artifacts",
+        accent: "var(--amber)",
         description: "Screenshots generated so someone can understand the viewer quickly.",
         content: `# Screenshots
 
@@ -1004,59 +1176,59 @@ Screenshots are generated artifacts inside the LoopThing.
 
 They tell the product story without requiring someone to run the viewer first:
 
-- 01-package-start.png: container entrypoint
+- 01-package-start.png: artifact stage
 - 02-lineage-track-changes.png: true prompt lineage
 - 03-thought-graph.png: journey map
-- 04-slide-artifact.png: media gallery
+- 04-slide-artifact.png: generated media
 - 05-viewer-code-artifact.png: code artifact
 - 06-generated-explainer.png: generated explainer`
       },
       {
         path: "Artifacts/Screenshots/01-package-start.png",
         kind: "png screenshot",
-        group: "Artifacts",
-        description: "The container entrypoint screenshot used in the README.",
+        accent: "var(--amber)",
+        description: "The artifact-stage screenshot used in the README.",
         image: "loopthing-source/Artifacts/Screenshots/01-package-start.png"
       },
       {
         path: "Artifacts/Screenshots/02-lineage-track-changes.png",
         kind: "png screenshot",
-        group: "Artifacts",
-        description: "The true prompt lineage screenshot used in the README.",
+        accent: "var(--amber)",
+        description: "The prompt-lineage screenshot used in the README.",
         image: "loopthing-source/Artifacts/Screenshots/02-lineage-track-changes.png"
       },
       {
         path: "Artifacts/Screenshots/03-thought-graph.png",
         kind: "png screenshot",
-        group: "Artifacts",
-        description: "The journey map screenshot used in the README.",
+        accent: "var(--amber)",
+        description: "The journey-map screenshot used in the README.",
         image: "loopthing-source/Artifacts/Screenshots/03-thought-graph.png"
       },
       {
         path: "Artifacts/Screenshots/04-slide-artifact.png",
         kind: "png screenshot",
-        group: "Artifacts",
-        description: "The generated media gallery screenshot used in the README.",
+        accent: "var(--amber)",
+        description: "The generated-media screenshot used in the README.",
         image: "loopthing-source/Artifacts/Screenshots/04-slide-artifact.png"
       },
       {
         path: "Artifacts/Screenshots/05-viewer-code-artifact.png",
         kind: "png screenshot",
-        group: "Artifacts",
-        description: "The code artifact screenshot used in the README.",
+        accent: "var(--amber)",
+        description: "The code-artifact screenshot used in the README.",
         image: "loopthing-source/Artifacts/Screenshots/05-viewer-code-artifact.png"
       },
       {
         path: "Artifacts/Screenshots/06-generated-explainer.png",
         kind: "png screenshot",
-        group: "Artifacts",
-        description: "The generated explainer screenshot used in the README.",
+        accent: "var(--amber)",
+        description: "The generated-explainer screenshot used in the README.",
         image: "loopthing-source/Artifacts/Screenshots/06-generated-explainer.png"
       },
       {
         path: "Artifacts/Docs/Container Format.md",
         kind: "docs",
-        group: "Artifacts",
+        accent: "var(--purple)",
         description: "Container-format notes generated from the product decisions.",
         content: `# LoopThing Container Format
 
@@ -1064,75 +1236,85 @@ A .loopthing is a single portable container file.
 
 The source tree is only the unpacked editing source. The shareable artifact is the .loopthing file.
 
-## Required
-
-- Prompts
-- Thinking
-- Drafts
-- Generated Explainers
-- Artifacts
-
 The container carries multiple artifact types: prompts, follow-ups, discarded ideas, rough drafts, generated explainers, SVG media, PNG screenshots, docs, slides, prototypes, code, and exports.`
       },
       {
         path: "Artifacts/Slides/Problem Solution How It Works.html",
         kind: "html slides",
-        group: "Artifacts",
+        accent: "var(--amber)",
         description: "Generated slides explaining problem, solution, and how it works.",
         external: "loopthing-source/Artifacts/Slides/Problem Solution How It Works.html"
       },
       {
         path: "Artifacts/Prototypes/Viewer Prototype.html",
         kind: "html prototype",
-        group: "Artifacts",
+        accent: "var(--green)",
         description: "A generated prototype carried inside the rich file.",
         external: "loopthing-source/Artifacts/Prototypes/Viewer Prototype.html"
       },
       {
         path: "Artifacts/Code/Viewer Repo/index.html",
         kind: "code",
-        group: "Artifacts",
+        accent: "var(--green)",
         description: "The viewer code artifact carried with the process.",
         external: "loopthing-source/Artifacts/Code/Viewer Repo/index.html"
       },
       {
         path: "Artifacts/One Liner.md",
         kind: "brief",
-        group: "Artifacts",
+        accent: "var(--blue)",
         description: "The simplest explanation of the filetype.",
         content: `# One Liner
 
-A .loopthing is a portable exploration tree for AI work: prompts, branches, critiques, killed paths, generated explainers, media, and artifacts in one forkable file.`
+A .loopthing is a portable exploration tree for AI work: prompts, branches, critiques, killed paths, generated explainers, media, and artifacts in one forkable file.
+
+## Tagline
+
+The thinking ships too.`
       },
       {
         path: "manifest.loop",
         kind: "manifest",
-        group: "Container",
+        accent: "var(--purple)",
         description: "Container metadata and generated-file inventory.",
-        content: `format: loopthing/container-v0.5
+        content: `format: loopthing/container-v0.6
 title: The Missing Artifact
 kind: portable-exploration-tree
 entry: Prompts/Master Prompt.md
 
+tagline: The thinking ships too.
+
 generator:
   input: messy AI chat session
-  output: net new artifacts, media, and explainers for sharing the work
-  promise: make the creator look clear, deliberate, intelligent, and easy to learn from`
+  output: net new artifacts, media, and explainers for sharing the work`
       }
     ];
 
-    const groups = ["Prompts", "Thinking", "Drafts", "Generated Explainers", "Media", "Artifacts", "Container"];
+    const shelfFiles = [
+      "Prompts/Master Prompt.md",
+      "Prompts/Follow Ups.md",
+      "Thinking/Journey Map.md",
+      "Thinking/Discarded Ideas.md",
+      "Generated Explainers/Problem Statement.md",
+      "Generated Explainers/How It Works.md",
+      "Artifacts/Media/README.md",
+      "Artifacts/Slides/Problem Solution How It Works.html",
+      "Artifacts/Code/Viewer Repo/index.html",
+      "Artifacts/One Liner.md",
+      "manifest.loop"
+    ];
 
     let containerOpen = false;
     let selectedPath = null;
 
     const form = document.getElementById("sessionForm");
     const input = document.getElementById("sessionInput");
-    const tree = document.getElementById("fileTree");
     const content = document.getElementById("content");
-    const inspector = document.getElementById("inspector");
     const pathText = document.getElementById("pathText");
-    const packageMeta = document.getElementById("packageMeta");
+    const lensTitle = document.getElementById("lensTitle");
+    const lensKind = document.getElementById("lensKind");
+    const lensCount = document.getElementById("lensCount");
+    const strip = document.getElementById("artifactStrip");
 
     function escapeHtml(value) {
       return String(value ?? "")
@@ -1141,12 +1323,6 @@ generator:
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
-    }
-
-    function getExt(path) {
-      const name = path.split("/").pop() || "";
-      const ext = name.includes(".") ? name.split(".").pop() : "file";
-      return ext.toLowerCase();
     }
 
     function markdownToHtml(markdown) {
@@ -1220,142 +1396,96 @@ generator:
 
     function renderJourney(file) {
       content.innerHTML = `
-        <article class="journey">
-          <h1>Journey Map</h1>
-          <p>From missing artifact to Ralph Loop to a rich portable file. The killed branch stays visible because the judgment matters.</p>
-          <div class="journey-flow">
-            ${file.journey.map((step, index) => `
-              <section class="journey-step ${step.type === "kill" ? "kill" : ""}" style="--step-color:${step.color}">
-                <div class="step-number">${index + 1}</div>
-                <div class="step-copy">
-                  <strong>${escapeHtml(step.title)}</strong>
-                  <p>${escapeHtml(step.copy)}</p>
-                  <div class="why">${escapeHtml(step.why)}</div>
-                </div>
-              </section>
-            `).join("")}
-          </div>
-        </article>
+        <div class="journey-grid">
+          ${file.journey.map(step => `
+            <section class="journey-card ${step.type === "kill" ? "kill" : ""}" style="--step-color:${step.color}">
+              <strong>${escapeHtml(step.title)}</strong>
+              <p>${escapeHtml(step.copy)}</p>
+              <div class="why">${escapeHtml(step.why)}</div>
+            </section>
+          `).join("")}
+        </div>
       `;
     }
 
     function renderGallery(file) {
       content.innerHTML = `
-        <article class="media-gallery">
-          <h1>Generated Media</h1>
-          <p>These visual explainers were generated from the session so the recipient can understand the project faster than reading a transcript.</p>
-          <div class="media-grid">
-            ${file.gallery.map(item => `
-              <button class="media-card" data-path="${escapeHtml(item.path)}">
-                <img alt="${escapeHtml(item.title)}" src="${escapeHtml(`loopthing-source/${item.path}`)}">
-                <div>
-                  <strong>${escapeHtml(item.title)}</strong>
-                  <span>${escapeHtml(item.caption)}</span>
-                </div>
-              </button>
-            `).join("")}
-          </div>
-        </article>
+        <div class="media-grid">
+          ${file.gallery.map(item => `
+            <button class="media-card" data-path="${escapeHtml(item.path)}">
+              <img alt="${escapeHtml(item.title)}" src="${escapeHtml(`loopthing-source/${item.path}`)}">
+              <div>
+                <strong>${escapeHtml(item.title)}</strong>
+                <span>${escapeHtml(item.caption)}</span>
+              </div>
+            </button>
+          `).join("")}
+        </div>
       `;
       content.querySelectorAll(".media-card").forEach(card => {
         card.addEventListener("click", () => selectFile(card.dataset.path));
       });
     }
 
-    function renderTree() {
-      if (!containerOpen) {
-        tree.innerHTML = "";
-        return;
-      }
-
-      tree.innerHTML = groups.map(group => {
-        const files = packageFiles.filter(file => file.group === group);
+    function renderShelf() {
+      strip.innerHTML = shelfFiles.map(path => {
+        const file = packageFiles.find(item => item.path === path);
         return `
-          <div class="folder">${escapeHtml(group)}</div>
-          ${files.map(file => {
-            const ext = getExt(file.path);
-            return `
-              <button class="file-button ${file.path === selectedPath ? "active" : ""}" data-path="${escapeHtml(file.path)}" data-ext="${escapeHtml(ext)}">
-                <span class="file-icon">${escapeHtml(ext.slice(0, 4))}</span>
-                <span class="file-name">${escapeHtml(file.path.split("/").pop())}</span>
-                <span class="kind-pill">${escapeHtml(file.kind.split(" ")[0])}</span>
-              </button>
-            `;
-          }).join("")}
+          <button class="artifact-card ${path === selectedPath ? "active" : ""}" style="--accent:${file.accent}" data-path="${escapeHtml(path)}">
+            <strong>${escapeHtml(path.split("/").pop())}</strong>
+            <span>${escapeHtml(file.kind)}</span>
+          </button>
         `;
       }).join("");
 
-      tree.querySelectorAll(".file-button").forEach(button => {
-        button.addEventListener("click", () => selectFile(button.dataset.path));
+      strip.querySelectorAll(".artifact-card").forEach(card => {
+        card.addEventListener("click", () => selectFile(card.dataset.path));
       });
     }
 
-    function renderInspector(file) {
-      const mediaCount = packageFiles.filter(item => ["svg", "png"].includes(getExt(item.path))).length;
-      inspector.innerHTML = `
-        <section class="inspector-box">
-          <h2 class="section-title">Selected File</h2>
-          <dl class="kv">
-            <dt>path</dt><dd class="mono">${escapeHtml(file?.path || "none")}</dd>
-            <dt>kind</dt><dd>${escapeHtml(file?.kind || "")}</dd>
-            <dt>format</dt><dd class="mono">loopthing/container-v0.5</dd>
-            <dt>files</dt><dd>${packageFiles.length}</dd>
-            <dt>media</dt><dd>${mediaCount}</dd>
-          </dl>
-        </section>
-        <section class="inspector-box">
-          <h2 class="section-title">Why This Matters</h2>
-          <p>${escapeHtml(file?.description || "Open the rich file to inspect prompts, generated explainers, media, and artifacts.")}</p>
-        </section>
-        <section class="inspector-box">
-          <h2 class="section-title">Container Promise</h2>
-          <ul>
-            <li>Prompt spine preserved.</li>
-            <li>Killed branches keep reasons.</li>
-            <li>Generated explainers add context.</li>
-            <li>Media, slides, prototype, and code travel with the idea.</li>
-          </ul>
-        </section>
-      `;
+    function setActiveNodes() {
+      document.querySelectorAll(".thought-node").forEach(node => {
+        node.classList.toggle("active", node.dataset.path === selectedPath);
+      });
     }
 
     function selectFile(path) {
       const file = packageFiles.find(item => item.path === path);
       if (!file) return;
+      containerOpen = true;
       selectedPath = path;
+      lensKind.textContent = file.kind;
+      lensCount.textContent = `${packageFiles.length} artifacts`;
+      lensTitle.textContent = path.split("/").pop();
       pathText.textContent = path;
-      renderTree();
-      renderInspector(file);
 
       if (file.journey) {
         renderJourney(file);
       } else if (file.gallery) {
         renderGallery(file);
       } else if (file.image) {
-        content.innerHTML = `<article class="media-view"><img alt="${escapeHtml(file.path)}" src="${escapeHtml(file.image)}"></article>`;
+        content.innerHTML = `<article class="image-view"><img alt="${escapeHtml(file.path)}" src="${escapeHtml(file.image)}"></article>`;
       } else if (file.external) {
         content.innerHTML = `<iframe class="html-frame" title="${escapeHtml(file.path)}" src="${escapeHtml(file.external)}"></iframe>`;
       } else {
         content.innerHTML = markdownToHtml(file.content || "");
       }
 
+      renderShelf();
+      setActiveNodes();
+
       const url = new URL(window.location.href);
-      if (containerOpen) {
-        url.searchParams.set("open", "1");
-        url.searchParams.set("file", path);
-        history.replaceState(null, "", url);
-      }
+      url.searchParams.set("open", "1");
+      url.searchParams.set("file", path);
+      history.replaceState(null, "", url);
     }
 
     function openContainer(event, pathFromUrl) {
       if (event) event.preventDefault();
       if (!input.value.trim()) {
-        packageMeta.textContent = "container name required";
         input.focus();
         return;
       }
-      containerOpen = true;
-      packageMeta.textContent = `1 .loopthing - ${packageFiles.length} files - mixed media`;
       selectFile(pathFromUrl || selectedPath || "Prompts/Master Prompt.md");
     }
 
@@ -1364,12 +1494,15 @@ generator:
       if (event.key === "Enter") openContainer(event);
     });
 
+    document.querySelectorAll(".thought-node").forEach(node => {
+      node.addEventListener("click", () => selectFile(node.dataset.path));
+    });
+
     const params = new URLSearchParams(window.location.search);
+    renderShelf();
     if (params.get("open") === "1") {
       openContainer(null, params.get("file") || undefined);
     } else {
-      renderTree();
-      renderInspector(null);
       input.focus();
       input.select();
     }

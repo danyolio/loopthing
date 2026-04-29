@@ -64,7 +64,7 @@ No build step. No backend. No framework. Just the viewer and the container.
 
 ## Screenshots
 
-The viewer starts from the artifact itself: one `.loopthing` file that contains prompts, media, slides, prototype, code, and generated explainers.
+The viewer starts as an artifact stage: the thought loop stays visible while the selected prompt, media object, explainer, slide, prototype, or code artifact opens in the lens.
 
 ![LoopThing container start](docs/screenshots/01-package-start.png)
 
@@ -90,7 +90,7 @@ The same container can carry working artifacts such as slides, prototypes, and t
 
 ## What This Repo Shows
 
-The static viewer renders a `.loopthing` like a tiny file OS for AI work. The important part is the container, not the viewer.
+The static viewer renders a `.loopthing` as an artifact stage: the loop stays visible while each prompt, killed branch, media object, explainer, slide, prototype, or code artifact opens in a lens.
 
 This demo intentionally includes multiple media types so the artifact does not collapse into "a bunch of markdown":
 

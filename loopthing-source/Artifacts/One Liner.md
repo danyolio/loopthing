@@ -5,3 +5,7 @@ A `.loopthing` is a portable exploration tree for AI work: prompts, branches, cr
 ## Shorter
 
 A `.loopthing` turns a messy AI session into a shareable rich artifact that makes the work easy to understand and easy to inherit.
+
+## Tagline
+
+The thinking ships too.
