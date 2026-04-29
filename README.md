@@ -2,7 +2,7 @@
 
 LoopThing is a portable exploration tree for AI work: a `.loopthing` file captures the prompts, follow-ups, branches, self-critiques, killed paths, generated explainers, media, slides, prototypes, and code that show how an idea arrived.
 
-Tagline: **infrastructure for inheritable thinking.**
+Tagline: **xxx**
 
 ## Why It Exists
 
