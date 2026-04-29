@@ -1,0 +1,41 @@
+format: loopthing/container-v0.3
+title: The Missing Artifact
+kind: portable-thinking-container
+created: 2026-04-29T07:18:00Z
+entry: User Prompts/Master Prompt.md
+origin: OpenAI Codex hackathon demo
+mimetype: application/vnd.loopthing+zip
+
+summary:
+  A .loopthing is a single portable container for AI work: a forkable,
+  auditable record of the user prompts, decisions, killed branches,
+  journey map, and artifacts behind how an idea arrived.
+
+lineage:
+  - Began as a static OpenAI Codex hackathon viewer.
+  - Used OpenClaw as the first source artifact.
+  - Tried a GitHub repo input direction.
+  - Killed "LoopThing a repo" because the repo is not the thinking process.
+  - Landed on a portable container whose spine is user prompts plus artifacts.
+
+principles:
+  - One .loopthing file is the shareable container
+  - loopthing-source/ is only the unpacked editing source
+  - User Prompts is the canonical spine
+  - Not a raw chat dump
+  - Not a repo diff
+  - Killed branches make the sharer look clearer, not messier
+  - Produced artifacts travel with the thought process
+
+files:
+  - User Prompts/Master Prompt.md
+  - User Prompts/Raw User Prompts.md
+  - User Prompts/Prompt Change Log.md
+  - Thought Process/Sanitized Thought Process.md
+  - Thought Process/Journey Map.md
+  - Thought Process/Killed Directions.md
+  - Thought Process/Container Format.md
+  - Artifacts/Slides/Problem Solution How It Works.html
+  - Artifacts/Viewer Repo/README.md
+  - Artifacts/Viewer Repo/index.html
+  - Artifacts/One Liner.md

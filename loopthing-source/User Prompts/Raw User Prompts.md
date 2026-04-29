@@ -1,6 +1,6 @@
-# User Input Track Changes
+# Raw User Prompts
 
-This investigation shows how the idea moved from the true initial prompt to the current LoopThing package concept.
+This file keeps the high-signal raw user prompts from this chat thread. The one-line summary of each subsequent direction lives in `Prompt Change Log.md`.
 
 The spine is user input only from this exact chat thread. AI responses are not treated as the canonical record; they are supporting material. The proof is the sequence of human directions, edits, constraints, and reversals.
 
@@ -42,7 +42,9 @@ pruned thought is evidence.
 The losing branch still teaches.
 ```
 
-## Track Changes By User Direction
+## Direction Changes
+
+The exact raw prompts were long, iterative, and sometimes messy. These are the user-authored direction changes preserved as the prompt spine.
 
 ### 1. Static Viewer
 
@@ -129,7 +131,7 @@ Kill reason: it is catchy but structurally wrong. GitHub shows code diffs and re
 
 ## Subsequent User Input Summaries
 
-These are the cleaned summaries of the user-authored turns from this chat thread:
+The dedicated one-line version now lives in `Prompt Change Log.md`. The short form is:
 
 ```diff
 + Build the hackathon demo quickly: static, no backend, browser-openable.

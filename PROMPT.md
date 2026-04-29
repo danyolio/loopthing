@@ -1,12 +1,12 @@
 # New Prompt: Build the LoopThing of LoopThing Itself
 
-Build a static, single-page demo for `loopthing.loopthing/`: a `.loopthing` package that explains LoopThing by showing the messy thought loop that created LoopThing.
+Build a static, single-page demo for `loopthing.loopthing`: a `.loopthing` container file that explains LoopThing by showing the messy thought loop that created LoopThing.
 
 The lineage must be explicit: the idea began as an OpenAI Codex hackathon demo, first used OpenClaw as a source artifact, briefly became a GitHub-repo input concept, and then killed that direction. The package should preserve that evolution from this exact chat thread as cleaned user-input summaries.
 
 ## Core Definition
 
-A `.loopthing` is a package format for AI work: a forkable, auditable collection of the looping thoughts, branches, killed ideas, revisions, and artifacts behind how an idea arrived.
+A `.loopthing` is a portable container file for AI work: a forkable, auditable collection of the user prompts, decisions, killed branches, journey map, and artifacts behind how an idea arrived.
 
 Do not frame this as "GitHub for repos." GitHub tracks code changes. LoopThing turns exploratory AI sessions into readable, portable knowledge artifacts. It is closer to version control for thinking, but the unit is not a repo or a commit. The unit is a thinking loop.
 
@@ -14,10 +14,11 @@ Do not frame this as "GitHub for repos." GitHub tracks code changes. LoopThing t
 
 Modern AI work starts in chat. That chat becomes the primitive: prompts, follow-ups, discarded ideas, rough drafts, screenshots, docs, slides, prototypes, and code. Today those loops either stay as unreadable session history or get compressed into a final artifact where the useful process disappears.
 
-LoopThing beautifies the trash randomness of idea work into something skimmable. It is not "summarize my chat." It is a package format that turns session mess into a sequence of artifacts:
+LoopThing beautifies the trash randomness of idea work into something skimmable. It is not "summarize my chat." It is a container format that turns session mess into a sequence of artifacts:
 
-- a sanitized initial prompt
-- prompt-level track changes
+- a master prompt
+- raw user prompts
+- one-line prompt change log
 - critiques
 - branches
 - killed ideas
@@ -28,28 +29,31 @@ The MVP stores sanitized user inputs and artifact references as the canonical tr
 
 ## Demo Artifact
 
-Create `loopthing.loopthing/` as the self-referential example. It should contain the sanitized prompt, the true initial prompt investigation, track changes, thought graph, slide artifact, viewer-code artifact, and package-format notes.
+Create `loopthing.loopthing` as the self-referential container file. Keep `loopthing-source/` as the unpacked editing source. It should contain user prompts, sanitized thought process, journey map, killed directions, slide artifact, viewer-code artifact, and container-format notes.
 
 The true initial prompt investigation must name the OpenAI Codex hackathon context and show the subsequent user-authored revisions, especially the abandoned "LoopThing a GitHub repo" branch.
 
-The thought graph should show four plausible lenses on the idea:
+The journey map should show the idea getting sharper:
 
-- `format`: LoopThing as a new file format, not just a summary.
-- `editorial`: LoopThing as the cleaned-up, readable version of messy chat history.
-- `artifacts`: LoopThing as a container for prompts, docs, slides, prototypes, and code.
-- `multiplayer`: LoopThing as collaboration and proof of work for exploratory knowledge work.
+- Hackathon spark.
+- OpenClaw origin trace.
+- GitHub repo branch.
+- Killed repo direction.
+- File format shift.
+- Container shift.
+- Shareable proof.
 
 Each lens should include a killed branch with a substantive reason. The strongest killed branch is: "Make it GitHub for thought." Kill it because it is memorable but misleading: code diffs are not the same as thought loops, and repos show outputs rather than the prompt process.
 
 ## Product Shape
 
-Keep the viewer static: `index.html` plus the `loopthing.loopthing/` package. No backend, framework, build step, login, settings, or generator.
+Keep the viewer static: `index.html` plus the `loopthing.loopthing` container and `loopthing-source/` source tree. No backend, framework, build step, login, settings, or generator.
 
-The viewer should behave like a tiny OS for the package. The top input should say `session`, not `repo`, because you cannot LoopThing a repo directly. You LoopThing a messy AI session or exploratory process and export it as a portable artifact.
+The viewer should behave like a tiny OS for the container. The top input should say `container`, not `repo`, because you cannot LoopThing a repo directly. You LoopThing a messy AI session or exploratory process and export it as a portable artifact.
 
 The UI should make the file feel like a real artifact:
 
-- filename: `loopthing.loopthing/`
+- filename: `loopthing.loopthing`
 - title: `The Missing Artifact`
 - tagline: `the output is no longer the only artifact`
 - visible kill reasons
@@ -60,4 +64,4 @@ The UI should make the file feel like a real artifact:
 
 Plain, sharp, and simple. The one-liner should be understandable in one breath:
 
-> A `.loopthing` is a package format for AI work: a forkable, auditable collection of the looping thoughts, killed ideas, revisions, and artifacts behind how an idea arrived.
+> A `.loopthing` is a portable file for AI work: the prompts, decisions, killed branches, journey map, and artifacts behind how an idea arrived.

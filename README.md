@@ -1,6 +1,6 @@
 # LoopThing
 
-LoopThing is a package format for AI work: a forkable, auditable collection of the looping thoughts, branches, killed ideas, revisions, and artifacts behind how an idea arrived.
+LoopThing is a portable container file for AI work: a forkable, auditable collection of the user prompts, decisions, killed branches, journey map, and artifacts behind how an idea arrived.
 
 It is not just a chat summary. It is a portable artifact for exploratory work: the cleaned-up prompt trail, the branches that mattered, the ideas that were killed, the reasons they were killed, and the outputs that came out of the session.
 
@@ -11,50 +11,51 @@ This example began as an OpenAI Codex hackathon demo. It went through several re
 ## What Is In This Repo
 
 - `index.html` is the vanilla JS viewer. No build step, backend, framework, login, or install.
-- `loopthing.loopthing/` is the self-referential package: the LoopThing of LoopThing itself.
+- `loopthing.loopthing` is the actual portable container file. It is a zip-style filetype with the MIME marker `application/vnd.loopthing+zip`.
+- `loopthing-source/` is the unpacked editing source for that container, included so GitHub can show the contents.
 - `openclaw.loopthing` is an earlier reverse-engineered origin trace for Peter Steinberger's OpenClaw project.
 - `PROMPT.md` is the refined build prompt distilled from feedback.
 
 ## Demo
 
-Open `index.html` in a browser. The top bar is prefilled with the sanitized LoopThing feedback session; press `Enter` to open the package browser.
+Open `index.html` in a browser. The top bar is prefilled with the LoopThing container name; press `Enter` to browse the unpacked contents of `loopthing.loopthing`.
 
 ## Screenshots
 
-The viewer opens a `.loopthing` as a browsable package, with the sanitized prompt as the entrypoint.
+The viewer opens a `.loopthing` as one portable container, with the master prompt as the entrypoint.
 
-![LoopThing package start](docs/screenshots/01-package-start.png)
+![LoopThing container start](docs/screenshots/01-package-start.png)
 
-The lineage investigation shows the true initial prompt, the OpenAI Codex hackathon origin, and the killed GitHub-repo direction.
+User prompts are the spine: raw prompt excerpts plus one-line summaries of later meta-level changes.
 
-![LoopThing lineage and track changes](docs/screenshots/02-lineage-track-changes.png)
+![LoopThing user prompts](docs/screenshots/02-lineage-track-changes.png)
 
-The thought graph keeps the pruned branches visible, including why "LoopThing a GitHub repo" lost.
+The journey map replaces the esoteric graph file with a readable flow of how the idea became sharper.
 
-![LoopThing thought graph](docs/screenshots/03-thought-graph.png)
+![LoopThing journey map](docs/screenshots/03-thought-graph.png)
 
-Generated artifacts travel inside the package too, such as the slide artifact below.
+Generated artifacts travel inside the container too, including slides that explain the problem, solution, and how it works.
 
 ![LoopThing slide artifact](docs/screenshots/04-slide-artifact.png)
 
-The package can also carry working code artifacts, like the tiny viewer example included here.
+The container can also carry working code artifacts, like the tiny viewer repo included here.
 
 ![LoopThing viewer code artifact](docs/screenshots/05-viewer-code-artifact.png)
 
 ## What It Shows
 
-The viewer renders a `.loopthing` package like a tiny file OS:
+The viewer renders a `.loopthing` container like a tiny file OS:
 
-- `START.md`
-- sanitized prompts
-- true initial prompt excerpts
-- line-by-line user-input track changes
-- thought graph data
-- slides
-- viewer code
-- package format notes
+- `User Prompts/Master Prompt.md`
+- `User Prompts/Raw User Prompts.md`
+- `User Prompts/Prompt Change Log.md`
+- `Thought Process/Sanitized Thought Process.md`
+- `Thought Process/Journey Map.md`
+- `Thought Process/Killed Directions.md`
+- `Artifacts/Slides/Problem Solution How It Works.html`
+- `Artifacts/Viewer Repo/`
 
-The core entrypoint is the sanitized prompt. The sub-investigation shows how the user's directions changed over time, including killed ideas and the reasons they were killed.
+The core entrypoint is the master prompt. The prompt files show how the user's directions changed over time, including killed ideas and the reasons they were killed.
 
 The lineage explicitly captures the OpenAI Codex hackathon origin, the OpenClaw demo phase, the killed GitHub-repo direction, and the subsequent user-input summaries from this chat thread.
 
@@ -64,26 +65,31 @@ Modern AI work starts in chat. That chat becomes the primitive: prompts, follow-
 
 Today those loops either stay as unreadable session history or get compressed into a final artifact where the useful process disappears. LoopThing turns that session mess into something readable, skimmable, and safe to share.
 
-## Package Format
+## Container Format
 
-The example `.loopthing` is a directory-style package:
+The example `.loopthing` is a single container file. The repo includes `loopthing-source/` only so the contents are readable in GitHub:
 
 ```text
-loopthing.loopthing/
+loopthing.loopthing
+loopthing-source/
+  mimetype
   manifest.loop
-  START.md
-  investigations/
-    user-input-track-changes.md
-  graph/
-    thought-dag.loopgraph
-  artifacts/
-    slides/the-missing-artifact.html
-    viewer-os-example.html
-    spec/package-format.md
-    brief/one-liner.md
+  User Prompts/
+    Master Prompt.md
+    Raw User Prompts.md
+    Prompt Change Log.md
+  Thought Process/
+    Sanitized Thought Process.md
+    Journey Map.md
+    Killed Directions.md
+    Container Format.md
+  Artifacts/
+    Slides/Problem Solution How It Works.html
+    Viewer Repo/
+    One Liner.md
 ```
 
-The package can contain structured graph data, but the `.loopthing` itself is not a JSON file. It is a portable collection of files and artifacts.
+The `.loopthing` can contain structured data, but it is not JSON and it is not a folder. It is a portable container for the thinking loop and its artifacts.
 
 ## Notes
 

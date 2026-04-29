@@ -17,7 +17,7 @@
     nav {
       padding: 18px;
       border-right: .5px solid rgba(0,0,0,.24);
-      background: #ededE7;
+      background: #edede7;
     }
     main { padding: 32px; }
     button {
@@ -40,19 +40,21 @@
 </head>
 <body>
   <nav>
-    <button data-file="START.md">START.md</button>
-    <button data-file="investigations/user-input-track-changes.md">track changes</button>
-    <button data-file="artifacts/slides/the-missing-artifact.html">slide</button>
+    <button data-file="User Prompts/Master Prompt.md">Master Prompt</button>
+    <button data-file="User Prompts/Prompt Change Log.md">Prompt Change Log</button>
+    <button data-file="Thought Process/Journey Map.md">Journey Map</button>
+    <button data-file="Artifacts/Slides/Problem Solution How It Works.html">Slides</button>
   </nav>
   <main>
-    <h1 id="title">START.md</h1>
-    <pre id="content">A .loopthing package starts with a sanitized prompt.</pre>
+    <h1 id="title">Master Prompt</h1>
+    <pre id="content">A .loopthing container starts with the cleanest version of the project prompt.</pre>
   </main>
   <script>
     const files = {
-      "START.md": "A .loopthing package starts with the best version of the project prompt.",
-      "investigations/user-input-track-changes.md": "Track user input changes line by line. This is the process spine.",
-      "artifacts/slides/the-missing-artifact.html": "Artifacts travel with the thinking loop."
+      "User Prompts/Master Prompt.md": "A .loopthing starts with the best version of the project prompt.",
+      "User Prompts/Prompt Change Log.md": "Every later user direction gets a one-line change summary.",
+      "Thought Process/Journey Map.md": "The journey map shows how the idea got sharper.",
+      "Artifacts/Slides/Problem Solution How It Works.html": "Artifacts travel inside the same container."
     };
     document.querySelectorAll("button").forEach(button => {
       button.addEventListener("click", () => {
