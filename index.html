@@ -7,44 +7,36 @@
   <style>
     :root {
       color-scheme: light dark;
-      --bg: #f7f7f4;
+      --bg: #f6f6f2;
       --panel: #ffffff;
-      --panel-soft: #f1f1ee;
-      --text: #181817;
-      --muted: #6f706c;
-      --line: rgba(24, 24, 23, .22);
-      --line-soft: rgba(24, 24, 23, .12);
-      --prompt: #336fd1;
-      --critique: #b87813;
-      --revision: #1b8f62;
-      --kill: #c83f39;
-      --synthesis: #8f55c7;
-      --kill-soft: rgba(200, 63, 57, .1);
-      --prompt-soft: rgba(51, 111, 209, .1);
-      --critique-soft: rgba(184, 120, 19, .1);
-      --revision-soft: rgba(27, 143, 98, .1);
-      --synthesis-soft: rgba(143, 85, 199, .1);
+      --panel-soft: #eeeeea;
+      --text: #191917;
+      --muted: #70716b;
+      --line: rgba(25, 25, 23, .24);
+      --line-soft: rgba(25, 25, 23, .12);
+      --blue: #356fd1;
+      --green: #1d8f65;
+      --amber: #ad7217;
+      --red: #c8453e;
+      --purple: #8058bd;
+      --red-soft: rgba(200, 69, 62, .1);
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #121312;
-        --panel: #191a19;
-        --panel-soft: #20211f;
-        --text: #eeeeea;
+        --bg: #111210;
+        --panel: #181917;
+        --panel-soft: #20211e;
+        --text: #efeee8;
         --muted: #a5a69f;
-        --line: rgba(238, 238, 234, .28);
-        --line-soft: rgba(238, 238, 234, .13);
-        --prompt: #7da4ef;
-        --critique: #e4ae57;
-        --revision: #65c99a;
-        --kill: #ee746d;
-        --synthesis: #c595f1;
-        --kill-soft: rgba(238, 116, 109, .12);
-        --prompt-soft: rgba(125, 164, 239, .12);
-        --critique-soft: rgba(228, 174, 87, .12);
-        --revision-soft: rgba(101, 201, 154, .12);
-        --synthesis-soft: rgba(197, 149, 241, .12);
+        --line: rgba(239, 238, 232, .28);
+        --line-soft: rgba(239, 238, 232, .13);
+        --blue: #8eaff4;
+        --green: #68c89d;
+        --amber: #dfad61;
+        --red: #ef7c74;
+        --purple: #bf9ae8;
+        --red-soft: rgba(239, 124, 116, .12);
       }
     }
 
@@ -65,30 +57,19 @@
       overflow: hidden;
     }
 
-    button {
+    button,
+    input {
       font: inherit;
       color: inherit;
     }
 
-    .walk-progress {
-      position: fixed;
-      z-index: 20;
-      top: 0;
-      left: 0;
-      height: 2px;
-      width: 100%;
-      background: var(--text);
-      transform: scaleX(0);
-      transform-origin: left;
-    }
-
-    .viewer {
+    .app {
       min-height: 100vh;
       display: grid;
-      grid-template-columns: 200px minmax(0, 1fr) 240px;
-      grid-template-rows: 44px minmax(0, 1fr) 38px;
-      background: var(--panel);
+      grid-template-columns: 250px minmax(0, 1fr) 280px;
+      grid-template-rows: 46px minmax(0, 1fr) 38px;
       border: .5px solid var(--line);
+      background: var(--panel);
     }
 
     .topbar,
@@ -96,13 +77,21 @@
       grid-column: 1 / -1;
       display: flex;
       align-items: center;
-      border-bottom: .5px solid var(--line);
+      gap: 12px;
       background: var(--panel-soft);
     }
 
     .topbar {
       padding: 0 14px;
-      gap: 12px;
+      border-bottom: .5px solid var(--line);
+    }
+
+    .footer {
+      justify-content: space-between;
+      padding: 0 14px;
+      border-top: .5px solid var(--line);
+      font-size: 12px;
+      color: var(--muted);
     }
 
     .traffic {
@@ -122,68 +111,72 @@
     .dot.yellow { background: #f4bf4f; }
     .dot.green { background: #61c554; }
 
-    .filename {
+    .filename,
+    .mono {
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .filename {
       font-size: 13px;
       white-space: nowrap;
     }
 
-    .repo-form {
+    .session-form {
       flex: 1 1 420px;
-      min-width: 180px;
-      max-width: 620px;
+      max-width: 640px;
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 8px;
+      min-width: 200px;
     }
 
-    .repo-label {
+    .session-form label {
       color: var(--muted);
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 11px;
-      white-space: nowrap;
     }
 
-    .repo-input {
+    .session-form input {
       width: 100%;
-      height: 27px;
+      height: 28px;
       padding: 0 9px;
       border: .5px solid var(--line);
       border-radius: 6px;
       outline: 0;
       background: var(--panel);
-      color: var(--text);
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 12px;
     }
 
-    .repo-input:focus {
+    .session-form input:focus {
       border-color: var(--text);
     }
 
-    .meta-line {
+    .meta {
+      margin-left: auto;
       color: var(--muted);
       font-size: 12px;
       white-space: nowrap;
     }
 
-    .rail {
+    .sidebar,
+    .inspector {
       min-height: 0;
       overflow: auto;
       background: var(--panel);
     }
 
-    .left {
+    .sidebar {
       border-right: .5px solid var(--line);
-      padding: 14px 12px;
+      padding: 14px 10px;
     }
 
-    .right {
+    .inspector {
       border-left: .5px solid var(--line);
       padding: 14px 12px;
     }
 
-    .rail-title {
+    .section-title {
       margin: 0 0 8px;
       color: var(--muted);
       font-size: 11px;
@@ -191,269 +184,267 @@
       text-transform: uppercase;
     }
 
-    .agent-list {
-      display: grid;
-      gap: 7px;
-      margin-bottom: 16px;
+    .package-note {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.42;
     }
 
-    .agent-button {
-      width: 100%;
-      min-height: 48px;
+    .tree {
       display: grid;
-      grid-template-columns: 7px minmax(0, 1fr);
-      gap: 9px;
-      padding: 8px;
-      background: transparent;
-      border: .5px solid var(--line-soft);
+      gap: 4px;
+    }
+
+    .folder {
+      margin-top: 9px;
+      padding: 7px 8px 3px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .file-button {
+      width: 100%;
+      min-height: 34px;
+      display: grid;
+      grid-template-columns: 16px minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+      padding: 7px 8px;
+      border: .5px solid transparent;
       border-radius: 6px;
+      background: transparent;
       text-align: left;
       cursor: pointer;
     }
 
-    .agent-button.active {
+    .file-button:hover,
+    .file-button.active {
       border-color: var(--line);
       background: var(--panel-soft);
     }
 
-    .agent-swatch {
-      width: 7px;
-      border-radius: 999px;
-      background: var(--agent);
+    .file-icon {
+      width: 12px;
+      height: 15px;
+      border: .5px solid var(--line);
+      border-radius: 2px;
+      background: var(--panel);
     }
 
-    .agent-id {
-      display: block;
+    .file-name {
+      overflow-wrap: anywhere;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 12px;
-      overflow-wrap: anywhere;
     }
 
-    .agent-count {
-      display: block;
-      margin-top: 2px;
-      color: var(--muted);
-      font-size: 11px;
-    }
-
-    .file-box {
-      border: .5px solid var(--line);
-      border-radius: 6px;
-      padding: 10px;
-      background: var(--panel-soft);
-    }
-
-    .file-box ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: grid;
-      gap: 7px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .file-box li::before {
-      content: "";
-      display: inline-block;
-      width: 6px;
-      height: 6px;
-      margin-right: 7px;
-      border-radius: 999px;
-      border: .5px solid currentColor;
-      vertical-align: 1px;
-    }
-
-    .center {
+    .workspace {
       min-width: 0;
       min-height: 0;
       display: grid;
-      grid-template-rows: 340px minmax(0, 1fr);
+      grid-template-rows: 46px minmax(0, 1fr);
       background: var(--bg);
     }
 
-    .graph-panel {
-      min-width: 0;
-      min-height: 0;
+    .pathbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
       border-bottom: .5px solid var(--line);
+      background: var(--panel);
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      overflow: hidden;
+    }
+
+    .pathbar strong {
+      color: var(--text);
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .content {
+      min-height: 0;
+      overflow: auto;
+      padding: 20px;
+    }
+
+    .empty {
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .doc {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px;
+      border: .5px solid var(--line);
+      border-radius: 8px;
       background: var(--panel);
     }
 
-    #graph {
-      display: block;
-      width: 100%;
-      height: 100%;
+    .doc h1,
+    .doc h2,
+    .doc h3,
+    .doc p,
+    .doc pre,
+    .doc ul {
+      margin-top: 0;
     }
 
-    .edge {
-      stroke: var(--line);
-      stroke-width: 1.1;
+    .doc h1 {
+      font-size: 30px;
+      line-height: 1.08;
+      margin-bottom: 14px;
     }
 
-    .edge.pruned {
-      stroke: var(--kill);
-      stroke-dasharray: 5 5;
+    .doc h2 {
+      margin-top: 26px;
+      font-size: 18px;
     }
 
-    .edge.cites {
-      stroke: var(--muted);
-      stroke-dasharray: 3 6;
-      opacity: .35;
+    .doc h3 {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
     }
 
-    .node {
-      cursor: pointer;
+    .doc p,
+    .doc li {
+      font-size: 15px;
+      line-height: 1.55;
     }
 
-    .node circle {
-      stroke: var(--panel);
-      stroke-width: 2;
-    }
-
-    .node.kill {
-      opacity: .72;
-    }
-
-    .node.ghost {
-      opacity: .35;
-    }
-
-    .node text {
-      fill: var(--text);
+    .doc code,
+    .doc pre {
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 10px;
-      paint-order: stroke;
-      stroke: var(--panel);
-      stroke-width: 4px;
-      stroke-linejoin: round;
     }
 
-    .node.selected circle {
-      stroke: var(--text);
-      stroke-width: 2.5;
-    }
-
-    .cards {
-      min-height: 0;
+    .doc pre {
       overflow: auto;
-      padding: 14px;
+      padding: 12px;
+      border: .5px solid var(--line-soft);
+      border-radius: 6px;
+      background: var(--panel-soft);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .track-line {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 10px;
+      padding: 7px 9px;
+      border-radius: 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .track-line.add { background: rgba(29, 143, 101, .11); color: var(--green); }
+    .track-line.del { background: var(--red-soft); color: var(--red); text-decoration: line-through; }
+    .track-line.note { color: var(--muted); }
+
+    .html-frame {
+      width: 100%;
+      height: min(720px, calc(100vh - 150px));
+      border: .5px solid var(--line);
+      border-radius: 8px;
+      background: white;
+    }
+
+    .graph-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap: 12px;
+      min-width: 760px;
+    }
+
+    .graph-column {
       display: grid;
       align-content: start;
-      gap: 10px;
+      gap: 9px;
+    }
+
+    .agent-card,
+    .node-card {
+      border: .5px solid var(--line);
+      border-radius: 7px;
+      background: var(--panel);
+    }
+
+    .agent-card {
+      padding: 10px;
+      border-top: 5px solid var(--agent);
+    }
+
+    .agent-card strong {
+      display: block;
+      margin-bottom: 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .agent-card span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
     }
 
     .node-card {
-      position: relative;
-      border: .5px solid var(--line);
-      border-left-width: 6px;
-      border-radius: 7px;
-      padding: 11px 12px;
-      background: var(--panel);
-      cursor: pointer;
+      padding: 9px;
+      border-left: 5px solid var(--node-color);
     }
 
-    .node-card.active {
-      outline: 1px solid var(--text);
-      outline-offset: 2px;
+    .node-card.kill {
+      background: var(--red-soft);
+      opacity: .92;
     }
 
-    .node-card.prompt { border-left-color: var(--prompt); background: var(--prompt-soft); }
-    .node-card.critique { border-left-color: var(--critique); background: var(--critique-soft); }
-    .node-card.revision { border-left-color: var(--revision); background: var(--revision-soft); }
-    .node-card.kill { border-left-color: var(--kill); background: var(--kill-soft); opacity: .9; }
-    .node-card.synthesis { border-left-color: var(--synthesis); background: var(--synthesis-soft); }
-
-    .card-top {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
-    .type-pill {
+    .node-type {
+      display: block;
+      margin-bottom: 5px;
       color: var(--muted);
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
     }
 
-    .node-id,
-    .mono {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-
-    .node-id {
-      color: var(--muted);
-      font-size: 11px;
-      overflow-wrap: anywhere;
-    }
-
-    .content {
+    .node-text {
       margin: 0;
-      font-size: 14px;
+      font-size: 12px;
       line-height: 1.42;
     }
 
-    .kill-copy {
-      position: relative;
-      display: inline;
-      text-decoration: line-through;
-      text-decoration-thickness: 1px;
-      text-decoration-color: rgba(200, 63, 57, .65);
-    }
-
-    .kill-copy::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 54%;
-      width: 100%;
-      height: 1px;
-      background: var(--kill);
-      transform: scaleX(0);
-      transform-origin: left;
-      animation: strike 400ms ease-out forwards;
-    }
-
-    @keyframes strike {
-      to { transform: scaleX(1); }
-    }
-
-    .reason {
-      margin-top: 10px;
-      padding-top: 9px;
-      border-top: .5px dashed var(--kill);
-      color: var(--text);
+    .kill-reason {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: .5px dashed var(--red);
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12px;
-      line-height: 1.45;
-    }
-
-    .reason-label {
-      display: block;
-      margin-bottom: 4px;
-      color: var(--kill);
       font-size: 11px;
-    }
-
-    .detail-section {
-      padding: 0 0 13px;
-      margin-bottom: 13px;
-      border-bottom: .5px solid var(--line-soft);
-    }
-
-    .detail-section:last-child {
-      border-bottom: 0;
-      margin-bottom: 0;
-      padding-bottom: 0;
+      line-height: 1.4;
     }
 
     .kv {
       display: grid;
-      grid-template-columns: 74px minmax(0, 1fr);
-      gap: 6px 8px;
+      grid-template-columns: 78px minmax(0, 1fr);
+      gap: 7px 9px;
+      margin-bottom: 16px;
       font-size: 12px;
-      line-height: 1.35;
+      line-height: 1.4;
     }
 
     .kv dt {
@@ -465,287 +456,306 @@
       overflow-wrap: anywhere;
     }
 
-    .detail-copy {
-      margin: 0;
-      font-size: 12px;
-      line-height: 1.45;
-      color: var(--text);
+    .inspector-box {
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: .5px solid var(--line-soft);
     }
 
-    .pruned-list {
-      display: grid;
-      gap: 8px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .pruned-item {
-      padding: 8px;
-      border: .5px dashed var(--kill);
-      border-radius: 6px;
-      background: var(--kill-soft);
-    }
-
-    .pruned-item strong {
-      display: block;
-      margin-bottom: 5px;
-      color: var(--kill);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 11px;
-      overflow-wrap: anywhere;
-    }
-
-    .pruned-item span {
-      display: block;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 11px;
-      line-height: 1.45;
-    }
-
-    .artifact-list {
-      display: grid;
-      gap: 7px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .artifact-item {
-      padding: 8px;
-      border: .5px solid var(--line-soft);
-      border-radius: 6px;
-      background: var(--panel-soft);
-    }
-
-    .artifact-item strong {
-      display: block;
-      margin-bottom: 4px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 11px;
-      overflow-wrap: anywhere;
-    }
-
-    .artifact-item span {
-      display: block;
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.4;
-    }
-
-    .footer {
-      justify-content: space-between;
-      padding: 0 14px;
-      border-top: .5px solid var(--line);
+    .inspector-box:last-child {
       border-bottom: 0;
-      gap: 10px;
+      margin-bottom: 0;
+      padding-bottom: 0;
     }
 
-    .chips {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-      overflow: hidden;
-    }
-
-    .chip {
-      flex: 0 0 auto;
-      padding: 3px 8px;
-      border: .5px solid var(--line);
-      border-radius: 999px;
+    .inspector-box p {
+      margin: 0;
       color: var(--muted);
       font-size: 12px;
-      white-space: nowrap;
+      line-height: 1.45;
     }
 
-    .tagline {
-      color: var(--muted);
-      font-size: 12px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .error {
-      padding: 16px;
-      color: var(--kill);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12px;
-    }
-
-    .empty-pane {
-      min-height: 100%;
-      display: grid;
-      place-items: center;
-      padding: 22px;
-      color: var(--muted);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12px;
-      text-align: center;
-      line-height: 1.5;
-    }
-
-    @media (max-width: 920px) {
+    @media (max-width: 980px) {
       body { overflow: auto; }
-      .viewer {
-        min-height: 100vh;
-        grid-template-columns: 180px minmax(0, 1fr);
-        grid-template-rows: 66px 300px minmax(500px, auto) auto 38px;
+      .app {
+        grid-template-columns: 220px minmax(0, 1fr);
+        grid-template-rows: 72px minmax(640px, auto) auto 38px;
       }
       .topbar { flex-wrap: wrap; align-content: center; gap: 7px 10px; }
-      .repo-form { order: 4; flex-basis: 100%; max-width: none; }
-      .meta-line { margin-left: auto; }
-      .left { grid-column: 1; grid-row: 2 / 4; }
-      .center { grid-column: 2; grid-row: 2 / 4; grid-template-rows: 300px auto; }
-      .right { grid-column: 1 / -1; grid-row: 4; border-left: 0; border-top: .5px solid var(--line); }
-      .footer { grid-row: 5; }
+      .session-form { order: 4; flex-basis: 100%; max-width: none; }
+      .sidebar { grid-column: 1; grid-row: 2; }
+      .workspace { grid-column: 2; grid-row: 2; }
+      .inspector { grid-column: 1 / -1; grid-row: 3; border-left: 0; border-top: .5px solid var(--line); }
+      .footer { grid-row: 4; }
     }
   </style>
 </head>
 <body>
-  <div class="walk-progress" id="walkProgress"></div>
-  <div class="viewer">
+  <div class="app">
     <header class="topbar">
       <div class="traffic" aria-hidden="true">
         <span class="dot red"></span>
         <span class="dot yellow"></span>
         <span class="dot green"></span>
       </div>
-      <div class="filename">loopthing.loopthing</div>
-      <form class="repo-form" id="repoForm">
-        <label class="repo-label" for="repoInput">session</label>
-        <input class="repo-input" id="repoInput" value="LoopThing feedback session" autocomplete="off" spellcheck="false">
+      <div class="filename">loopthing.loopthing/</div>
+      <form class="session-form" id="sessionForm">
+        <label for="sessionInput">session</label>
+        <input id="sessionInput" value="LoopThing feedback session" autocomplete="off" spellcheck="false">
       </form>
-      <div class="meta-line" id="topMeta"></div>
+      <div class="meta" id="packageMeta">package staged</div>
     </header>
 
-    <aside class="rail left">
-      <h2 class="rail-title">Agents</h2>
-      <div class="agent-list" id="agentList"></div>
-
-      <h2 class="rail-title">File Contains</h2>
-      <div class="file-box">
-        <ul>
-          <li>sanitized prompts</li>
-          <li>critiques</li>
-          <li>revisions</li>
-          <li>kills + reasons</li>
-          <li>artifact bundle</li>
-        </ul>
-      </div>
+    <aside class="sidebar">
+      <h2 class="section-title">Package</h2>
+      <p class="package-note">A .loopthing is a browsable artifact bundle. Start with the sanitized prompt, then open the investigations and artifacts behind it.</p>
+      <div class="tree" id="fileTree"></div>
     </aside>
 
-    <main class="center">
-      <section class="graph-panel" aria-label="Agent graph">
-        <svg id="graph" role="img"></svg>
+    <main class="workspace">
+      <div class="pathbar">
+        <span>loopthing.loopthing /</span>
+        <strong id="pathText">awaiting session</strong>
+      </div>
+      <section class="content" id="content">
+        <div class="empty">press Enter to open the package</div>
       </section>
-      <section class="cards" id="cards" aria-label="Agent path"></section>
     </main>
 
-    <aside class="rail right" id="details"></aside>
+    <aside class="inspector" id="inspector"></aside>
 
     <footer class="footer">
-      <div class="chips">
-        <span class="chip">forkable</span>
-        <span class="chip">auditable</span>
-        <span class="chip">shareable</span>
-        <span class="chip mono">.loopthing v0.1</span>
-      </div>
-      <div class="tagline">the output is no longer the only artifact · the thinking ships too</div>
+      <span>forkable - auditable - shareable - portable</span>
+      <span>the output is no longer the only artifact</span>
     </footer>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
-  <script id="embedded-loopthing" type="application/json">
-{
-  "format": "loopthing/v0.1",
-  "meta": {
-    "title": "The Missing Artifact",
-    "source_label": "LoopThing feedback session",
-    "source_url": "loopthing://feedback-session",
-    "source_kind": "sanitized-session",
-    "note": "A self-referential LoopThing trace distilled from feedback on what the file format should actually mean.",
-    "created": "2026-04-29T06:58:00Z",
-    "tldr": "A .loopthing is a file format for AI work: a forkable, auditable record of the looping thoughts, branches, killed ideas, and revisions behind how an idea arrived."
-  },
-  "agents": [
-    {"id": "format", "color": "#7F77DD", "thesis": "LoopThing is a new file format for AI work, not a chat summary and not a repo diff."},
-    {"id": "editorial", "color": "#1D9E75", "thesis": "LoopThing beautifies messy session history into a readable, skimmable artifact others can learn from."},
-    {"id": "artifacts", "color": "#D85A30", "thesis": "LoopThing is a collection of artifacts, not only a graph: prompts, docs, slides, prototypes, code, and references travel together."},
-    {"id": "multiplayer", "color": "#D4537E", "thesis": "LoopThing gives exploratory knowledge work a collaboration primitive: forkable, auditable, portable proof of thinking."}
-  ],
-  "nodes": [
-    {"id": "format.a", "agent": "format", "type": "prompt", "parent": null, "content": "What is the actual file innovation? Not a feature, not a repo trick, but the missing file format for AI work.", "timestamp": "2026-04-29T06:58:03Z"},
-    {"id": "format.b", "agent": "format", "type": "critique", "parent": "format.a", "content": "GitHub tracks code changes. LoopThing tracks the looping thoughts behind AI work: prompts, branches, killed ideas, revisions, and why the idea arrived.", "timestamp": "2026-04-29T06:58:08Z"},
-    {"id": "format.c.kill", "agent": "format", "type": "kill", "parent": "format.b", "content": "Call it GitHub for thought and let people LoopThing repos.", "kill_reason": "Memorable, but wrong. A repo contains outputs and code history; it does not contain the prompt process, session mess, or exploratory loop that produced the artifacts.", "killed_at": "2026-04-29T06:58:13Z", "timestamp": "2026-04-29T06:58:13Z"},
-    {"id": "format.c", "agent": "format", "type": "revision", "parent": "format.b", "content": "Define `.loopthing` as the file format for a thinking loop: sanitized prompts, critique, branches, killed ideas, revisions, and artifact links.", "supersedes": "format.c.kill", "why_won": "It names the real unit of value: not the repo, not the chat log, but the readable loop that explains how the work arrived.", "timestamp": "2026-04-29T06:58:20Z"},
-    {"id": "format.d", "agent": "format", "type": "synthesis", "parent": "format.c", "content": "The output is no longer the only artifact. The thinking ships too, as a file.", "timestamp": "2026-04-29T06:58:27Z"},
-    {"id": "editorial.a", "agent": "editorial", "type": "prompt", "parent": null, "content": "How do you make session history readable without pretending the mess never happened?", "timestamp": "2026-04-29T06:58:04Z"},
-    {"id": "editorial.b", "agent": "editorial", "type": "critique", "parent": "editorial.a", "content": "Raw chat is chaos, but a final slide deck or code demo is dead without process. LoopThing needs the cleaned-up initial prompt plus a track-changes trail for subsequent prompts.", "timestamp": "2026-04-29T06:58:09Z"},
-    {"id": "editorial.c.kill", "agent": "editorial", "type": "kill", "parent": "editorial.b", "content": "Just summarize the chat transcript.", "kill_reason": "A summary compresses the useful parts away. It hides branches, reversals, prompt edits, killed ideas, and the taste decisions that made the final artifact worth trusting.", "killed_at": "2026-04-29T06:58:14Z", "timestamp": "2026-04-29T06:58:14Z"},
-    {"id": "editorial.c", "agent": "editorial", "type": "revision", "parent": "editorial.b", "content": "Sanitize the chat into a beautiful prompt history: the best version of the initial prompt, then one-line track changes for later turns.", "supersedes": "editorial.c.kill", "why_won": "It preserves motion without making the reader wade through noise. The loop becomes skimmable and collaborative.", "timestamp": "2026-04-29T06:58:21Z"},
-    {"id": "editorial.d", "agent": "editorial", "type": "synthesis", "parent": "editorial.c", "content": "LoopThing is edited memory: not the camera roll, not the final poster, but the contact sheet with taste.", "timestamp": "2026-04-29T06:58:28Z"},
-    {"id": "artifacts.a", "agent": "artifacts", "type": "prompt", "parent": null, "content": "What does the file actually contain if the thinking loop produces more than text?", "timestamp": "2026-04-29T06:58:05Z"},
-    {"id": "artifacts.b", "agent": "artifacts", "type": "critique", "parent": "artifacts.a", "content": "The work is not only prompts. It includes raw chat, slides, Markdoc docs, coded prototypes, webpages, and the sanitized process that connects them.", "timestamp": "2026-04-29T06:58:10Z"},
-    {"id": "artifacts.c.kill", "agent": "artifacts", "type": "kill", "parent": "artifacts.b", "content": "Ship only the final slides or only the code.", "kill_reason": "Final artifacts are legible but dead. They show the output, not the exploratory decisions, discarded directions, or prompt moves that would help someone fork the work intelligently.", "killed_at": "2026-04-29T06:58:15Z", "timestamp": "2026-04-29T06:58:15Z"},
-    {"id": "artifacts.c", "agent": "artifacts", "type": "revision", "parent": "artifacts.b", "content": "Store the loop as an artifact bundle: sanitized inputs as the spine, with references to outputs in folders like `slides/`, `docs/`, `prototype/`, and `raw/`.", "supersedes": "artifacts.c.kill", "why_won": "It makes the file portable and useful as a portfolio artifact: the reader gets process and outputs together.", "timestamp": "2026-04-29T06:58:22Z"},
-    {"id": "artifacts.d", "agent": "artifacts", "type": "synthesis", "parent": "artifacts.c", "content": "The `.loopthing` file is the spine. The artifacts are the body. Together they make the idea portable.", "timestamp": "2026-04-29T06:58:29Z"},
-    {"id": "multiplayer.a", "agent": "multiplayer", "type": "prompt", "parent": null, "content": "Who needs a LoopThing if code teams already have PRDs, tickets, and commits?", "timestamp": "2026-04-29T06:58:06Z"},
-    {"id": "multiplayer.b", "agent": "multiplayer", "type": "critique", "parent": "multiplayer.a", "content": "Exploratory knowledge work has weaker handoffs. Ideas move through chats, branches, docs, and prototypes, but there is no good PR for the thinking itself.", "timestamp": "2026-04-29T06:58:11Z"},
-    {"id": "multiplayer.c.kill", "agent": "multiplayer", "type": "kill", "parent": "multiplayer.b", "content": "Keep LoopThing as a private archive of everything that happened.", "kill_reason": "A private archive is safe but not collaborative. The format needs sanitized portability so others can skim it, fork it, audit it, and build from it without inheriting the whole messy chat history.", "killed_at": "2026-04-29T06:58:16Z", "timestamp": "2026-04-29T06:58:16Z"},
-    {"id": "multiplayer.c", "agent": "multiplayer", "type": "revision", "parent": "multiplayer.b", "content": "Make LoopThing a multiplayer proof-of-work artifact for exploratory AI projects: readable session history, reasons, outputs, and fork points.", "supersedes": "multiplayer.c.kill", "why_won": "It gives non-linear idea work a handoff format. Another person can understand the path, not only inspect the result.", "timestamp": "2026-04-29T06:58:23Z"},
-    {"id": "multiplayer.d", "agent": "multiplayer", "type": "synthesis", "parent": "multiplayer.c", "content": "The modern primitive is the chat. LoopThing makes that primitive readable enough to share.", "timestamp": "2026-04-29T06:58:30Z"}
-  ],
-  "edges": [
-    {"from": "format.a", "to": "format.b", "kind": "branch"},
-    {"from": "format.b", "to": "format.c.kill", "kind": "pruned"},
-    {"from": "format.b", "to": "format.c", "kind": "branch"},
-    {"from": "format.c", "to": "format.d", "kind": "branch"},
-    {"from": "editorial.a", "to": "editorial.b", "kind": "branch"},
-    {"from": "editorial.b", "to": "editorial.c.kill", "kind": "pruned"},
-    {"from": "editorial.b", "to": "editorial.c", "kind": "branch"},
-    {"from": "editorial.c", "to": "editorial.d", "kind": "branch"},
-    {"from": "artifacts.a", "to": "artifacts.b", "kind": "branch"},
-    {"from": "artifacts.b", "to": "artifacts.c.kill", "kind": "pruned"},
-    {"from": "artifacts.b", "to": "artifacts.c", "kind": "branch"},
-    {"from": "artifacts.c", "to": "artifacts.d", "kind": "branch"},
-    {"from": "multiplayer.a", "to": "multiplayer.b", "kind": "branch"},
-    {"from": "multiplayer.b", "to": "multiplayer.c.kill", "kind": "pruned"},
-    {"from": "multiplayer.b", "to": "multiplayer.c", "kind": "branch"},
-    {"from": "multiplayer.c", "to": "multiplayer.d", "kind": "branch"},
-    {"from": "format.c", "to": "editorial.c", "kind": "cites", "reason": "Once LoopThing is a file format, the key design question becomes what cleaned-up version of the session belongs in the file."},
-    {"from": "editorial.c", "to": "artifacts.c", "kind": "cites", "reason": "The sanitized prompt trail becomes the spine that can organize slides, docs, prototypes, code, and raw material."},
-    {"from": "artifacts.c", "to": "multiplayer.c", "kind": "cites", "reason": "Portable artifact bundles are what make exploratory AI work shareable, forkable, and useful to collaborators."}
-  ],
-  "artifacts": [
-    {"id": "prompt", "path": "PROMPT.md", "kind": "prompt", "description": "The refined prompt for building the LoopThing of LoopThing itself."},
-    {"id": "viewer", "path": "index.html", "kind": "prototype", "description": "The static viewer that reads a .loopthing artifact."},
-    {"id": "self", "path": "loopthing.loopthing", "kind": "trace", "description": "The self-referential LoopThing trace."},
-    {"id": "sample-openclaw", "path": "openclaw.loopthing", "kind": "sample", "description": "Earlier OpenClaw origin trace kept as a secondary example."}
-  ]
-}
-  </script>
   <script>
+    const packageFiles = [
+      {
+        path: "manifest.loop",
+        kind: "manifest",
+        group: "package",
+        description: "Package metadata and entrypoint.",
+        content: `format: loopthing/package-v0.2
+title: The Missing Artifact
+kind: sanitized-session-package
+created: 2026-04-29T07:18:00Z
+start: START.md
+
+summary:
+  A .loopthing is a package for AI work: a forkable, auditable collection
+  of sanitized prompts, user-input track changes, killed ideas, reasons,
+  and produced artifacts that shows how an idea arrived.
+
+principles:
+  - Not a JSON file
+  - Not a raw chat dump
+  - Not a repo diff
+  - Sanitized user inputs are the spine
+  - Produced artifacts travel with the thinking loop`
+      },
+      {
+        path: "START.md",
+        kind: "sanitized prompt",
+        group: "root",
+        description: "The best current version of the project prompt.",
+        content: `# The Missing Artifact
+
+A .loopthing is a file format for AI work: a forkable, auditable collection of the looping thoughts, branches, killed ideas, revisions, and artifacts behind how an idea arrived.
+
+## Sanitized Project Prompt
+
+Create the LoopThing of LoopThing itself.
+
+The artifact should not be a single JSON file. It should be a portable package: a folder-like .loopthing bundle that contains the cleaned-up prompt trail, prompt-level track changes, killed directions, reasons, and the actual artifacts produced along the way.
+
+The first thing a reader sees should be the sanitized prompt: the best, clearest version of the idea after the whole session. From there, the reader can open sub-investigations:
+
+- the true initial prompt
+- line-by-line user-input track changes
+- the thought DAG
+- the presentation slide
+- the viewer code artifact
+- the package format notes
+
+The viewer should feel like a tiny operating system for the package. You browse the .loopthing bundle as files, not as a single blob. The core experience is not "summarize my chat." It is "make my session history and exploratory work readable, skimmable, forkable, and safe to share."
+
+## Final Shape
+
+LoopThing turns the mess of exploratory AI work into a portable artifact bundle.
+
+The output is no longer the only artifact. The thinking ships too.`
+      },
+      {
+        path: "investigations/user-input-track-changes.md",
+        kind: "investigation",
+        group: "investigations",
+        description: "True initial prompt plus line-by-line user direction changes.",
+        content: `# User Input Track Changes
+
+This investigation shows how the idea moved from the true initial prompt to the current LoopThing package concept.
+
+The spine is user input only. AI responses are not treated as the canonical record; they are supporting material. The proof is the sequence of human directions, edits, constraints, and reversals.
+
+## True Initial Prompt
+
+\`\`\`text
+Build a static, single-page demo viewer for a .loopthing file in 5 minutes.
+No build step, no backend, no framework — just index.html + one openclaw.loopthing.json file.
+Must open in a browser by minute 6.
+\`\`\`
+
+## Track Changes By User Direction
+
+\`\`\`diff
++ Build a static, single-page demo viewer.
++ Use index.html and one .loopthing-shaped data file.
++ Show prompts, critiques, revisions, kills, and kill reasons as a DAG.
+
++ Add a top-bar input.
++ Let the user hit Enter on the OpenClaw repo and populate the viewer.
+
+- openclaw.loopthing.json
++ openclaw.loopthing
++ Professional README
++ Explain LoopThing as a file format.
+
+- A .loopthing is the missing artifact for AI work.
++ A .loopthing is a file format for AI work:
++ a forkable, auditable record of looping thoughts, branches, killed ideas, and revisions.
+
++ Safe portability.
++ Version control for knowledge.
++ Context that is not just summarizing chat.
++ Make session history readable, skimmable, and collaborative.
+- You can LoopThing a repo.
++ You LoopThing a session, an exploratory process, or a body of AI work.
++ LoopThing is a collection of artifacts.
++ MVP stores sanitized user inputs as the canonical trail.
+
+- .loopthing as one JSON file
++ .loopthing as a package of multiple file types and artifacts
++ Viewer as an OS for browsing the package
++ Core start file is the sanitized prompt
++ Sub-investigation shows the true initial prompt
++ Track all user-input iterations line by line
++ Include produced artifacts like slides and viewer code
+\`\`\`
+
+## Killed Direction
+
+\`\`\`diff
+- "GitHub for thought"
+\`\`\`
+
+Kill reason: it is catchy but structurally wrong. GitHub shows code diffs and repo history. LoopThing shows exploratory user-input loops and the artifacts they produced.`
+      },
+      {
+        path: "graph/thought-dag.loopgraph",
+        kind: "thought graph",
+        group: "graph",
+        description: "Machine-readable thought DAG for viewers.",
+        graph: {
+          agents: [
+            { id: "format", color: "#7F77DD", thesis: "LoopThing is a package file format, not JSON and not repo history." },
+            { id: "editorial", color: "#1D9E75", thesis: "LoopThing cleans messy session history into readable memory." },
+            { id: "artifacts", color: "#D85A30", thesis: "LoopThing carries produced artifacts with the process." },
+            { id: "multiplayer", color: "#D4537E", thesis: "LoopThing makes exploratory work shareable and auditable." }
+          ],
+          nodes: [
+            { id: "format.a", agent: "format", type: "prompt", content: "What is the actual file innovation?" },
+            { id: "format.b", agent: "format", type: "critique", content: "GitHub tracks code changes. LoopThing tracks thinking loops." },
+            { id: "format.c.kill", agent: "format", type: "kill", content: "Call it GitHub for thought.", kill_reason: "Memorable, but wrong. Repos show outputs and code history, not the prompt process." },
+            { id: "format.c", agent: "format", type: "revision", content: "Define .loopthing as a package for a thinking loop." },
+            { id: "editorial.a", agent: "editorial", type: "prompt", content: "How do you make session history readable?" },
+            { id: "editorial.c.kill", agent: "editorial", type: "kill", content: "Just summarize the chat.", kill_reason: "A summary hides branches, reversals, killed ideas, and taste decisions." },
+            { id: "editorial.c", agent: "editorial", type: "revision", content: "Sanitize the chat into prompt history and track changes." },
+            { id: "artifacts.a", agent: "artifacts", type: "prompt", content: "What does the file contain if the loop produces more than text?" },
+            { id: "artifacts.c.kill", agent: "artifacts", type: "kill", content: "Ship only final slides or code.", kill_reason: "Final artifacts show output, not exploratory decisions." },
+            { id: "artifacts.c", agent: "artifacts", type: "revision", content: "Package prompt spine, slides, docs, code, and prototypes together." },
+            { id: "multiplayer.a", agent: "multiplayer", type: "prompt", content: "Who needs this if code teams have PRDs and tickets?" },
+            { id: "multiplayer.c", agent: "multiplayer", type: "revision", content: "Make it a multiplayer proof-of-work artifact." }
+          ]
+        }
+      },
+      {
+        path: "artifacts/slides/the-missing-artifact.html",
+        kind: "slide",
+        group: "artifacts",
+        description: "A portable slide artifact included inside the package.",
+        external: "loopthing.loopthing/artifacts/slides/the-missing-artifact.html"
+      },
+      {
+        path: "artifacts/viewer-os-example.html",
+        kind: "code artifact",
+        group: "artifacts",
+        description: "A tiny example of package-browser viewer code.",
+        external: "loopthing.loopthing/artifacts/viewer-os-example.html"
+      },
+      {
+        path: "artifacts/spec/package-format.md",
+        kind: "spec",
+        group: "artifacts",
+        description: "Notes on treating .loopthing as a package directory.",
+        content: `# LoopThing Package Format
+
+This version treats .loopthing as a package directory, not a JSON file.
+
+## Required
+
+- manifest.loop: package metadata and entrypoint
+- START.md: sanitized prompt for the project
+- investigations/: prompt history, track changes, killed directions, reasons
+- artifacts/: slides, docs, code, prototypes, webpages, references
+
+## Canonical Spine
+
+The canonical spine is sanitized user input.
+
+AI responses can be included as supporting material, but they are not the primary proof. The package should show what the human asked, how the direction changed, what got killed, and which artifacts shipped.`
+      },
+      {
+        path: "artifacts/brief/one-liner.md",
+        kind: "brief",
+        group: "artifacts",
+        description: "Short definition for the package.",
+        content: `# One-Liner
+
+A .loopthing is a file format for AI work: a forkable, auditable package of the looping thoughts, killed ideas, revisions, and artifacts behind how an idea arrived.
+
+## Shorter
+
+A .loopthing packages the thinking loop behind AI work so the process is readable, portable, and shareable.`
+      }
+    ];
+
+    const groups = [
+      ["root", "start"],
+      ["investigations", "investigations"],
+      ["graph", "graph"],
+      ["artifacts", "artifacts"],
+      ["package", "package"]
+    ];
+
     const typeColors = {
-      prompt: "var(--prompt)",
-      critique: "var(--critique)",
-      revision: "var(--revision)",
-      kill: "var(--kill)",
-      synthesis: "var(--synthesis)"
+      prompt: "var(--blue)",
+      critique: "var(--amber)",
+      revision: "var(--green)",
+      kill: "var(--red)",
+      synthesis: "var(--purple)"
     };
 
-    let data;
-    let stagedData;
-    let nodeById;
-    let activeAgentId;
-    let selectedNodeId;
-    let walkIndex = 0;
-    let walkStarted = false;
-    const walkEnabled = new URLSearchParams(location.search).get("walk") === "1";
-    const progressEl = document.getElementById("walkProgress");
-    const repoForm = document.getElementById("repoForm");
-    const repoInput = document.getElementById("repoInput");
+    let packageOpen = false;
+    let selectedPath = null;
+
+    const form = document.getElementById("sessionForm");
+    const input = document.getElementById("sessionInput");
+    const tree = document.getElementById("fileTree");
+    const content = document.getElementById("content");
+    const inspector = document.getElementById("inspector");
+    const pathText = document.getElementById("pathText");
+    const packageMeta = document.getElementById("packageMeta");
 
     function escapeHtml(value) {
       return String(value ?? "")
@@ -756,363 +766,186 @@
         .replaceAll("'", "&#039;");
     }
 
-    async function loadData() {
-      if (location.protocol !== "file:") {
-        try {
-          const response = await fetch("loopthing.loopthing", { cache: "no-store" });
-          if (response.ok) return response.json();
-        } catch (error) {
-          /* Direct file opening uses the embedded copy below. */
+    function markdownToHtml(markdown) {
+      const lines = String(markdown).split("\n");
+      let html = "";
+      let inFence = false;
+      let fenceType = "";
+      let listOpen = false;
+
+      const closeList = () => {
+        if (listOpen) {
+          html += "</ul>";
+          listOpen = false;
         }
-      }
-      return JSON.parse(document.getElementById("embedded-loopthing").textContent);
-    }
-
-    function setEmptyState(message = "session staged") {
-      document.getElementById("topMeta").textContent = message;
-      document.getElementById("agentList").innerHTML = "";
-      document.getElementById("cards").innerHTML = '<div class="empty-pane">awaiting session</div>';
-      document.getElementById("details").innerHTML = '<div class="empty-pane">.loopthing will populate here</div>';
-      d3.select("#graph").selectAll("*").remove();
-    }
-
-    function hydrateViewer(nextData) {
-      data = nextData;
-      nodeById = new Map(data.nodes.map(node => [node.id, node]));
-      activeAgentId = data.agents[0].id;
-      selectedNodeId = defaultNodeForAgent(activeAgentId).id;
-      repoInput.value = data.meta.source_label || data.meta.source_url || repoInput.value;
-      render();
-      startWalk();
-    }
-
-    function submitRepo(event) {
-      event.preventDefault();
-      const source = repoInput.value.trim();
-      if (!source) {
-        setEmptyState("session required");
-        repoInput.focus();
-        return;
-      }
-      hydrateViewer(stagedData);
-    }
-
-    function handleRepoKeydown(event) {
-      if (event.key !== "Enter") return;
-      submitRepo(event);
-    }
-
-    function countType(type) {
-      return data.nodes.filter(node => node.type === type).length;
-    }
-
-    function nodesForAgent(agentId) {
-      return data.nodes
-        .filter(node => node.agent === agentId)
-        .sort((a, b) => String(a.timestamp).localeCompare(String(b.timestamp)));
-    }
-
-    function defaultNodeForAgent(agentId) {
-      return nodesForAgent(agentId).find(node => node.type === "kill") || nodesForAgent(agentId)[0];
-    }
-
-    function siblingsOf(node) {
-      if (!node || !node.parent) return [];
-      return data.nodes.filter(candidate => candidate.parent === node.parent && candidate.id !== node.id);
-    }
-
-    function citedByCount(nodeId) {
-      return data.edges.filter(edge => edge.kind === "cites" && edge.to === nodeId).length;
-    }
-
-    function prunedNear(node) {
-      const found = new Map();
-      const add = candidate => {
-        if (candidate && candidate.type === "kill") found.set(candidate.id, candidate);
       };
 
-      if (node.type === "kill") add(node);
-      siblingsOf(node).forEach(add);
-      data.nodes.filter(candidate => candidate.parent === node.id).forEach(add);
+      for (const raw of lines) {
+        const line = raw.replace(/\r$/, "");
+        if (line.startsWith("```")) {
+          closeList();
+          if (!inFence) {
+            inFence = true;
+            fenceType = line.slice(3).trim();
+            html += `<pre data-fence="${escapeHtml(fenceType)}">`;
+          } else {
+            inFence = false;
+            html += "</pre>";
+          }
+          continue;
+        }
 
-      if (!found.size && node.parent) {
-        data.nodes.filter(candidate => candidate.parent === node.parent).forEach(add);
+        if (inFence) {
+          const cls = line.startsWith("++") || line.startsWith("+") ? "add" : line.startsWith("-") ? "del" : "note";
+          if (fenceType === "diff") {
+            html += `<div class="track-line ${cls}"><span>${escapeHtml(line.slice(0, 2).trim() || " ")}</span><span>${escapeHtml(line)}</span></div>`;
+          } else {
+            html += `${escapeHtml(line)}\n`;
+          }
+          continue;
+        }
+
+        if (!line.trim()) {
+          closeList();
+          continue;
+        }
+
+        if (line.startsWith("# ")) {
+          closeList();
+          html += `<h1>${escapeHtml(line.slice(2))}</h1>`;
+        } else if (line.startsWith("## ")) {
+          closeList();
+          html += `<h2>${escapeHtml(line.slice(3))}</h2>`;
+        } else if (line.startsWith("### ")) {
+          closeList();
+          html += `<h3>${escapeHtml(line.slice(4))}</h3>`;
+        } else if (line.startsWith("- ")) {
+          if (!listOpen) {
+            html += "<ul>";
+            listOpen = true;
+          }
+          html += `<li>${escapeHtml(line.slice(2))}</li>`;
+        } else {
+          closeList();
+          html += `<p>${escapeHtml(line)}</p>`;
+        }
       }
 
-      if (!found.size) {
-        nodesForAgent(node.agent).forEach(add);
-      }
-
-      return [...found.values()];
+      closeList();
+      return `<article class="doc">${html}</article>`;
     }
 
-    function winnerFor(node) {
-      if (node.type === "revision" && node.why_won) return node;
-      if (node.parent) {
-        return data.nodes.find(candidate => candidate.parent === node.parent && candidate.type === "revision" && candidate.why_won);
+    function renderTree() {
+      if (!packageOpen) {
+        tree.innerHTML = "";
+        return;
       }
-      return nodesForAgent(node.agent).find(candidate => candidate.type === "revision" && candidate.why_won);
-    }
 
-    function renderAgents() {
-      const container = document.getElementById("agentList");
-      container.innerHTML = data.agents.map(agent => {
-        const nodes = nodesForAgent(agent.id);
-        const kills = nodes.filter(node => node.type === "kill").length;
+      tree.innerHTML = groups.map(([group, label]) => {
+        const files = packageFiles.filter(file => file.group === group);
+        if (!files.length) return "";
         return `
-          <button class="agent-button ${agent.id === activeAgentId ? "active" : ""}" data-agent="${escapeHtml(agent.id)}" style="--agent: ${agent.color}">
-            <span class="agent-swatch"></span>
-            <span>
-              <span class="agent-id">${escapeHtml(agent.id)}</span>
-              <span class="agent-count">${nodes.length} nodes · ${kills} kill${kills === 1 ? "" : "s"}</span>
-            </span>
-          </button>
+          <div class="folder">${escapeHtml(label)}</div>
+          ${files.map(file => `
+            <button class="file-button ${file.path === selectedPath ? "active" : ""}" data-path="${escapeHtml(file.path)}">
+              <span class="file-icon"></span>
+              <span class="file-name">${escapeHtml(file.path.split("/").pop())}</span>
+            </button>
+          `).join("")}
         `;
       }).join("");
 
-      container.querySelectorAll("button").forEach(button => {
-        button.addEventListener("click", () => {
-          activeAgentId = button.dataset.agent;
-          selectedNodeId = defaultNodeForAgent(activeAgentId).id;
-          render();
-        });
+      tree.querySelectorAll(".file-button").forEach(button => {
+        button.addEventListener("click", () => selectFile(button.dataset.path));
       });
     }
 
-    function renderTopMeta() {
-      const kills = countType("kill");
-      const artifactCount = data.artifacts?.length || 0;
-      const artifactMeta = artifactCount ? ` · ${artifactCount} artifacts` : "";
-      document.getElementById("topMeta").textContent = `${data.agents.length} agents · ${data.nodes.length} nodes · ${kills} kills${artifactMeta}`;
-    }
-
-    function depthFor(node, memo = new Map()) {
-      if (memo.has(node.id)) return memo.get(node.id);
-      if (!node.parent || !nodeById.has(node.parent)) {
-        memo.set(node.id, 0);
-        return 0;
-      }
-      const depth = depthFor(nodeById.get(node.parent), memo) + 1;
-      memo.set(node.id, depth);
-      return depth;
-    }
-
-    function renderGraph() {
-      if (!data) return;
-      const svg = d3.select("#graph");
-      const graphNode = document.getElementById("graph");
-      const rect = graphNode.getBoundingClientRect();
-      const width = Math.max(520, rect.width || 720);
-      const height = Math.max(280, rect.height || 320);
-      svg.attr("viewBox", `0 0 ${width} ${height}`);
-      svg.selectAll("*").remove();
-
-      const ownIds = new Set(nodesForAgent(activeAgentId).map(node => node.id));
-      const visibleLinks = data.edges.filter(edge => {
-        const from = nodeById.get(edge.from);
-        const to = nodeById.get(edge.to);
-        if (!from || !to) return false;
-        if (ownIds.has(edge.from) && ownIds.has(edge.to)) return true;
-        return edge.kind === "cites" && (ownIds.has(edge.from) || ownIds.has(edge.to));
-      });
-
-      const visibleIds = new Set();
-      visibleLinks.forEach(edge => {
-        visibleIds.add(edge.from);
-        visibleIds.add(edge.to);
-      });
-      ownIds.forEach(id => visibleIds.add(id));
-
-      const depthMemo = new Map();
-      const graphNodes = [...visibleIds].map(id => {
-        const base = nodeById.get(id);
-        return {
-          ...base,
-          ghost: base.agent !== activeAgentId,
-          depth: depthFor(base, depthMemo)
-        };
-      });
-      const graphLinks = visibleLinks.map(edge => ({
-        ...edge,
-        source: edge.from,
-        target: edge.to
-      }));
-      const maxDepth = Math.max(1, ...graphNodes.map(node => node.depth));
-
-      const simulation = d3.forceSimulation(graphNodes)
-        .force("link", d3.forceLink(graphLinks).id(node => node.id).distance(edge => edge.kind === "cites" ? 145 : 95).strength(.74))
-        .force("charge", d3.forceManyBody().strength(-330))
-        .force("x", d3.forceX(node => 70 + (width - 140) * (node.depth / maxDepth)).strength(.95))
-        .force("y", d3.forceY(height / 2).strength(.18))
-        .force("collide", d3.forceCollide().radius(34))
-        .stop();
-
-      for (let i = 0; i < 180; i += 1) simulation.tick();
-
-      graphNodes.forEach(node => {
-        node.x = Math.max(42, Math.min(width - 42, node.x));
-        node.y = Math.max(38, Math.min(height - 38, node.y));
-      });
-
-      svg.append("g")
-        .selectAll("line")
-        .data(graphLinks)
-        .join("line")
-        .attr("class", edge => `edge ${edge.kind}`)
-        .attr("x1", edge => edge.source.x)
-        .attr("y1", edge => edge.source.y)
-        .attr("x2", edge => edge.target.x)
-        .attr("y2", edge => edge.target.y);
-
-      const node = svg.append("g")
-        .selectAll("g")
-        .data(graphNodes)
-        .join("g")
-        .attr("class", d => `node ${d.type} ${d.ghost ? "ghost" : ""} ${d.id === selectedNodeId ? "selected" : ""}`)
-        .attr("transform", d => `translate(${d.x},${d.y})`)
-        .on("click", (_, d) => {
-          activeAgentId = d.agent;
-          selectedNodeId = d.id;
-          render();
-        });
-
-      node.append("circle")
-        .attr("r", d => d.type === "kill" ? 13 : 15)
-        .attr("fill", d => typeColors[d.type] || "var(--muted)");
-
-      node.append("text")
-        .attr("text-anchor", "middle")
-        .attr("y", 31)
-        .text(d => d.id);
-    }
-
-    function renderCards() {
-      const container = document.getElementById("cards");
-      container.innerHTML = nodesForAgent(activeAgentId).map(node => {
-        const killBody = node.type === "kill"
-          ? `<p class="content"><span class="kill-copy">${escapeHtml(node.content)}</span></p>
-             <div class="reason"><span class="reason-label">reason:</span>${escapeHtml(node.kill_reason)}</div>`
-          : `<p class="content">${escapeHtml(node.content)}</p>`;
-
-        return `
-          <article class="node-card ${node.type} ${node.id === selectedNodeId ? "active" : ""}" data-node="${escapeHtml(node.id)}">
-            <div class="card-top">
-              <span class="type-pill">${escapeHtml(node.type)}</span>
-              <span class="node-id">${escapeHtml(node.id)}</span>
-            </div>
-            ${killBody}
-          </article>
-        `;
-      }).join("");
-
-      container.querySelectorAll(".node-card").forEach(card => {
-        card.addEventListener("click", () => {
-          selectedNodeId = card.dataset.node;
-          render();
-        });
-      });
-    }
-
-    function renderDetails() {
-      const node = nodeById.get(selectedNodeId) || defaultNodeForAgent(activeAgentId);
-      selectedNodeId = node.id;
-      const parent = node.parent || "null";
-      const siblings = siblingsOf(node).map(sibling => sibling.id).join(", ") || "none";
-      const winner = winnerFor(node);
-      const pruned = prunedNear(node);
-      const prunedHtml = pruned.length
-        ? `<ul class="pruned-list">${pruned.map(item => `
-            <li class="pruned-item">
-              <strong>${escapeHtml(item.id)}</strong>
-              <span>${escapeHtml(item.kill_reason)}</span>
-            </li>
-          `).join("")}</ul>`
-        : `<p class="detail-copy">No pruned siblings recorded near this node.</p>`;
-      const artifactHtml = data.artifacts?.length
-        ? `<ul class="artifact-list">${data.artifacts.map(item => `
-            <li class="artifact-item">
-              <strong>${escapeHtml(item.path)}</strong>
-              <span>${escapeHtml(item.kind)} · ${escapeHtml(item.description)}</span>
-            </li>
-          `).join("")}</ul>`
-        : `<p class="detail-copy">No artifact bundle recorded.</p>`;
-
-      document.getElementById("details").innerHTML = `
-        <section class="detail-section">
-          <h2 class="rail-title">Selected Node</h2>
+    function renderInspector(file) {
+      const total = packageFiles.length;
+      inspector.innerHTML = `
+        <section class="inspector-box">
+          <h2 class="section-title">Selected File</h2>
           <dl class="kv">
-            <dt>id</dt><dd class="mono">${escapeHtml(node.id)}</dd>
-            <dt>type</dt><dd>${escapeHtml(node.type)}</dd>
-            <dt>parent</dt><dd class="mono">${escapeHtml(parent)}</dd>
-            <dt>siblings</dt><dd class="mono">${escapeHtml(siblings)}</dd>
-            <dt>cited by</dt><dd>${citedByCount(node.id)}</dd>
-            <dt>time</dt><dd class="mono">${escapeHtml(node.timestamp || node.killed_at || "")}</dd>
+            <dt>path</dt><dd class="mono">${escapeHtml(file?.path || "none")}</dd>
+            <dt>kind</dt><dd>${escapeHtml(file?.kind || "")}</dd>
+            <dt>package</dt><dd class="mono">loopthing/package-v0.2</dd>
+            <dt>files</dt><dd>${total}</dd>
           </dl>
         </section>
-        <section class="detail-section">
-          <h2 class="rail-title">Why This Branch Won</h2>
-          <p class="detail-copy">${escapeHtml(winner?.why_won || "No winning branch note recorded.")}</p>
+        <section class="inspector-box">
+          <h2 class="section-title">Why This Matters</h2>
+          <p>${escapeHtml(file?.description || "Open the package to inspect the sanitized prompt and its artifacts.")}</p>
         </section>
-        <section class="detail-section">
-          <h2 class="rail-title">Pruned Siblings</h2>
-          ${prunedHtml}
-        </section>
-        <section class="detail-section">
-          <h2 class="rail-title">Artifact Bundle</h2>
-          ${artifactHtml}
+        <section class="inspector-box">
+          <h2 class="section-title">Package Thesis</h2>
+          <p>A .loopthing is not a JSON blob. It is a portable collection of files that makes exploratory AI work readable.</p>
         </section>
       `;
     }
 
-    function render() {
-      renderTopMeta();
-      renderAgents();
-      renderGraph();
-      renderCards();
-      renderDetails();
+    function renderGraph(file) {
+      const graph = file.graph;
+      const nodesByAgent = new Map(graph.agents.map(agent => [agent.id, []]));
+      graph.nodes.forEach(node => nodesByAgent.get(node.agent)?.push(node));
+      content.innerHTML = `
+        <div class="graph-grid">
+          ${graph.agents.map(agent => `
+            <section class="graph-column">
+              <div class="agent-card" style="--agent:${agent.color}">
+                <strong>${escapeHtml(agent.id)}</strong>
+                <span>${escapeHtml(agent.thesis)}</span>
+              </div>
+              ${(nodesByAgent.get(agent.id) || []).map(node => `
+                <article class="node-card ${node.type}" style="--node-color:${typeColors[node.type] || "var(--muted)"}">
+                  <span class="node-type">${escapeHtml(node.type)} - ${escapeHtml(node.id)}</span>
+                  <p class="node-text">${escapeHtml(node.content)}</p>
+                  ${node.kill_reason ? `<div class="kill-reason">reason: ${escapeHtml(node.kill_reason)}</div>` : ""}
+                </article>
+              `).join("")}
+            </section>
+          `).join("")}
+        </div>
+      `;
     }
 
-    function startWalk() {
-      if (!walkEnabled || walkStarted) return;
-      walkStarted = true;
-      const agentIds = data.agents.map(agent => agent.id);
-      let startedAt = performance.now();
-      let lastStep = startedAt;
+    function selectFile(path) {
+      const file = packageFiles.find(item => item.path === path);
+      if (!file) return;
+      selectedPath = path;
+      pathText.textContent = path;
+      renderTree();
+      renderInspector(file);
 
-      function tick(now) {
-        const elapsed = now - startedAt;
-        progressEl.style.transform = `scaleX(${Math.min(1, elapsed / 6000)})`;
-        if (now - lastStep >= 6000) {
-          walkIndex = (walkIndex + 1) % agentIds.length;
-          activeAgentId = agentIds[walkIndex];
-          selectedNodeId = defaultNodeForAgent(activeAgentId).id;
-          startedAt = now;
-          lastStep = now;
-          render();
-        }
-        requestAnimationFrame(tick);
+      if (file.graph) {
+        renderGraph(file);
+      } else if (file.external) {
+        content.innerHTML = `<iframe class="html-frame" title="${escapeHtml(file.path)}" src="${escapeHtml(file.external)}"></iframe>`;
+      } else {
+        content.innerHTML = markdownToHtml(file.content || "");
       }
-
-      requestAnimationFrame(tick);
     }
 
-    loadData()
-      .then(loaded => {
-        if (!window.d3) {
-          document.querySelector(".center").innerHTML = '<div class="error">d3-force did not load from the CDN.</div>';
-          return;
-        }
-        stagedData = loaded;
-        setEmptyState("ready");
-        repoForm.addEventListener("submit", submitRepo);
-        repoInput.addEventListener("keydown", handleRepoKeydown);
-        repoInput.focus();
-        repoInput.select();
-        window.addEventListener("resize", renderGraph);
-      })
-      .catch(error => {
-        document.querySelector(".center").innerHTML = `<div class="error">${escapeHtml(error.message)}</div>`;
-      });
+    function openPackage(event) {
+      event.preventDefault();
+      if (!input.value.trim()) {
+        packageMeta.textContent = "session required";
+        input.focus();
+        return;
+      }
+      packageOpen = true;
+      packageMeta.textContent = `${packageFiles.length} files - package`;
+      selectFile("START.md");
+    }
+
+    form.addEventListener("submit", openPackage);
+    input.addEventListener("keydown", event => {
+      if (event.key === "Enter") openPackage(event);
+    });
+
+    renderTree();
+    renderInspector(null);
+    input.focus();
+    input.select();
   </script>
 </body>
 </html>

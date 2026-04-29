@@ -1,0 +1,26 @@
+format: loopthing/package-v0.2
+title: The Missing Artifact
+kind: sanitized-session-package
+created: 2026-04-29T07:18:00Z
+start: START.md
+
+summary:
+  A .loopthing is a package for AI work: a forkable, auditable collection
+  of sanitized prompts, user-input track changes, killed ideas, reasons,
+  and produced artifacts that shows how an idea arrived.
+
+principles:
+  - Not a JSON file
+  - Not a raw chat dump
+  - Not a repo diff
+  - Sanitized user inputs are the spine
+  - Produced artifacts travel with the thinking loop
+
+files:
+  - START.md
+  - investigations/user-input-track-changes.md
+  - graph/thought-dag.loopgraph
+  - artifacts/slides/the-missing-artifact.html
+  - artifacts/viewer-os-example.html
+  - artifacts/spec/package-format.md
+  - artifacts/brief/one-liner.md

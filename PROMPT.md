@@ -1,10 +1,10 @@
 # New Prompt: Build the LoopThing of LoopThing Itself
 
-Build a static, single-page demo for `loopthing.loopthing`: a `.loopthing` file that explains LoopThing by showing the messy thought loop that created LoopThing.
+Build a static, single-page demo for `loopthing.loopthing/`: a `.loopthing` package that explains LoopThing by showing the messy thought loop that created LoopThing.
 
 ## Core Definition
 
-A `.loopthing` is a file format for AI work: a forkable, auditable record of the looping thoughts, branches, killed ideas, revisions, and artifacts behind how an idea arrived.
+A `.loopthing` is a package format for AI work: a forkable, auditable collection of the looping thoughts, branches, killed ideas, revisions, and artifacts behind how an idea arrived.
 
 Do not frame this as "GitHub for repos." GitHub tracks code changes. LoopThing turns exploratory AI sessions into readable, portable knowledge artifacts. It is closer to version control for thinking, but the unit is not a repo or a commit. The unit is a thinking loop.
 
@@ -12,7 +12,7 @@ Do not frame this as "GitHub for repos." GitHub tracks code changes. LoopThing t
 
 Modern AI work starts in chat. That chat becomes the primitive: prompts, follow-ups, discarded ideas, rough drafts, screenshots, docs, slides, prototypes, and code. Today those loops either stay as unreadable session history or get compressed into a final artifact where the useful process disappears.
 
-LoopThing beautifies the trash randomness of idea work into something skimmable. It is not "summarize my chat." It is a file format that turns session mess into a sequence of artifacts:
+LoopThing beautifies the trash randomness of idea work into something skimmable. It is not "summarize my chat." It is a package format that turns session mess into a sequence of artifacts:
 
 - a sanitized initial prompt
 - prompt-level track changes
@@ -26,7 +26,9 @@ The MVP stores sanitized user inputs and artifact references as the canonical tr
 
 ## Demo Artifact
 
-Create `loopthing.loopthing` as the self-referential example. It should show four plausible lenses on the idea:
+Create `loopthing.loopthing/` as the self-referential example. It should contain the sanitized prompt, the true initial prompt investigation, track changes, thought graph, slide artifact, viewer-code artifact, and package-format notes.
+
+The thought graph should show four plausible lenses on the idea:
 
 - `format`: LoopThing as a new file format, not just a summary.
 - `editorial`: LoopThing as the cleaned-up, readable version of messy chat history.
@@ -37,21 +39,21 @@ Each lens should include a killed branch with a substantive reason. The stronges
 
 ## Product Shape
 
-Keep the viewer static: `index.html` plus `.loopthing` files. No backend, framework, build step, login, settings, or generator.
+Keep the viewer static: `index.html` plus the `loopthing.loopthing/` package. No backend, framework, build step, login, settings, or generator.
 
-The viewer should load `loopthing.loopthing` by default. The top input should say `session`, not `repo`, because you cannot LoopThing a repo directly. You LoopThing a messy AI session or exploratory process and export it as a portable artifact.
+The viewer should behave like a tiny OS for the package. The top input should say `session`, not `repo`, because you cannot LoopThing a repo directly. You LoopThing a messy AI session or exploratory process and export it as a portable artifact.
 
 The UI should make the file feel like a real artifact:
 
-- filename: `loopthing.loopthing`
+- filename: `loopthing.loopthing/`
 - title: `The Missing Artifact`
 - tagline: `the output is no longer the only artifact`
 - visible kill reasons
-- visible artifact list
+- visible artifact files
 - clear note that this is sanitized, not raw chat
 
 ## Tone
 
 Plain, sharp, and simple. The one-liner should be understandable in one breath:
 
-> A `.loopthing` is a file format for AI work: a forkable, auditable record of the looping thoughts, branches, killed ideas, and revisions behind how an idea arrived.
+> A `.loopthing` is a package format for AI work: a forkable, auditable collection of the looping thoughts, killed ideas, revisions, and artifacts behind how an idea arrived.

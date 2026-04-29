@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Missing Artifact</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #10110f;
+      color: #f4f1ea;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      min-height: 100vh;
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 100vw;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+    }
+    section {
+      min-height: 100vh;
+      display: grid;
+      align-content: center;
+      gap: 24px;
+      padding: 9vw;
+      scroll-snap-align: start;
+      border-right: .5px solid rgba(244, 241, 234, .18);
+    }
+    h1, h2, p { margin: 0; }
+    h1 { max-width: 940px; font-size: clamp(48px, 8vw, 118px); line-height: .96; }
+    h2 { max-width: 900px; font-size: clamp(34px, 5vw, 76px); line-height: 1.02; }
+    p { max-width: 760px; color: #c8c3b7; font-size: clamp(19px, 2.2vw, 30px); line-height: 1.35; }
+    code {
+      color: #f2d36b;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .9em;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section>
+      <h1>The Missing Artifact</h1>
+      <p>We have GitHub for code. We do not have a portable artifact for the thinking loops behind AI work.</p>
+    </section>
+    <section>
+      <h2>AI work happens in loops.</h2>
+      <p>You prompt, critique, branch, kill ideas, revise, and produce artifacts.</p>
+    </section>
+    <section>
+      <h2>Raw chat is chaos. Final output is too compressed.</h2>
+      <p>The useful process disappears in both directions.</p>
+    </section>
+    <section>
+      <h2><code>.loopthing</code> is a package.</h2>
+      <p>Sanitized prompt, track changes, killed directions, reasons, slides, docs, code, prototypes, and the graph of thought.</p>
+    </section>
+    <section>
+      <h2>The output is no longer the only artifact.</h2>
+      <p>The thinking ships too.</p>
+    </section>
+  </main>
+</body>
+</html>
