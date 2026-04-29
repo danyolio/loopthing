@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-label="LoopThing portable exploration tree">
+  <rect width="1400" height="900" fill="#f5f4ef"/>
+  <rect x="54" y="54" width="1292" height="792" rx="22" fill="#fff" stroke="#191917" stroke-opacity=".28"/>
+  <text x="92" y="132" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="58" font-weight="750" fill="#191917">Portable exploration tree</text>
+  <text x="94" y="178" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#6d6e68">loopthing.loopthing packages the path, not just the answer</text>
+
+  <g font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="25" font-weight="700">
+    <rect x="104" y="354" width="230" height="108" rx="14" fill="#e8f0ff" stroke="#356fd1"/>
+    <text x="138" y="406" fill="#244d91">root brief</text>
+    <text x="138" y="440" fill="#244d91" font-size="18" font-weight="500">what could docs be?</text>
+
+    <rect x="514" y="210" width="252" height="104" rx="14" fill="#fff7e6" stroke="#a96d12"/>
+    <text x="546" y="264" fill="#7c4e08">covenant</text>
+    <text x="546" y="295" fill="#7c4e08" font-size="18" font-weight="500">promise, ritual, trust</text>
+
+    <rect x="514" y="360" width="252" height="104" rx="14" fill="#eaf8f1" stroke="#1d8f65"/>
+    <text x="546" y="414" fill="#126748">conversation</text>
+    <text x="546" y="445" fill="#126748" font-size="18" font-weight="500">docs as dialogue</text>
+
+    <rect x="514" y="510" width="252" height="104" rx="14" fill="#f8eaea" stroke="#c8453e" stroke-dasharray="10 8" opacity=".72"/>
+    <line x1="540" y1="562" x2="738" y2="562" stroke="#c8453e" stroke-width="5"/>
+    <text x="546" y="557" fill="#8b2b27">theatre</text>
+    <text x="546" y="594" fill="#8b2b27" font-size="18" font-weight="500">killed: too performative</text>
+
+    <rect x="964" y="286" width="272" height="108" rx="14" fill="#efe9fb" stroke="#8058bd"/>
+    <text x="996" y="340" fill="#5d3c91">deepened child</text>
+    <text x="996" y="372" fill="#5d3c91" font-size="18" font-weight="500">inherits conversation</text>
+
+    <rect x="964" y="454" width="272" height="108" rx="14" fill="#f1f7ea" stroke="#1d8f65"/>
+    <text x="996" y="508" fill="#126748">sealed artifact</text>
+    <text x="996" y="540" fill="#126748" font-size="18" font-weight="500">forkable, auditable</text>
+  </g>
+
+  <g fill="none" stroke="#191917" stroke-opacity=".34" stroke-width="4">
+    <path d="M334 392 C420 338 444 278 514 262"/>
+    <path d="M334 408 C420 408 444 412 514 412"/>
+    <path d="M334 426 C420 486 444 548 514 562"/>
+    <path d="M766 412 C842 382 890 344 964 340"/>
+    <path d="M1100 394 C1100 428 1100 438 1100 454"/>
+  </g>
+  <path d="M766 562 C836 570 890 542 964 508" fill="none" stroke="#c8453e" stroke-width="4" stroke-dasharray="10 8" opacity=".75"/>
+
+  <rect x="92" y="706" width="1216" height="70" rx="14" fill="#191917"/>
+  <text x="126" y="751" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#f5f4ef">pruned thought is evidence; the losing branch still teaches</text>
+</svg>

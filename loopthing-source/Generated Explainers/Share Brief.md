@@ -8,7 +8,7 @@ Send a `.loopthing` when you want a friend, collaborator, coworker, judge, teach
 - the turns it took
 - the discarded directions
 - the generated explainers
-- the visuals and screenshots
+- the media, visuals, and screenshots
 - the docs, slides, prototype, and code
 - why the final version is stronger than the first one
 

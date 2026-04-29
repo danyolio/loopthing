@@ -1,7 +1,7 @@
 # One Liner
 
-A `.loopthing` is a rich portable file for AI work: prompts, follow-ups, discarded ideas, drafts, generated explainers, screenshots, docs, slides, prototypes, and code that show how an idea arrived.
+A `.loopthing` is a portable exploration tree for AI work: prompts, branches, critiques, killed paths, generated explainers, media, and artifacts in one forkable file.
 
 ## Shorter
 
-A `.loopthing` turns a messy AI session into a shareable rich artifact that makes the work easy to understand.
+A `.loopthing` turns a messy AI session into a shareable rich artifact that makes the work easy to understand and easy to inherit.

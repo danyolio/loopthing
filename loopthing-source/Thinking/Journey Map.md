@@ -1,60 +1,62 @@
 # Journey Map
 
-This is not a low-level graph file. It is the shareable map of how the idea became sharper.
+This is the readable flow of the project. It replaces an esoteric graph with a shareable map of how the idea became sharper.
 
 ## Flow
 
 ```text
 OpenAI Codex hackathon
-  -> OpenClaw origin trace
-  -> repo input demo
+  -> Karpathy LLMWiki origin demo
+  -> pruned thought is evidence
+  -> Ralph Loop
+  -> documentation-for-agents demo
+  -> OpenClaw static viewer
   -> killed: LoopThing a GitHub repo
-  -> file format for AI work
-  -> portable container
-  -> generated explainers
-  -> shareable proof of thought
+  -> portable .loopthing container
+  -> generated explainers and media
+  -> rich shareable artifact
 ```
 
 ## Steps
 
-### 1. Hackathon Spark
+### 1. Missing Artifact
 
-The constraint was speed: build a static demo that could open in a browser and explain the missing artifact behind AI work.
+The opening tension was simple: we have GitHub for code, but not for thought. Commits show what changed, not how the idea arrived.
 
-Why it matters: the pressure forced a concrete artifact instead of a theory.
+Why it matters: it creates a category rather than a feature.
 
-### 2. OpenClaw Origin Trace
+### 2. Karpathy Origin Demo
 
-OpenClaw became the first example because it had a visible output but no public thought process. The demo reverse-engineered a plausible origin story.
+The first imagined demo used LLMWiki as the finished artifact and asked four agents to reconstruct plausible origin paths: compression, pedagogy, tooling, and canon.
 
-Why it matters: it showed the gap between final code and the thinking that created it.
+Why it matters: it made "origin trace" visible.
 
-### 3. Repo Input Branch
+### 3. Ralph Loop
 
-The viewer briefly became "type a GitHub repo, press Enter, generate a LoopThing."
+The concept sharpened into a loop: generate, harshly critique, regenerate, force divergence, kill weak branches, deepen survivors.
 
-Why it lost: a repo is not the thinking loop. It is one possible artifact that came out of the loop.
+Why it matters: it gives the product an interaction model, not just a data model.
 
-### 4. File Format Shift
+### 4. Documentation For Agents
 
-The wording sharpened around "file format." LoopThing stopped being a visualization feature and became a portable primitive for AI work.
+The strongest hackathon demo question became "What could documentation be when agents read it?" with constraint vectors such as covenant, conversation, test suite, and theatre.
 
-Why it matters: file formats travel. Features stay inside apps.
+Why it matters: it shows exploration rather than answer generation.
 
-### 5. Container Shift
+### 5. OpenClaw Static Viewer
 
-The folder-like package was not enough. The artifact had to feel like one shareable file, with the unpacked source only used for editing and inspection.
+The built demo used OpenClaw because it could be shown quickly as a browser-only artifact.
 
-Why it matters: people understand the difference between a working folder and a file they can send.
+Why it matters: speed forced a real viewer and a real file.
 
-### 6. Shareable Proof
+### 6. Killed Repo Branch
 
-The final idea is a container that makes exploratory thinking look intentional: user prompts, prompt changes, killed branches, reasons, journey map, and artifacts.
+The viewer briefly became "paste a GitHub repo and generate a LoopThing."
 
-Why it wins: it turns messy process into something skimmable, forkable, and confidence-building.
+Why it lost: a repo is usually an output of the loop, not the loop itself.
 
-### 7. Generated Context
+### 7. Rich Container
 
-The latest move is that LoopThing does not merely store the loop. It generates new artifacts from it: problem statements, solution explainers, relevant context, slides, screenshots, prototypes, and code views.
+The winning shape is a single portable `.loopthing` file that contains prompts, decisions, killed branches, generated explainers, media, slides, prototype, and code.
 
-Why it wins: this makes the file useful to the recipient immediately, like a rich PDF for AI work.
+Why it wins: it feels like a modern PDF for AI work, except it carries the evidence and artifacts too.

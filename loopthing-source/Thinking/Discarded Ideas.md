@@ -1,43 +1,27 @@
 # Discarded Ideas
 
-Killed branches are not embarrassing. They are evidence of judgment.
+Discarded ideas are not embarrassing. They are evidence of judgment.
 
-## Killed: GitHub For Thought
+## Discarded: Raw Chat Export
 
-```diff
-- Position LoopThing as GitHub for thought.
-```
+Reason: complete, but socially awkward and hard to skim. Raw chat includes every take, not the artifact someone wants to send.
 
-Reason: memorable, but too loose. GitHub tracks code diffs. LoopThing tracks the user-prompt loop behind exploratory AI work.
+## Discarded: Final Output Only
 
-## Killed: LoopThing A GitHub Repo
+Reason: too compressed. The useful turns, constraints, critiques, and killed branches disappear.
 
-```diff
-- Make the core action "paste a repo URL and generate a LoopThing."
-```
+## Discarded: LoopThing A GitHub Repo
 
-Reason: a repo is often one artifact created by the thinking process. The `.loopthing` should track the session, decisions, and artifacts that produced the repo.
+Reason: a repo is often one artifact created by the thinking process. The `.loopthing` should track the session, decisions, and generated artifacts that produced the repo.
 
-## Killed: One JSON File
+## Discarded: Folder Masquerading As Filetype
 
-```diff
-- Store the whole thing as one JSON document.
-```
+Reason: a folder is convenient for editing, but the product promise is portability. The shareable object must be one container file.
 
-Reason: JSON is good for machines, but the product is a portable knowledge artifact for humans. The container can include structured data, but it should also include slides, docs, code, and prompt files.
+## Discarded: Markdown Dump
 
-## Killed: Just Summarize The Chat
+Reason: markdown alone makes the artifact feel like notes. LoopThing needs media, screenshots, slides, prototype, and code so it feels like a rich shareable dossier.
 
-```diff
-- Compress the chat into a summary.
-```
+## Discarded: Preserve Without Generating
 
-Reason: summaries hide the important parts: reversals, branches, critique, taste, and why certain paths were abandoned.
-
-## Killed: Preserve Without Generating
-
-```diff
-- Treat LoopThing as a container that only stores what already exists.
-```
-
-Reason: preservation is not enough. The valuable product move is generating new explainers and artifacts from the session so the recipient can understand the work without reconstructing the context themselves.
+Reason: preservation is not enough. The valuable move is generating new explainers and artifacts from the session so the recipient understands the work without reconstructing the whole context.

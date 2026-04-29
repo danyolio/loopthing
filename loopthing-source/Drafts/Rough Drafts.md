@@ -1,35 +1,29 @@
 # Rough Drafts
 
-LoopThing should preserve enough roughness to show the work, but not so much that sharing it feels embarrassing.
-
 ## Draft 1: GitHub For Thought
 
-```text
-GitHub tracks code changes. LoopThing tracks idea changes.
-```
+Clear analogy, incomplete product. It explains the gap but risks sounding like version control for prompts.
 
-Useful, but too broad. It makes the analogy clear and the product wrong.
+## Draft 2: Origin Trace Viewer
 
-## Draft 2: LoopThing A Repo
+Use Karpathy's LLMWiki or Steinberger's OpenClaw as a finished artifact, then simulate the missing thought process behind it.
 
-```text
-Paste a GitHub repo and generate the LoopThing.
-```
+Useful demo, but it looks backward from an output rather than capturing the real session as it happens.
 
-Demo-friendly, but the repo is usually the output. The process happened before and around it.
+## Draft 3: Ralph Loop Runtime
 
-## Draft 3: A Folder Of Artifacts
+Explore, judge, deepen, seal. Four agents, constraint vectors, critiques, killed branches, and depth-2 children.
 
-```text
-Make .loopthing a folder containing prompts, slides, code, and notes.
-```
+Strong product vocabulary, but too much to build honestly in a short static demo.
 
-Closer, but still not a filetype. It felt like a project folder with branding.
+## Draft 4: LoopThing A Repo
 
-## Current Draft: Rich PDF For AI Work
+Enter a repo, press return, populate the viewer.
 
-```text
-A .loopthing is a portable container that generates and carries the explainers, maps, drafts, screenshots, slides, prototypes, and code needed to understand the work.
-```
+Killed because a repo is an output, not the prompt process.
 
-This one wins because it describes both the container and the social job: helping someone share their thinking clearly.
+## Current Draft: Rich Portable Exploration Tree
+
+A `.loopthing` generates and carries the explainers, media, maps, drafts, screenshots, slides, prototype, and code needed to inherit the work.
+
+This wins because it describes both the container and the social job: make exploratory thinking legible, impressive, and easy to share.

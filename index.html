@@ -7,28 +7,28 @@
   <style>
     :root {
       color-scheme: light dark;
-      --bg: #f5f4ef;
+      --bg: #f4f3ee;
       --panel: #ffffff;
       --panel-soft: #ecebe5;
       --text: #191917;
-      --muted: #70716b;
-      --line: rgba(25, 25, 23, .24);
+      --muted: #6f706a;
+      --line: rgba(25, 25, 23, .25);
       --line-soft: rgba(25, 25, 23, .12);
       --blue: #356fd1;
       --green: #1d8f65;
       --amber: #a96d12;
       --red: #c8453e;
       --purple: #8058bd;
-      --red-soft: rgba(200, 69, 62, .1);
+      --ink: #191917;
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
         --bg: #111210;
         --panel: #181917;
-        --panel-soft: #20211e;
+        --panel-soft: #22231f;
         --text: #efeee8;
-        --muted: #a5a69f;
+        --muted: #a8a9a2;
         --line: rgba(239, 238, 232, .28);
         --line-soft: rgba(239, 238, 232, .13);
         --blue: #8eaff4;
@@ -36,7 +36,7 @@
         --amber: #dfad61;
         --red: #ef7c74;
         --purple: #bf9ae8;
-        --red-soft: rgba(239, 124, 116, .12);
+        --ink: #efeee8;
       }
     }
 
@@ -66,8 +66,8 @@
     .app {
       min-height: 100vh;
       display: grid;
-      grid-template-columns: 282px minmax(0, 1fr) 292px;
-      grid-template-rows: 48px minmax(0, 1fr) 38px;
+      grid-template-columns: 300px minmax(0, 1fr) 310px;
+      grid-template-rows: 50px minmax(0, 1fr) 40px;
       border: .5px solid var(--line);
       background: var(--panel);
     }
@@ -111,8 +111,8 @@
     .dot.yellow { background: #f4bf4f; }
     .dot.green { background: #61c554; }
 
-    .filename,
-    .mono {
+    .mono,
+    .filename {
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     }
 
@@ -122,12 +122,12 @@
     }
 
     .session-form {
-      flex: 1 1 420px;
-      max-width: 650px;
+      flex: 1 1 440px;
+      max-width: 720px;
       display: flex;
       align-items: center;
       gap: 8px;
-      min-width: 200px;
+      min-width: 220px;
     }
 
     .session-form label {
@@ -138,7 +138,7 @@
 
     .session-form input {
       width: 100%;
-      height: 28px;
+      height: 29px;
       padding: 0 9px;
       border: .5px solid var(--line);
       border-radius: 6px;
@@ -176,19 +176,45 @@
       margin: 0 0 8px;
       color: var(--muted);
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 750;
       text-transform: uppercase;
     }
 
     .package-note {
-      margin: 0 0 14px;
+      margin: 0 0 12px;
       color: var(--muted);
       font-size: 12px;
       line-height: 1.42;
     }
 
+    .mix {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .mix div {
+      padding: 7px;
+      border: .5px solid var(--line-soft);
+      border-radius: 6px;
+      background: var(--panel-soft);
+    }
+
+    .mix strong {
+      display: block;
+      font-size: 15px;
+    }
+
+    .mix span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
     .folder {
-      margin-top: 9px;
+      margin-top: 10px;
       padding: 7px 8px 3px;
       color: var(--muted);
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -198,9 +224,9 @@
 
     .file-button {
       width: 100%;
-      min-height: 34px;
+      min-height: 38px;
       display: grid;
-      grid-template-columns: 16px minmax(0, 1fr);
+      grid-template-columns: 34px minmax(0, 1fr) auto;
       gap: 8px;
       align-items: center;
       padding: 7px 8px;
@@ -218,17 +244,33 @@
     }
 
     .file-icon {
-      width: 12px;
-      height: 15px;
+      height: 23px;
+      display: grid;
+      place-items: center;
       border: .5px solid var(--line);
-      border-radius: 2px;
+      border-radius: 4px;
       background: var(--panel);
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 9px;
+      text-transform: uppercase;
     }
+
+    .file-button[data-ext="svg"] .file-icon,
+    .file-button[data-ext="png"] .file-icon { color: var(--green); border-color: color-mix(in srgb, var(--green), transparent 45%); }
+    .file-button[data-ext="html"] .file-icon { color: var(--purple); border-color: color-mix(in srgb, var(--purple), transparent 45%); }
+    .file-button[data-ext="loop"] .file-icon { color: var(--amber); border-color: color-mix(in srgb, var(--amber), transparent 45%); }
 
     .file-name {
       overflow-wrap: anywhere;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 12px;
+    }
+
+    .kind-pill {
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
     }
 
     .workspace {
@@ -277,8 +319,10 @@
     }
 
     .doc,
-    .journey {
-      max-width: 960px;
+    .journey,
+    .media-gallery,
+    .media-view {
+      max-width: 1040px;
       margin: 0 auto;
       padding: 24px;
       border: .5px solid var(--line);
@@ -287,28 +331,20 @@
     }
 
     .doc h1,
-    .doc h2,
-    .doc h3,
-    .doc p,
-    .doc pre,
-    .doc ul {
-      margin-top: 0;
-    }
-
-    .doc h1,
-    .journey h1 {
-      font-size: 30px;
+    .journey h1,
+    .media-gallery h1 {
+      font-size: 34px;
       line-height: 1.08;
       margin: 0 0 14px;
     }
 
     .doc h2 {
-      margin-top: 26px;
-      font-size: 18px;
+      margin: 28px 0 10px;
+      font-size: 19px;
     }
 
     .doc h3 {
-      margin-top: 22px;
+      margin: 24px 0 8px;
       color: var(--muted);
       font-size: 13px;
       text-transform: uppercase;
@@ -316,22 +352,26 @@
 
     .doc p,
     .doc li,
-    .journey p {
+    .journey p,
+    .media-gallery p {
       font-size: 15px;
       line-height: 1.55;
     }
 
-    .doc code,
-    .doc pre {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    .doc ul {
+      margin-top: 0;
+      padding-left: 22px;
     }
 
     .doc pre {
       overflow: auto;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
       padding: 12px;
       border: .5px solid var(--line-soft);
       border-radius: 6px;
       background: var(--panel-soft);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 12px;
       line-height: 1.5;
     }
@@ -349,46 +389,86 @@
     }
 
     .track-line.add { background: rgba(29, 143, 101, .11); color: var(--green); }
-    .track-line.del { background: var(--red-soft); color: var(--red); text-decoration: line-through; }
+    .track-line.del { background: rgba(200, 69, 62, .1); color: var(--red); text-decoration: line-through; }
     .track-line.note { color: var(--muted); }
 
     .html-frame {
       width: 100%;
-      height: min(720px, calc(100vh - 150px));
+      height: min(760px, calc(100vh - 150px));
       border: .5px solid var(--line);
       border-radius: 8px;
       background: white;
     }
 
-    .image-frame {
+    .image-frame,
+    .media-view img {
       display: block;
-      max-width: 100%;
-      max-height: calc(100vh - 150px);
-      margin: 0 auto;
+      width: 100%;
+      max-height: calc(100vh - 180px);
+      object-fit: contain;
       border: .5px solid var(--line);
       border-radius: 8px;
       background: white;
+    }
+
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .media-card {
+      border: .5px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--panel-soft);
+    }
+
+    .media-card img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 7 / 4.5;
+      object-fit: cover;
+      background: white;
+      border-bottom: .5px solid var(--line);
+    }
+
+    .media-card div {
+      padding: 10px;
+    }
+
+    .media-card strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 13px;
+    }
+
+    .media-card span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
     }
 
     .journey-flow {
       display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 12px;
       margin-top: 18px;
     }
 
     .journey-step {
-      display: grid;
-      grid-template-columns: 42px minmax(0, 1fr);
-      gap: 14px;
+      min-height: 180px;
       padding: 14px;
       border: .5px solid var(--line);
-      border-left: 5px solid var(--step-color);
+      border-top: 5px solid var(--step-color);
       border-radius: 7px;
       background: var(--panel);
     }
 
     .journey-step.kill {
-      background: var(--red-soft);
+      background: rgba(200, 69, 62, .1);
+      opacity: .78;
     }
 
     .step-number {
@@ -396,6 +476,7 @@
       height: 30px;
       display: grid;
       place-items: center;
+      margin-bottom: 10px;
       border: .5px solid var(--line);
       border-radius: 999px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -404,21 +485,24 @@
 
     .step-copy strong {
       display: block;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       font-size: 15px;
     }
 
     .step-copy p {
-      margin: 0 0 8px;
+      margin: 0 0 10px;
       color: var(--muted);
       font-size: 13px;
     }
 
     .step-copy .why {
       margin: 0;
+      padding-top: 8px;
+      border-top: .5px dashed var(--line);
       color: var(--text);
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 12px;
+      line-height: 1.45;
     }
 
     .kv {
@@ -451,18 +535,24 @@
       padding-bottom: 0;
     }
 
-    .inspector-box p {
+    .inspector-box p,
+    .inspector-box li {
       margin: 0;
       color: var(--muted);
       font-size: 12px;
       line-height: 1.45;
     }
 
-    @media (max-width: 980px) {
+    .inspector-box ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    @media (max-width: 1100px) {
       body { overflow: auto; }
       .app {
-        grid-template-columns: 230px minmax(0, 1fr);
-        grid-template-rows: 72px minmax(640px, auto) auto 38px;
+        grid-template-columns: 260px minmax(0, 1fr);
+        grid-template-rows: 78px minmax(680px, auto) auto 40px;
       }
       .topbar { flex-wrap: wrap; align-content: center; gap: 7px 10px; }
       .session-form { order: 4; flex-basis: 100%; max-width: none; }
@@ -470,6 +560,8 @@
       .workspace { grid-column: 2; grid-row: 2; }
       .inspector { grid-column: 1 / -1; grid-row: 3; border-left: 0; border-top: .5px solid var(--line); }
       .footer { grid-row: 4; }
+      .journey-flow,
+      .media-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -486,12 +578,17 @@
         <label for="sessionInput">container</label>
         <input id="sessionInput" value="LoopThing rich file" autocomplete="off" spellcheck="false">
       </form>
-      <div class="meta" id="packageMeta">rich artifact staged</div>
+      <div class="meta" id="packageMeta">portable artifact staged</div>
     </header>
 
     <aside class="sidebar">
       <h2 class="section-title">Container</h2>
-      <p class="package-note">LoopThing turns a messy AI session into a rich shareable file: prompts, follow-ups, discarded ideas, drafts, generated explainers, screenshots, docs, slides, prototypes, and code.</p>
+      <p class="package-note">A `.loopthing` is a portable exploration tree: prompts, killed branches, generated explainers, media, slides, prototype, and code in one file.</p>
+      <div class="mix" aria-label="artifact mix">
+        <div><strong>18</strong><span>text</span></div>
+        <div><strong>9</strong><span>images</span></div>
+        <div><strong>3</strong><span>html/code</span></div>
+      </div>
       <div class="tree" id="fileTree"></div>
     </aside>
 
@@ -508,109 +605,172 @@
     <aside class="inspector" id="inspector"></aside>
 
     <footer class="footer">
-      <span>rich PDF for AI work - prompts - explainers - artifacts - code</span>
-      <span>make the thinking easy to share</span>
+      <span>infrastructure for inheritable thinking</span>
+      <span>portable - forkable - auditable - rich</span>
     </footer>
   </div>
 
   <script>
+    const mediaItems = [
+      {
+        title: "Portable exploration tree",
+        path: "Artifacts/Media/portable-exploration-tree.svg",
+        caption: "The core file-format idea: branches, killed paths, and a sealed artifact."
+      },
+      {
+        title: "Ralph Loop",
+        path: "Artifacts/Media/ralph-loop-cycle.svg",
+        caption: "EXPLORE, JUDGE, DEEPEN, and SEAL as a repeatable thinking loop."
+      },
+      {
+        title: "Container cutaway",
+        path: "Artifacts/Media/container-cutaway.svg",
+        caption: "Prompts, thinking, explainers, media, slides, prototype, and code in one file."
+      }
+    ];
+
     const packageFiles = [
       {
         path: "Prompts/Master Prompt.md",
         kind: "master prompt",
         group: "Prompts",
-        description: "The clean prompt someone could use to recreate the project without reading the whole chat.",
+        description: "The clean prompt someone could use to recreate this project without reading the full chat.",
         content: `# Master Prompt
 
 Build the LoopThing of LoopThing itself.
 
-A .loopthing is a rich portable container file for AI work. It turns a chat session into generated explainers and artifacts that help another person understand, visualize, and appreciate the thinking behind a project.
+A .loopthing is a portable exploration tree for AI work. It captures prompts, follow-ups, branches, constraints, self-critiques, killed paths with reasons, generated explainers, media, slides, prototypes, and code as one shareable artifact.
 
-The demo should make the sharer look thoughtful, not messy. It should turn a chaotic AI session into something another person can skim, trust, fork, and learn from. The creator should feel powerful sharing it, like sending a modern PDF or slide deck that also contains prompts, code, screenshots, prototypes, and provenance.
+The product should communicate a simple claim:
 
-## Container Contents
+\`\`\`text
+The final output is not the only artifact.
+The thinking ships too.
+\`\`\`
 
-- Prompts: the master prompt, initial prompt, follow-ups, and a one-line change log.
-- Thinking: the sanitized narrative, journey map, and discarded ideas.
-- Drafts: rough drafts that show the idea getting better.
-- Generated Explainers: problem statement, solution overview, how it works, relevant context, and share brief.
-- Artifacts: screenshots, docs, slides, prototypes, code, and the one-liner.
+## Required Story
 
-## One-Liner
+This project began as an OpenAI Codex hackathon idea. The earliest version imagined "loopthinging" Karpathy's LLMWiki gist by simulating four origin agents: compression, pedagogy, tooling, and canon. The next version introduced Ralph Loop, constraint vectors, and a demo question: "What could documentation be when agents read it?"
 
-A .loopthing is a rich portable file for AI work: prompts, follow-ups, discarded ideas, drafts, generated explainers, screenshots, docs, slides, prototypes, and code that show how an idea arrived.`
+The shipped static viewer briefly used OpenClaw as a fast source artifact. Later feedback killed the "LoopThing a GitHub repo" branch because a repo is usually an output, not the thought process.
+
+## Product Vocabulary
+
+- Ralph Loop: generate -> critique -> regenerate -> diverge -> kill -> loop again.
+- EXPLORE: agents fan out under different constraint vectors.
+- JUDGE: the human kills weak branches with written reasons.
+- DEEPEN: survivors spawn children that inherit the parent and avoid killed failure modes.
+- SEAL: the exploration becomes a portable .loopthing file.
+
+## Design Requirement
+
+Do not make the file feel like a pile of markdown. It should feel like opening a rich PDF for AI work: visual, browsable, skimmable, and worth sending to a smart friend or coworker.`
       },
       {
         path: "Prompts/Initial Prompt.md",
         kind: "initial prompt",
         group: "Prompts",
-        description: "The first user prompt that started the loop.",
+        description: "The true earlier prompt context before the OpenClaw implementation.",
         content: `# Initial Prompt
 
-The project started as an OpenAI Codex hackathon sprint.
+The true origin was an OpenAI Codex hackathon demo, before the OpenClaw version existed.
 
 \`\`\`text
-Build a static, single-page demo viewer for a .loopthing file in 5 minutes.
-No build step, no backend, no framework - just index.html + one openclaw.loopthing.json file.
-Must open in a browser by minute 6.
+Write a prompt to help me build a demo that can show the most wow parts of my script.
+This must be done in less than 30 minutes.
+Actually loopthing the repo below.
+Use Karpathy's LLMWiki gist.
+Four agents explore origin stories: compression, pedagogy, tooling, canon.
+Kill a branch, and the reason stays in the file.
+Pruned thought is evidence.
+The losing branch still teaches.
 \`\`\`
 
-The seed definition was already there:
+The seed script framed the problem:
 
 \`\`\`text
-GitHub tracks how code changed. loopThing tracks how an idea arrived.
-Every commit in git is a diff between two states of code.
-But ideas don't arrive as diffs - they arrive as loops.
+We have GitHub for code.
+We do not have anything for thought.
+Commits tell us what changed, not how the idea arrived.
+Raw chat logs are chaos, like every take in a studio session.
+AI work happens in loops: prompt, response, critique, branch, kill, revise.
 \`\`\``
       },
       {
         path: "Prompts/Follow Ups.md",
         kind: "follow-ups",
         group: "Prompts",
-        description: "The later user directions that changed the product.",
+        description: "Specific user directions from the earlier chats, preserved as the prompt spine.",
         content: `# Follow Ups
 
-Follow-ups are first-class primitives in AI work. They are where the idea actually changes.
+Follow-ups are first-class primitives in AI work. This is where the project actually changed.
+
+## Earlier Chat Context
 
 \`\`\`text
-make the actual file .loopthing instead of the .json.
+Write a prompt to help me build a demo that can show the most wow parts of my script.
+Actually loopthing the repo below.
+Use Karpathy's LLMWiki gist.
+Four agents explore origin stories: compression, pedagogy, tooling, canon.
+Pruned thought is evidence. The losing branch still teaches.
 \`\`\`
 
-\`\`\`text
-You can't do a loop thing on a repo.
-\`\`\`
+## Ralph Loop Direction
 
 \`\`\`text
-a .loopthing is NOT a json file. it is a collection of multiple types of files and artefacts.
+Ralph Loop = the technique.
+loopThing = the artifact.
+Generate -> harsh critique -> regenerate -> force divergence -> kill weak branches -> loop again.
 \`\`\`
 
-\`\`\`text
-It looks like loopthing.loopthing is a FOLDER not an actual container or filetype.
-\`\`\`
+## Constraint Vector Demo
 
 \`\`\`text
-the loopthing itself GENERATES net new artefacts and explainers.
+Demo question: "What could documentation be when agents read it?"
+Four agents fan out: covenant, conversation, test suite, theatre.
+The user judges, kills one branch with a written reason, deepens a survivor, then seals the file.
+\`\`\`
+
+## Killed Repo Direction
+
+\`\`\`text
+You cannot do a loopthing on a repo.
+A repo is code output, not the prompt process.
+LoopThing should turn a session and chat mess into artifacts.
+\`\`\`
+
+## Rich Artifact Correction
+
+\`\`\`text
+The loopthing itself generates net new artifacts and explainers.
+It should feel like a modern rich PDF for AI work, with code, graphs, slides, screenshots, and useful context inside it.
 \`\`\``
       },
       {
         path: "Prompts/Prompt Change Log.md",
         kind: "change log",
         group: "Prompts",
-        description: "One-line summaries of later user directions.",
+        description: "One-line track changes across the user input iterations.",
         content: `# Prompt Change Log
 
-Each line summarizes one user-authored direction from this chat thread.
+Each line is a one-line summary of a user-authored direction.
 
 \`\`\`diff
-+ Start with an OpenAI Codex hackathon demo that opens in a browser fast.
-+ Use OpenClaw as the first source artifact and simulate the missing thought process.
-+ Add an input so pressing Enter on the OpenClaw repo populates the viewer.
-+ Make the file .loopthing, not .json.
-- Do not make "LoopThing a repo" the product direction.
-+ Make the unit an exploratory AI session, not a GitHub repository.
-+ Make .loopthing an actual portable container file, not just a folder.
-+ Use primitives as the taxonomy: prompts, follow-ups, discarded ideas, rough drafts, screenshots, docs, slides, prototypes, and code.
-+ Make LoopThing generate net new explainers and context artifacts, not just preserve a session.
++ Use Karpathy's LLMWiki gist as the first imagined source artifact.
++ Make four origin agents explore compression, pedagogy, tooling, and canon.
++ Make killed branches visible because pruned thought is evidence.
++ Introduce Ralph Loop as the technique.
++ Define loopThing as the artifact: a portable exploration tree.
++ Use the demo question "What could documentation be when agents read it?"
++ Force divergence with covenant, conversation, test suite, theatre.
++ Collapse the product loop into EXPLORE, JUDGE, DEEPEN, and SEAL.
++ Pivot to a static OpenClaw viewer because it could ship quickly in-browser.
++ Make the file .loopthing instead of .json.
+- Kill the idea that you LoopThing a GitHub repo.
++ Reframe the unit as an exploratory AI session.
++ Make .loopthing a single portable container, not an unpacked folder.
++ Make generated explainers a core output.
++ Add richer media so the artifact does not look like a markdown dump.
 \`\`\``
       },
       {
@@ -620,50 +780,58 @@ Each line summarizes one user-authored direction from this chat thread.
         description: "The cleaned narrative of how the project evolved.",
         content: `# Process Narrative
 
-The first solution was a viewer for an OpenClaw origin trace. It worked as a demo, but the artifact still felt too much like a JSON data file behind a UI.
+The earliest version was not OpenClaw. It was a hackathon demo prompt for showing the strongest parts of a script about Karpathy's LLMWiki: use the finished artifact, simulate the missing origin story, and make killed branches teach.
 
-The second move was repo-oriented: hit Enter on a GitHub repo and generate the LoopThing. That made the demo interactive, but it pointed at the wrong unit. A repo is usually an output of the thinking loop. It is not the loop.
+The next layer introduced the stronger product vocabulary. Ralph Loop became the technique: generate, critique, regenerate, diverge, kill, and loop again. LoopThing became the noun: the portable exploration tree that preserves the surviving and killed branches.
 
-The third move was the important one: define .loopthing as a filetype for exploratory AI work.
+The demo question then shifted to "What could documentation be when agents read it?" because it was relevant to an OpenAI hackathon and produced useful divergence.
 
-The current move is the product insight: LoopThing does not merely preserve the session. It generates net new explainers, visuals, drafts, and artifacts that help someone else understand the work.
+The quick live implementation then pivoted to OpenClaw because the immediate need was a static browser demo that could ship in minutes. That version proved the viewer, but it over-indexed on reverse-engineering a repo.
 
-This is why the file makes the creator look good. It shows judgment and generates the context needed to appreciate the intelligence of the process.`
+The user feedback killed that branch: you do not LoopThing a repo. You LoopThing the exploratory session that produced repos, slides, docs, prototypes, code, and decisions.
+
+The current shape is a rich portable container: prompts, follow-ups, discarded ideas, generated explainers, media, screenshots, slides, prototype, and code.`
       },
       {
         path: "Thinking/Journey Map.md",
         kind: "journey map",
         group: "Thinking",
-        description: "A human-readable flow chart of how the idea became sharper.",
+        description: "A human-readable journey map, not an esoteric graph file.",
         journey: [
-          { title: "Hackathon Spark", color: "var(--blue)", copy: "Build a static demo that opens quickly and explains the missing artifact behind AI work.", why: "Pressure forced a concrete artifact instead of a theory." },
-          { title: "OpenClaw Origin Trace", color: "var(--amber)", copy: "Use OpenClaw as the first visible output with a missing thought process.", why: "It showed the gap between final code and idea lineage." },
-          { title: "Repo Input Branch", color: "var(--red)", type: "kill", copy: "Paste a GitHub repo and generate a LoopThing.", why: "Killed because a repo is an output, not the thinking loop." },
-          { title: "Container Shift", color: "var(--purple)", copy: "Make loopthing.loopthing one portable file, with loopthing-source only as editable source.", why: "People understand a file they can send." },
-          { title: "Generated Context", color: "var(--green)", copy: "Generate problem statements, solution explainers, relevant context, slides, screenshots, prototypes, and code views.", why: "The recipient gets useful context immediately." },
-          { title: "Shareable Proof", color: "var(--green)", copy: "Package prompts, decisions, discarded ideas, drafts, explainers, and artifacts.", why: "The creator looks clear, deliberate, and worth learning from." }
+          { title: "Missing Artifact", color: "var(--blue)", copy: "GitHub tracks code, but not how ideas arrive.", why: "Creates a category rather than a feature." },
+          { title: "Karpathy Origin Demo", color: "var(--amber)", copy: "Use LLMWiki as a finished artifact and simulate compression, pedagogy, tooling, and canon origin paths.", why: "Makes origin trace visible." },
+          { title: "Ralph Loop", color: "var(--purple)", copy: "Generate, critique, regenerate, diverge, kill, deepen, and seal.", why: "Gives the product an interaction model." },
+          { title: "Docs For Agents", color: "var(--green)", copy: "Explore what documentation could be when agents read it, under covenant, conversation, test suite, and theatre constraints.", why: "Shows exploration rather than answer generation." },
+          { title: "OpenClaw Viewer", color: "var(--blue)", copy: "Ship a static browser demo quickly using OpenClaw as the visible source artifact.", why: "Speed forced a real viewer and a real file." },
+          { title: "Killed Repo Branch", color: "var(--red)", type: "kill", copy: "Paste a GitHub repo and generate a LoopThing.", why: "Killed because a repo is usually an output, not the thinking loop." },
+          { title: "Rich Container", color: "var(--purple)", copy: "Make .loopthing one portable file containing prompts, media, slides, prototype, code, and generated explainers.", why: "People share files, not app state." },
+          { title: "Inheritable Thinking", color: "var(--green)", copy: "The recipient can inspect, learn from, and fork the exploration.", why: "The artifact makes the creator look clear and deliberate." }
         ]
       },
       {
         path: "Thinking/Discarded Ideas.md",
         kind: "discarded ideas",
         group: "Thinking",
-        description: "The dead ends are preserved because they explain judgment.",
+        description: "Killed branches are preserved as evidence of judgment.",
         content: `# Discarded Ideas
 
 Discarded ideas are not embarrassing. They are evidence of judgment.
 
-## Discarded: GitHub For Thought
+## Discarded: Raw Chat Export
 
-Reason: memorable, but too loose. GitHub tracks code diffs. LoopThing tracks the user-prompt loop behind exploratory AI work.
+Reason: complete, but socially awkward and hard to skim. Raw chat includes every take, not the artifact someone wants to send.
+
+## Discarded: Final Output Only
+
+Reason: too compressed. The useful turns, constraints, critiques, and killed branches disappear.
 
 ## Discarded: LoopThing A GitHub Repo
 
-Reason: a repo is often one artifact created by the thinking process. The .loopthing should track the session, decisions, and artifacts that produced the repo.
+Reason: a repo is often one artifact created by the thinking process. The .loopthing should track the session, decisions, and generated artifacts that produced the repo.
 
-## Discarded: Preserve Without Generating
+## Discarded: Markdown Dump
 
-Reason: preservation is not enough. The valuable product move is generating new explainers and artifacts from the session so the recipient can understand the work without reconstructing the context themselves.`
+Reason: markdown alone makes the artifact feel like notes. LoopThing needs media, screenshots, slides, prototype, and code so it feels like a rich shareable dossier.`
       },
       {
         path: "Drafts/Rough Drafts.md",
@@ -674,19 +842,23 @@ Reason: preservation is not enough. The valuable product move is generating new 
 
 ## Draft 1: GitHub For Thought
 
-Useful, but too broad. It makes the analogy clear and the product wrong.
+Clear analogy, incomplete product. It explains the gap but risks sounding like version control for prompts.
 
-## Draft 2: LoopThing A Repo
+## Draft 2: Origin Trace Viewer
 
-Demo-friendly, but the repo is usually the output. The process happened before and around it.
+Use Karpathy's LLMWiki or Steinberger's OpenClaw as a finished artifact, then simulate the missing thought process behind it.
 
-## Draft 3: A Folder Of Artifacts
+## Draft 3: Ralph Loop Runtime
 
-Closer, but still not a filetype. It felt like a project folder with branding.
+Explore, judge, deepen, seal. Four agents, constraint vectors, critiques, killed branches, and depth-2 children.
 
-## Current Draft: Rich PDF For AI Work
+## Draft 4: LoopThing A Repo
 
-A .loopthing is a portable container that generates and carries the explainers, maps, drafts, screenshots, slides, prototypes, and code needed to understand the work.`
+Enter a repo, press return, populate the viewer. Killed because a repo is an output, not the prompt process.
+
+## Current Draft: Rich Portable Exploration Tree
+
+A .loopthing generates and carries the explainers, media, maps, drafts, screenshots, slides, prototype, and code needed to inherit the work.`
       },
       {
         path: "Generated Explainers/Problem Statement.md",
@@ -697,7 +869,9 @@ A .loopthing is a portable container that generates and carries the explainers, 
 
 AI work now happens inside chat sessions, but chat sessions are terrible as public artifacts.
 
-Raw chat is too noisy. Final outputs are too compressed.
+Raw chat is too noisy. It contains false starts, half-thoughts, repeated instructions, formatting corrections, and context that made sense only in the moment.
+
+Final outputs are too compressed. A repo, slide deck, document, or prototype shows what shipped, but not how the idea arrived.
 
 The missing artifact is a shareable file that turns the session into a readable explanation of the work: what was asked, what changed, what was discarded, what was generated, and what someone else should understand before forking the idea.`
       },
@@ -708,21 +882,21 @@ The missing artifact is a shareable file that turns the session into a readable 
         description: "A generated overview that did not exist in the raw chat.",
         content: `# Solution Overview
 
-A .loopthing is a rich portable file for AI work.
+A .loopthing is a portable exploration tree for AI work.
 
 It takes a messy session and generates a clean set of artifacts:
 
-- a master prompt
+- master prompt
 - follow-up prompt history
 - discarded ideas and reasons
-- a journey map
+- journey map
 - rough drafts
-- problem and solution explainers
-- relevant context
+- generated explainers
+- media diagrams
 - screenshots
 - docs
 - slides
-- prototypes
+- prototype
 - code
 
 The point is not to expose the whole transcript. The point is to generate the right artifacts so another person can understand the thinking and feel the quality of the work.`
@@ -734,38 +908,52 @@ The point is not to expose the whole transcript. The point is to generate the ri
         description: "A generated explanation of the mechanism.",
         content: `# How It Works
 
-1. Start with the session.
+## 1. Start With The Session
 
-2. Extract the user-prompt spine.
+The raw material is not a repo. It is the user's prompts, follow-ups, revisions, decisions, and artifacts created during AI work.
 
-3. Generate explainers: problem statements, solution summaries, journey maps, relevant context, and share briefs.
+## 2. Extract The Prompt Spine
 
-4. Preserve judgment through discarded ideas and reasons.
+LoopThing treats user direction as the canonical process.
 
-5. Package prompts, drafts, screenshots, docs, slides, prototypes, code, and generated explainers as one shareable object.`
+## 3. Run The Ralph Loop
+
+Agents explore under constraints, critique themselves, regenerate, and diverge from siblings. The human judges what survives.
+
+\`\`\`text
+EXPLORE -> JUDGE -> DEEPEN -> SEAL
+\`\`\`
+
+## 4. Generate New Context
+
+LoopThing generates artifacts that did not exist in the chat: problem statements, solution summaries, journey maps, relevant context, share briefs, media diagrams, screenshots, slides, prototypes, and code views.`
       },
       {
         path: "Generated Explainers/Relevant Context.md",
         kind: "generated explainer",
         group: "Generated Explainers",
-        description: "Relevant analogies and adjacent artifacts generated from the session.",
+        description: "Relevant analogies and adjacent projects generated from the session.",
         content: `# Relevant Context
 
 ## Git
 
-Git tracks code changes. LoopThing tracks the thinking loop that produced the work.
+Git tracks code diffs. LoopThing tracks the exploration that produced the work.
 
-## PDF
+## PDF And Slide Decks
 
-A PDF is portable and polished, but mostly static. LoopThing is a rich portable artifact that can include code, screenshots, prototypes, slides, and process.
+A PDF is portable and polished, but mostly static. LoopThing is closer to a rich PDF for AI work: portable, visual, and able to carry code, media, provenance, and generated explainers.
 
-## Slide Deck
+## Tree Of Thoughts
 
-A slide deck explains a story, but usually loses the evidence behind it. LoopThing can include the deck and the provenance.
+Tree-of-thought style systems explore branches, but the exploration is usually algorithmic and ephemeral. LoopThing turns the exploration into a portable artifact.
 
-## Chat Export
+## Agent Audit Trails
 
-A chat export is complete but socially awkward and hard to skim. LoopThing turns the session into generated artifacts that make the author look clear.`
+Audit logs can record what happened for compliance. LoopThing is designed for inheriting and sharing the thinking, not just proving a system behaved.
+
+## Canonicals
+
+The larger idea includes canonical .loopthing files such as documentation.loopthing, design.loopthing, and pricing.loopthing: starter kits with constraint vocabularies, anti-patterns, and reference branches that others can fork.`
       },
       {
         path: "Generated Explainers/Share Brief.md",
@@ -776,7 +964,15 @@ A chat export is complete but socially awkward and hard to skim. LoopThing turns
 
 LoopThing is for the moment when you want to show someone not only what you made, but how smart the path was.
 
-Send a .loopthing when you want a friend, collaborator, coworker, judge, teacher, or future teammate to understand the original idea, the turns it took, the discarded directions, the generated explainers, and the artifacts that shipped.
+Send a .loopthing when you want a friend, collaborator, coworker, judge, teacher, or future teammate to understand:
+
+- the original idea
+- the turns it took
+- the discarded directions
+- the generated explainers
+- the media and screenshots
+- the docs, slides, prototype, and code
+- why the final version is stronger than the first one
 
 \`\`\`text
 I did not just prompt until something happened.
@@ -784,31 +980,77 @@ I shaped an idea, made decisions, and packaged the thinking so you can see it.
 \`\`\``
       },
       {
+        path: "Artifacts/Media/README.md",
+        kind: "media gallery",
+        group: "Media",
+        description: "Generated media makes the file feel like a rich artifact, not just notes.",
+        gallery: mediaItems
+      },
+      ...mediaItems.map(item => ({
+        path: item.path,
+        kind: "svg media",
+        group: "Media",
+        description: item.caption,
+        image: `loopthing-source/${item.path}`
+      })),
+      {
         path: "Artifacts/Screenshots/README.md",
         kind: "screenshots",
         group: "Artifacts",
-        description: "Screenshots generated so someone can understand the work visually.",
+        description: "Screenshots generated so someone can understand the viewer quickly.",
         content: `# Screenshots
 
 Screenshots are generated artifacts inside the LoopThing.
 
-They let someone understand the viewer quickly without running the project first.
+They tell the product story without requiring someone to run the viewer first:
 
 - 01-package-start.png: container entrypoint
-- 06-generated-explainer.png: generated explainer artifact`
+- 02-lineage-track-changes.png: true prompt lineage
+- 03-thought-graph.png: journey map
+- 04-slide-artifact.png: media gallery
+- 05-viewer-code-artifact.png: code artifact
+- 06-generated-explainer.png: generated explainer`
       },
       {
         path: "Artifacts/Screenshots/01-package-start.png",
-        kind: "screenshot",
+        kind: "png screenshot",
         group: "Artifacts",
-        description: "A generated screenshot that explains the container entrypoint visually.",
+        description: "The container entrypoint screenshot used in the README.",
         image: "loopthing-source/Artifacts/Screenshots/01-package-start.png"
       },
       {
-        path: "Artifacts/Screenshots/06-generated-explainer.png",
-        kind: "screenshot",
+        path: "Artifacts/Screenshots/02-lineage-track-changes.png",
+        kind: "png screenshot",
         group: "Artifacts",
-        description: "A generated screenshot showing the net-new explainer artifacts.",
+        description: "The true prompt lineage screenshot used in the README.",
+        image: "loopthing-source/Artifacts/Screenshots/02-lineage-track-changes.png"
+      },
+      {
+        path: "Artifacts/Screenshots/03-thought-graph.png",
+        kind: "png screenshot",
+        group: "Artifacts",
+        description: "The journey map screenshot used in the README.",
+        image: "loopthing-source/Artifacts/Screenshots/03-thought-graph.png"
+      },
+      {
+        path: "Artifacts/Screenshots/04-slide-artifact.png",
+        kind: "png screenshot",
+        group: "Artifacts",
+        description: "The generated media gallery screenshot used in the README.",
+        image: "loopthing-source/Artifacts/Screenshots/04-slide-artifact.png"
+      },
+      {
+        path: "Artifacts/Screenshots/05-viewer-code-artifact.png",
+        kind: "png screenshot",
+        group: "Artifacts",
+        description: "The code artifact screenshot used in the README.",
+        image: "loopthing-source/Artifacts/Screenshots/05-viewer-code-artifact.png"
+      },
+      {
+        path: "Artifacts/Screenshots/06-generated-explainer.png",
+        kind: "png screenshot",
+        group: "Artifacts",
+        description: "The generated explainer screenshot used in the README.",
         image: "loopthing-source/Artifacts/Screenshots/06-generated-explainer.png"
       },
       {
@@ -830,18 +1072,18 @@ The source tree is only the unpacked editing source. The shareable artifact is t
 - Generated Explainers
 - Artifacts
 
-The container carries and generates multiple artifact types: prompts, follow-ups, discarded ideas, rough drafts, generated explainers, screenshots, docs, slides, prototypes, code, and exports.`
+The container carries multiple artifact types: prompts, follow-ups, discarded ideas, rough drafts, generated explainers, SVG media, PNG screenshots, docs, slides, prototypes, code, and exports.`
       },
       {
         path: "Artifacts/Slides/Problem Solution How It Works.html",
-        kind: "slides",
+        kind: "html slides",
         group: "Artifacts",
         description: "Generated slides explaining problem, solution, and how it works.",
         external: "loopthing-source/Artifacts/Slides/Problem Solution How It Works.html"
       },
       {
         path: "Artifacts/Prototypes/Viewer Prototype.html",
-        kind: "prototype",
+        kind: "html prototype",
         group: "Artifacts",
         description: "A generated prototype carried inside the rich file.",
         external: "loopthing-source/Artifacts/Prototypes/Viewer Prototype.html"
@@ -860,26 +1102,26 @@ The container carries and generates multiple artifact types: prompts, follow-ups
         description: "The simplest explanation of the filetype.",
         content: `# One Liner
 
-A .loopthing is a rich portable file for AI work: prompts, follow-ups, discarded ideas, drafts, generated explainers, screenshots, docs, slides, prototypes, and code that show how an idea arrived.`
+A .loopthing is a portable exploration tree for AI work: prompts, branches, critiques, killed paths, generated explainers, media, and artifacts in one forkable file.`
       },
       {
         path: "manifest.loop",
         kind: "manifest",
         group: "Container",
         description: "Container metadata and generated-file inventory.",
-        content: `format: loopthing/container-v0.4
+        content: `format: loopthing/container-v0.5
 title: The Missing Artifact
-kind: rich-ai-work-container
+kind: portable-exploration-tree
 entry: Prompts/Master Prompt.md
 
 generator:
   input: messy AI chat session
-  output: net new artifacts and explainers for sharing the work
+  output: net new artifacts, media, and explainers for sharing the work
   promise: make the creator look clear, deliberate, intelligent, and easy to learn from`
       }
     ];
 
-    const groups = ["Prompts", "Thinking", "Drafts", "Generated Explainers", "Artifacts", "Container"];
+    const groups = ["Prompts", "Thinking", "Drafts", "Generated Explainers", "Media", "Artifacts", "Container"];
 
     let containerOpen = false;
     let selectedPath = null;
@@ -899,6 +1141,12 @@ generator:
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+    }
+
+    function getExt(path) {
+      const name = path.split("/").pop() || "";
+      const ext = name.includes(".") ? name.split(".").pop() : "file";
+      return ext.toLowerCase();
     }
 
     function markdownToHtml(markdown) {
@@ -931,7 +1179,7 @@ generator:
         }
 
         if (inFence) {
-          const cls = line.startsWith("++") || line.startsWith("+") ? "add" : line.startsWith("-") ? "del" : "note";
+          const cls = line.startsWith("+") ? "add" : line.startsWith("-") ? "del" : "note";
           if (fenceType === "diff") {
             html += `<div class="track-line ${cls}"><span>${escapeHtml(line.slice(0, 2).trim() || " ")}</span><span>${escapeHtml(line)}</span></div>`;
           } else {
@@ -974,7 +1222,7 @@ generator:
       content.innerHTML = `
         <article class="journey">
           <h1>Journey Map</h1>
-          <p>This shareable map shows how the idea got sharper and where LoopThing generated new context.</p>
+          <p>From missing artifact to Ralph Loop to a rich portable file. The killed branch stays visible because the judgment matters.</p>
           <div class="journey-flow">
             ${file.journey.map((step, index) => `
               <section class="journey-step ${step.type === "kill" ? "kill" : ""}" style="--step-color:${step.color}">
@@ -991,6 +1239,29 @@ generator:
       `;
     }
 
+    function renderGallery(file) {
+      content.innerHTML = `
+        <article class="media-gallery">
+          <h1>Generated Media</h1>
+          <p>These visual explainers were generated from the session so the recipient can understand the project faster than reading a transcript.</p>
+          <div class="media-grid">
+            ${file.gallery.map(item => `
+              <button class="media-card" data-path="${escapeHtml(item.path)}">
+                <img alt="${escapeHtml(item.title)}" src="${escapeHtml(`loopthing-source/${item.path}`)}">
+                <div>
+                  <strong>${escapeHtml(item.title)}</strong>
+                  <span>${escapeHtml(item.caption)}</span>
+                </div>
+              </button>
+            `).join("")}
+          </div>
+        </article>
+      `;
+      content.querySelectorAll(".media-card").forEach(card => {
+        card.addEventListener("click", () => selectFile(card.dataset.path));
+      });
+    }
+
     function renderTree() {
       if (!containerOpen) {
         tree.innerHTML = "";
@@ -1001,12 +1272,16 @@ generator:
         const files = packageFiles.filter(file => file.group === group);
         return `
           <div class="folder">${escapeHtml(group)}</div>
-          ${files.map(file => `
-            <button class="file-button ${file.path === selectedPath ? "active" : ""}" data-path="${escapeHtml(file.path)}">
-              <span class="file-icon"></span>
-              <span class="file-name">${escapeHtml(file.path.split("/").pop())}</span>
-            </button>
-          `).join("")}
+          ${files.map(file => {
+            const ext = getExt(file.path);
+            return `
+              <button class="file-button ${file.path === selectedPath ? "active" : ""}" data-path="${escapeHtml(file.path)}" data-ext="${escapeHtml(ext)}">
+                <span class="file-icon">${escapeHtml(ext.slice(0, 4))}</span>
+                <span class="file-name">${escapeHtml(file.path.split("/").pop())}</span>
+                <span class="kind-pill">${escapeHtml(file.kind.split(" ")[0])}</span>
+              </button>
+            `;
+          }).join("")}
         `;
       }).join("");
 
@@ -1016,23 +1291,30 @@ generator:
     }
 
     function renderInspector(file) {
+      const mediaCount = packageFiles.filter(item => ["svg", "png"].includes(getExt(item.path))).length;
       inspector.innerHTML = `
         <section class="inspector-box">
           <h2 class="section-title">Selected File</h2>
           <dl class="kv">
             <dt>path</dt><dd class="mono">${escapeHtml(file?.path || "none")}</dd>
             <dt>kind</dt><dd>${escapeHtml(file?.kind || "")}</dd>
-            <dt>container</dt><dd class="mono">loopthing/container-v0.4</dd>
-            <dt>source files</dt><dd>${packageFiles.length}</dd>
+            <dt>format</dt><dd class="mono">loopthing/container-v0.5</dd>
+            <dt>files</dt><dd>${packageFiles.length}</dd>
+            <dt>media</dt><dd>${mediaCount}</dd>
           </dl>
         </section>
         <section class="inspector-box">
           <h2 class="section-title">Why This Matters</h2>
-          <p>${escapeHtml(file?.description || "Open the rich file to inspect prompts, generated explainers, and artifacts.")}</p>
+          <p>${escapeHtml(file?.description || "Open the rich file to inspect prompts, generated explainers, media, and artifacts.")}</p>
         </section>
         <section class="inspector-box">
-          <h2 class="section-title">Sharing Promise</h2>
-          <p>A .loopthing should make the creator look clear, clever, and deliberate. It generates the context someone else needs to appreciate the work.</p>
+          <h2 class="section-title">Container Promise</h2>
+          <ul>
+            <li>Prompt spine preserved.</li>
+            <li>Killed branches keep reasons.</li>
+            <li>Generated explainers add context.</li>
+            <li>Media, slides, prototype, and code travel with the idea.</li>
+          </ul>
         </section>
       `;
     }
@@ -1047,25 +1329,34 @@ generator:
 
       if (file.journey) {
         renderJourney(file);
+      } else if (file.gallery) {
+        renderGallery(file);
       } else if (file.image) {
-        content.innerHTML = `<img class="image-frame" alt="${escapeHtml(file.path)}" src="${escapeHtml(file.image)}">`;
+        content.innerHTML = `<article class="media-view"><img alt="${escapeHtml(file.path)}" src="${escapeHtml(file.image)}"></article>`;
       } else if (file.external) {
         content.innerHTML = `<iframe class="html-frame" title="${escapeHtml(file.path)}" src="${escapeHtml(file.external)}"></iframe>`;
       } else {
         content.innerHTML = markdownToHtml(file.content || "");
       }
+
+      const url = new URL(window.location.href);
+      if (containerOpen) {
+        url.searchParams.set("open", "1");
+        url.searchParams.set("file", path);
+        history.replaceState(null, "", url);
+      }
     }
 
-    function openContainer(event) {
-      event.preventDefault();
+    function openContainer(event, pathFromUrl) {
+      if (event) event.preventDefault();
       if (!input.value.trim()) {
         packageMeta.textContent = "container name required";
         input.focus();
         return;
       }
       containerOpen = true;
-      packageMeta.textContent = `1 rich .loopthing - ${packageFiles.length} generated/source files`;
-      selectFile("Prompts/Master Prompt.md");
+      packageMeta.textContent = `1 .loopthing - ${packageFiles.length} files - mixed media`;
+      selectFile(pathFromUrl || selectedPath || "Prompts/Master Prompt.md");
     }
 
     form.addEventListener("submit", openContainer);
@@ -1073,10 +1364,15 @@ generator:
       if (event.key === "Enter") openContainer(event);
     });
 
-    renderTree();
-    renderInspector(null);
-    input.focus();
-    input.select();
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("open") === "1") {
+      openContainer(null, params.get("file") || undefined);
+    } else {
+      renderTree();
+      renderInspector(null);
+      input.focus();
+      input.select();
+    }
   </script>
 </body>
 </html>

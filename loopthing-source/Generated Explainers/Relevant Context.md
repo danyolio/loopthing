@@ -1,23 +1,32 @@
 # Relevant Context
 
-LoopThing sits near several familiar artifacts, but it is not quite any of them.
-
 ## Git
 
-Git tracks code changes. LoopThing tracks the thinking loop that produced the work.
+Git tracks code diffs. LoopThing tracks the exploration that produced the work.
 
-## PDF
+## PDF And Slide Decks
 
-A PDF is portable and polished, but mostly static. LoopThing is a rich portable artifact that can include code, screenshots, prototypes, slides, and process.
+A PDF is portable and polished, but mostly static. A slide deck tells the story, but usually loses the evidence behind it. LoopThing is closer to a rich PDF for AI work: portable, visual, and able to carry code, media, provenance, and generated explainers.
 
-## Slide Deck
+## Tree Of Thoughts
 
-A slide deck explains a story, but usually loses the evidence behind it. LoopThing can include the deck and the provenance.
+Tree-of-thought style systems explore branches, but the exploration is usually algorithmic and ephemeral. LoopThing turns the exploration into a portable artifact.
 
-## Chat Export
+## Agent Audit Trails
 
-A chat export is complete but socially awkward and hard to skim. LoopThing turns the session into generated artifacts that make the author look clear.
+Audit logs can record what happened for compliance. LoopThing is different: it is designed for inheriting and sharing the thinking, not just proving a system behaved.
 
-## Project Repo
+## Design Space Exploration
 
-A repo is one possible output. LoopThing explains how the repo, docs, prototype, and narrative arrived.
+Design tools can map alternatives, but they are usually domain-specific. LoopThing treats exploratory work itself as the domain.
+
+## Canonicals
+
+The larger product idea includes canonical `.loopthing` files such as `documentation.loopthing`, `design.loopthing`, and `pricing.loopthing`: starter kits with constraint vocabularies, anti-patterns, and reference branches that others can fork.
+
+Framing from the session:
+
+```text
+Pretraining is a smoothie.
+Canonicals are a recipe.
+```

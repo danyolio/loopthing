@@ -2,11 +2,13 @@
 
 Build a static, single-page demo for `loopthing.loopthing`: a `.loopthing` container file that explains LoopThing by showing the messy thought loop that created LoopThing.
 
-The lineage must be explicit: the idea began as an OpenAI Codex hackathon demo, first used OpenClaw as a source artifact, briefly became a GitHub-repo input concept, and then killed that direction. The package should preserve that evolution from this exact chat thread as cleaned user-input summaries.
+The lineage must be explicit: the idea began as an OpenAI Codex hackathon demo around Karpathy's LLMWiki, became a Ralph Loop exploration tree with constraint vectors, used OpenClaw as a fast source artifact, briefly became a GitHub-repo input concept, and then killed that direction. The package should preserve that evolution from this exact chat thread as cleaned user-input summaries.
 
 ## Core Definition
 
-A `.loopthing` is a rich portable file for AI work: prompts, follow-ups, discarded ideas, drafts, generated explainers, screenshots, docs, slides, prototypes, and code that show how an idea arrived.
+A `.loopthing` is a portable exploration tree for AI work: prompts, follow-ups, branches, critiques, killed paths, generated explainers, media, screenshots, docs, slides, prototypes, and code that show how an idea arrived.
+
+Ralph Loop is the technique: generate, critique, regenerate, force divergence, kill weak branches, deepen survivors, and seal the artifact. LoopThing is the file.
 
 Do not frame this as "GitHub for repos." GitHub tracks code changes. LoopThing turns exploratory AI sessions into readable, portable knowledge artifacts. It is closer to version control for thinking, but the unit is not a repo or a commit. The unit is a thinking loop.
 
@@ -28,6 +30,7 @@ LoopThing beautifies the trash randomness of idea work into something skimmable.
 - problem statements
 - solution explainers
 - relevant context
+- media diagrams
 - screenshots
 - docs
 - slides
@@ -38,19 +41,22 @@ The MVP stores sanitized user inputs and artifact references as the canonical tr
 
 ## Demo Artifact
 
-Create `loopthing.loopthing` as the self-referential rich file. Keep `loopthing-source/` as the unpacked editing source. It should contain prompts, follow-ups, discarded ideas, drafts, generated explainers, screenshots, docs, slides, prototypes, code, and container-format notes.
+Create `loopthing.loopthing` as the self-referential rich file. Keep `loopthing-source/` as the unpacked editing source. It should contain prompts, follow-ups, discarded ideas, drafts, generated explainers, media, screenshots, docs, slides, prototypes, code, and container-format notes.
 
 The true initial prompt investigation must name the OpenAI Codex hackathon context and show the subsequent user-authored revisions, especially the abandoned "LoopThing a GitHub repo" branch.
 
 The journey map should show the idea getting sharper:
 
 - Hackathon spark.
-- OpenClaw origin trace.
+- Karpathy LLMWiki origin trace.
+- Ralph Loop and constraint vectors.
+- Documentation-for-agents demo.
+- OpenClaw static viewer.
 - GitHub repo branch.
 - Killed repo direction.
 - File format shift.
 - Container shift.
-- Generated explainers.
+- Generated explainers and media.
 - Shareable proof.
 
 Each lens should include a killed branch with a substantive reason. The strongest killed branch is: "Make it GitHub for thought." Kill it because it is memorable but misleading: code diffs are not the same as thought loops, and repos show outputs rather than the prompt process.
@@ -68,10 +74,11 @@ The UI should make the file feel like a real artifact:
 - tagline: `the output is no longer the only artifact`
 - visible kill reasons
 - visible artifact files
+- visible SVG media, screenshots, HTML slides, prototype, and code
 - clear note that this is sanitized, not raw chat
 
 ## Tone
 
 Plain, sharp, and simple. The one-liner should be understandable in one breath:
 
-> A `.loopthing` is a rich portable file for AI work: prompts, follow-ups, discarded ideas, drafts, generated explainers, screenshots, docs, slides, prototypes, and code that show how an idea arrived.
+> A `.loopthing` is a portable exploration tree for AI work: prompts, branches, critiques, killed paths, generated explainers, media, and artifacts in one forkable file.

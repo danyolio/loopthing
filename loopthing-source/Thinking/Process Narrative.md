@@ -1,21 +1,28 @@
-# Sanitized Thought Process
+# Process Narrative
 
-The original pressure was a hackathon constraint: build a static demo fast enough to show in a browser.
+The earliest version was not OpenClaw. It was a hackathon demo prompt for showing the strongest parts of a script about Karpathy's LLMWiki: use the finished artifact, simulate the missing origin story, and make killed branches teach.
 
-The first solution was a viewer for an OpenClaw origin trace. It worked as a demo, but the artifact still felt too much like a JSON data file behind a UI.
+That became the first category claim:
 
-The second move was repo-oriented: hit Enter on a GitHub repo and generate the LoopThing. That was useful because it made the demo feel interactive, but it pointed at the wrong unit. A repo is usually an output of the thinking loop. It is not the loop.
+```text
+GitHub tracks code. LoopThing tracks thought.
+```
 
-The third move was the important one: define `.loopthing` as a filetype for exploratory AI work. The file contains user prompts, decisions, killed directions, and artifacts. It is not a transcript and not a summary. It is edited provenance.
+The next layer introduced the stronger product vocabulary. Ralph Loop became the technique: generate, critique, regenerate, diverge, kill, and loop again. LoopThing became the noun: the portable exploration tree that preserves the surviving and killed branches.
 
-The current shape is a rich portable container file:
+The demo question then shifted to "What could documentation be when agents read it?" because it was relevant to an OpenAI hackathon and produced useful divergence without getting political. The constraint vectors were covenant, conversation, test suite, and theatre.
 
-- user prompts as the spine
-- a master prompt to recreate the project
-- one-line prompt changes for later user directions
-- a journey map that makes the idea easy to explain
-- killed branches with reasons
+The quick live implementation then pivoted to OpenClaw because the immediate need was a static browser demo that could ship in minutes. That version proved the viewer, but it over-indexed on reverse-engineering a repo.
+
+The user feedback killed that branch: you do not LoopThing a repo. You LoopThing the exploratory session that produced repos, slides, docs, prototypes, code, and decisions.
+
+The current shape is a rich portable container:
+
+- user prompts as the canonical spine
+- follow-ups as first-class changes
+- discarded ideas with reasons
 - generated explainers that did not exist in the chat
-- artifacts that prove the loop produced something real
+- media and screenshots that visualize the idea
+- slides, prototype, docs, and code as carried artifacts
 
-This is why the file makes the creator look good. It shows judgment. It does not expose every messy token. It generates the problem statement, context, visuals, drafts, and artifacts that help someone else understand the intelligence of the work.
+The social job is important: a `.loopthing` should make the creator look clear and deliberate. It hides the trash randomness while preserving the judgment.

@@ -1,6 +1,6 @@
 # Solution Overview
 
-A `.loopthing` is a rich portable file for AI work.
+A `.loopthing` is a portable exploration tree for AI work.
 
 It takes a messy session and generates a clean set of artifacts:
 
@@ -11,6 +11,7 @@ It takes a messy session and generates a clean set of artifacts:
 - rough drafts
 - problem and solution explainers
 - relevant context
+- media diagrams
 - screenshots
 - docs
 - slides

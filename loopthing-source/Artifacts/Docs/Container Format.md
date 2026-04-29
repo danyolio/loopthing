@@ -14,6 +14,7 @@ This example began as an OpenAI Codex hackathon demo and briefly tried a GitHub-
 - `Thinking/`: sanitized process, journey map, and discarded ideas
 - `Drafts/`: rough drafts and intermediate shapes
 - `Generated Explainers/`: problem statement, solution overview, how it works, relevant context, share brief
+- `Artifacts/Media/`: generated SVG diagrams and visual explainers
 - `Artifacts/`: screenshots, docs, slides, prototypes, code, references
 
 ## Optional
@@ -41,6 +42,7 @@ The `.loopthing` container carries and generates multiple artifact types:
 - discarded ideas
 - rough drafts
 - generated explainers
+- media diagrams
 - screenshots
 - docs
 - slides
