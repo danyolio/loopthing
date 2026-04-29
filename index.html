@@ -1,0 +1,1066 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>openclaw.loopthing</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f7f7f4;
+      --panel: #ffffff;
+      --panel-soft: #f1f1ee;
+      --text: #181817;
+      --muted: #6f706c;
+      --line: rgba(24, 24, 23, .22);
+      --line-soft: rgba(24, 24, 23, .12);
+      --prompt: #336fd1;
+      --critique: #b87813;
+      --revision: #1b8f62;
+      --kill: #c83f39;
+      --synthesis: #8f55c7;
+      --kill-soft: rgba(200, 63, 57, .1);
+      --prompt-soft: rgba(51, 111, 209, .1);
+      --critique-soft: rgba(184, 120, 19, .1);
+      --revision-soft: rgba(27, 143, 98, .1);
+      --synthesis-soft: rgba(143, 85, 199, .1);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121312;
+        --panel: #191a19;
+        --panel-soft: #20211f;
+        --text: #eeeeea;
+        --muted: #a5a69f;
+        --line: rgba(238, 238, 234, .28);
+        --line-soft: rgba(238, 238, 234, .13);
+        --prompt: #7da4ef;
+        --critique: #e4ae57;
+        --revision: #65c99a;
+        --kill: #ee746d;
+        --synthesis: #c595f1;
+        --kill-soft: rgba(238, 116, 109, .12);
+        --prompt-soft: rgba(125, 164, 239, .12);
+        --critique-soft: rgba(228, 174, 87, .12);
+        --revision-soft: rgba(101, 201, 154, .12);
+        --synthesis-soft: rgba(197, 149, 241, .12);
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+    }
+
+    .walk-progress {
+      position: fixed;
+      z-index: 20;
+      top: 0;
+      left: 0;
+      height: 2px;
+      width: 100%;
+      background: var(--text);
+      transform: scaleX(0);
+      transform-origin: left;
+    }
+
+    .viewer {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 200px minmax(0, 1fr) 240px;
+      grid-template-rows: 44px minmax(0, 1fr) 38px;
+      background: var(--panel);
+      border: .5px solid var(--line);
+    }
+
+    .topbar,
+    .footer {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      border-bottom: .5px solid var(--line);
+      background: var(--panel-soft);
+    }
+
+    .topbar {
+      padding: 0 14px;
+      gap: 12px;
+    }
+
+    .traffic {
+      display: flex;
+      gap: 6px;
+      flex: 0 0 auto;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      border: .5px solid rgba(0, 0, 0, .18);
+    }
+
+    .dot.red { background: #ed6a5e; }
+    .dot.yellow { background: #f4bf4f; }
+    .dot.green { background: #61c554; }
+
+    .filename {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .repo-form {
+      flex: 1 1 420px;
+      min-width: 180px;
+      max-width: 620px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .repo-label {
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .repo-input {
+      width: 100%;
+      height: 27px;
+      padding: 0 9px;
+      border: .5px solid var(--line);
+      border-radius: 6px;
+      outline: 0;
+      background: var(--panel);
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .repo-input:focus {
+      border-color: var(--text);
+    }
+
+    .meta-line {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .rail {
+      min-height: 0;
+      overflow: auto;
+      background: var(--panel);
+    }
+
+    .left {
+      border-right: .5px solid var(--line);
+      padding: 14px 12px;
+    }
+
+    .right {
+      border-left: .5px solid var(--line);
+      padding: 14px 12px;
+    }
+
+    .rail-title {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .agent-list {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 16px;
+    }
+
+    .agent-button {
+      width: 100%;
+      min-height: 48px;
+      display: grid;
+      grid-template-columns: 7px minmax(0, 1fr);
+      gap: 9px;
+      padding: 8px;
+      background: transparent;
+      border: .5px solid var(--line-soft);
+      border-radius: 6px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .agent-button.active {
+      border-color: var(--line);
+      background: var(--panel-soft);
+    }
+
+    .agent-swatch {
+      width: 7px;
+      border-radius: 999px;
+      background: var(--agent);
+    }
+
+    .agent-id {
+      display: block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .agent-count {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .file-box {
+      border: .5px solid var(--line);
+      border-radius: 6px;
+      padding: 10px;
+      background: var(--panel-soft);
+    }
+
+    .file-box ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .file-box li::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      margin-right: 7px;
+      border-radius: 999px;
+      border: .5px solid currentColor;
+      vertical-align: 1px;
+    }
+
+    .center {
+      min-width: 0;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: 340px minmax(0, 1fr);
+      background: var(--bg);
+    }
+
+    .graph-panel {
+      min-width: 0;
+      min-height: 0;
+      border-bottom: .5px solid var(--line);
+      background: var(--panel);
+    }
+
+    #graph {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .edge {
+      stroke: var(--line);
+      stroke-width: 1.1;
+    }
+
+    .edge.pruned {
+      stroke: var(--kill);
+      stroke-dasharray: 5 5;
+    }
+
+    .edge.cites {
+      stroke: var(--muted);
+      stroke-dasharray: 3 6;
+      opacity: .35;
+    }
+
+    .node {
+      cursor: pointer;
+    }
+
+    .node circle {
+      stroke: var(--panel);
+      stroke-width: 2;
+    }
+
+    .node.kill {
+      opacity: .72;
+    }
+
+    .node.ghost {
+      opacity: .35;
+    }
+
+    .node text {
+      fill: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 10px;
+      paint-order: stroke;
+      stroke: var(--panel);
+      stroke-width: 4px;
+      stroke-linejoin: round;
+    }
+
+    .node.selected circle {
+      stroke: var(--text);
+      stroke-width: 2.5;
+    }
+
+    .cards {
+      min-height: 0;
+      overflow: auto;
+      padding: 14px;
+      display: grid;
+      align-content: start;
+      gap: 10px;
+    }
+
+    .node-card {
+      position: relative;
+      border: .5px solid var(--line);
+      border-left-width: 6px;
+      border-radius: 7px;
+      padding: 11px 12px;
+      background: var(--panel);
+      cursor: pointer;
+    }
+
+    .node-card.active {
+      outline: 1px solid var(--text);
+      outline-offset: 2px;
+    }
+
+    .node-card.prompt { border-left-color: var(--prompt); background: var(--prompt-soft); }
+    .node-card.critique { border-left-color: var(--critique); background: var(--critique-soft); }
+    .node-card.revision { border-left-color: var(--revision); background: var(--revision-soft); }
+    .node-card.kill { border-left-color: var(--kill); background: var(--kill-soft); opacity: .9; }
+    .node-card.synthesis { border-left-color: var(--synthesis); background: var(--synthesis-soft); }
+
+    .card-top {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .type-pill {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .node-id,
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .node-id {
+      color: var(--muted);
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .content {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.42;
+    }
+
+    .kill-copy {
+      position: relative;
+      display: inline;
+      text-decoration: line-through;
+      text-decoration-thickness: 1px;
+      text-decoration-color: rgba(200, 63, 57, .65);
+    }
+
+    .kill-copy::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 54%;
+      width: 100%;
+      height: 1px;
+      background: var(--kill);
+      transform: scaleX(0);
+      transform-origin: left;
+      animation: strike 400ms ease-out forwards;
+    }
+
+    @keyframes strike {
+      to { transform: scaleX(1); }
+    }
+
+    .reason {
+      margin-top: 10px;
+      padding-top: 9px;
+      border-top: .5px dashed var(--kill);
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .reason-label {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--kill);
+      font-size: 11px;
+    }
+
+    .detail-section {
+      padding: 0 0 13px;
+      margin-bottom: 13px;
+      border-bottom: .5px solid var(--line-soft);
+    }
+
+    .detail-section:last-child {
+      border-bottom: 0;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 74px minmax(0, 1fr);
+      gap: 6px 8px;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .kv dt {
+      color: var(--muted);
+    }
+
+    .kv dd {
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .detail-copy {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--text);
+    }
+
+    .pruned-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .pruned-item {
+      padding: 8px;
+      border: .5px dashed var(--kill);
+      border-radius: 6px;
+      background: var(--kill-soft);
+    }
+
+    .pruned-item strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--kill);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .pruned-item span {
+      display: block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .footer {
+      justify-content: space-between;
+      padding: 0 14px;
+      border-top: .5px solid var(--line);
+      border-bottom: 0;
+      gap: 10px;
+    }
+
+    .chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .chip {
+      flex: 0 0 auto;
+      padding: 3px 8px;
+      border: .5px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .tagline {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .error {
+      padding: 16px;
+      color: var(--kill);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .empty-pane {
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 920px) {
+      body { overflow: auto; }
+      .viewer {
+        min-height: 100vh;
+        grid-template-columns: 180px minmax(0, 1fr);
+        grid-template-rows: 66px 300px minmax(500px, auto) auto 38px;
+      }
+      .topbar { flex-wrap: wrap; align-content: center; gap: 7px 10px; }
+      .repo-form { order: 4; flex-basis: 100%; max-width: none; }
+      .meta-line { margin-left: auto; }
+      .left { grid-column: 1; grid-row: 2 / 4; }
+      .center { grid-column: 2; grid-row: 2 / 4; grid-template-rows: 300px auto; }
+      .right { grid-column: 1 / -1; grid-row: 4; border-left: 0; border-top: .5px solid var(--line); }
+      .footer { grid-row: 5; }
+    }
+  </style>
+</head>
+<body>
+  <div class="walk-progress" id="walkProgress"></div>
+  <div class="viewer">
+    <header class="topbar">
+      <div class="traffic" aria-hidden="true">
+        <span class="dot red"></span>
+        <span class="dot yellow"></span>
+        <span class="dot green"></span>
+      </div>
+      <div class="filename">openclaw.loopthing</div>
+      <form class="repo-form" id="repoForm">
+        <label class="repo-label" for="repoInput">repo</label>
+        <input class="repo-input" id="repoInput" value="https://github.com/steipete/OpenClaw" autocomplete="off" spellcheck="false">
+      </form>
+      <div class="meta-line" id="topMeta"></div>
+    </header>
+
+    <aside class="rail left">
+      <h2 class="rail-title">Agents</h2>
+      <div class="agent-list" id="agentList"></div>
+
+      <h2 class="rail-title">File Contains</h2>
+      <div class="file-box">
+        <ul>
+          <li>prompts</li>
+          <li>critiques</li>
+          <li>revisions</li>
+          <li>kills + reasons</li>
+          <li>DAG of thought</li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="center">
+      <section class="graph-panel" aria-label="Agent graph">
+        <svg id="graph" role="img"></svg>
+      </section>
+      <section class="cards" id="cards" aria-label="Agent path"></section>
+    </main>
+
+    <aside class="rail right" id="details"></aside>
+
+    <footer class="footer">
+      <div class="chips">
+        <span class="chip">forkable</span>
+        <span class="chip">auditable</span>
+        <span class="chip">shareable</span>
+        <span class="chip mono">.loopthing v0.1</span>
+      </div>
+      <div class="tagline">pruned thought is evidence · the losing branch still teaches</div>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script id="embedded-loopthing" type="application/json">
+{
+  "format": "loopthing/v0.1",
+  "meta": {
+    "title": "Origin trace: Steinberger's OpenClaw",
+    "source_url": "https://github.com/steipete/OpenClaw",
+    "source_kind": "reverse-engineered",
+    "note": "Original chats unavailable. Four agents simulate plausible origin DAGs from the published OpenClaw artifact and supplied source notes.",
+    "created": "2026-04-29T05:04:00Z"
+  },
+  "agents": [
+    {"id": "lock-in", "color": "#7F77DD", "thesis": "OpenClaw reads as a refusal to let the coding-agent loop belong to one vendor: model, runner, prompts, tools, and billing all need to be swappable."},
+    {"id": "craft", "color": "#1D9E75", "thesis": "OpenClaw turns Steinberger-style developer ergonomics toward agents: inspect the loop the way you would inspect an IDE, debugger, or build tool."},
+    {"id": "infrastructure", "color": "#D85A30", "thesis": "OpenClaw treats the agent loop as shared infrastructure: tool routing, shell access, schemas, retries, and safety policy should not be rebuilt badly by every team."},
+    {"id": "canon", "color": "#D4537E", "thesis": "OpenClaw is the Unix promise applied to AI tools: small, composable, scriptable, model-agnostic pieces instead of a closed monolithic agent."}
+  ],
+  "nodes": [
+    {"id": "lock.a", "agent": "lock-in", "type": "prompt", "parent": null, "content": "Why should \"the AI that actually does things\" be boxed inside one vendor's model, CLI, billing meter, and hidden prompts?", "timestamp": "2026-04-29T05:04:03Z"},
+    {"id": "lock.b", "agent": "lock-in", "type": "critique", "parent": "lock.a", "content": "The model is the obvious lock-in. The quieter lock-in is the loop: prompts, tool schemas, retries, provider routing, and the control plane you cannot inspect.", "timestamp": "2026-04-29T05:04:08Z"},
+    {"id": "lock.c.kill", "agent": "lock-in", "type": "kill", "parent": "lock.b", "content": "Just proxy the existing closed CLI and rewrite the API calls.", "kill_reason": "A proxy treats the invoice as the problem and leaves the loop inside the vendor boundary. The prompts, tool schemas, retry policy, and safety defaults still belong to somebody else.", "killed_at": "2026-04-29T05:04:13Z", "timestamp": "2026-04-29T05:04:13Z"},
+    {"id": "lock.c", "agent": "lock-in", "type": "revision", "parent": "lock.b", "content": "Make the agent loop the open thing: `AGENTS.md` operating memory, skills that teach tools, plugin manifests, safe defaults, and model/provider choice under the operator's rules.", "supersedes": "lock.c.kill", "why_won": "It moves freedom from the billing layer into the actual loop: prompts, tools, config, providers, and runtime policy become inspectable and forkable.", "timestamp": "2026-04-29T05:04:19Z"},
+    {"id": "lock.d", "agent": "lock-in", "type": "synthesis", "parent": "lock.c", "content": "The open unit is not just the model. It is the whole loop: prompt, runner, tool, policy, channel, and audit trail.", "timestamp": "2026-04-29T05:04:25Z"},
+    {"id": "craft.a", "agent": "craft", "type": "prompt", "parent": null, "content": "What would serious developer ergonomics demand from an assistant that clears inboxes, sends emails, manages calendars, and checks flights?", "timestamp": "2026-04-29T05:04:04Z"},
+    {"id": "craft.b", "agent": "craft", "type": "critique", "parent": "craft.a", "content": "Black-box agent theater is the opposite of craft. OpenClaw keeps the loop visible: terminal-first onboarding, config files, high-confidence answers when fixing, and strong defaults without killing capability.", "timestamp": "2026-04-29T05:04:09Z"},
+    {"id": "craft.c.kill", "agent": "craft", "type": "kill", "parent": "craft.b", "content": "Build a fancier UI on top of Claude Code and call the polish the product.", "kill_reason": "Polish on closed plumbing is decoration, not craft. If prompts, tool contracts, and runtime behavior remain hidden, the UI only makes the black box easier to tolerate.", "killed_at": "2026-04-29T05:04:14Z", "timestamp": "2026-04-29T05:04:14Z"},
+    {"id": "craft.c", "agent": "craft", "type": "revision", "parent": "craft.b", "content": "Make the craft inspectable: `AGENTS.md` as maintained operating memory, config schema as contract, skills that teach the agent, and plugin manifests instead of mystery behavior.", "supersedes": "craft.c.kill", "why_won": "The user can audit the assistant's working memory, tools, and defaults. That is the ergonomic move: confidence through inspectability.", "timestamp": "2026-04-29T05:04:20Z"},
+    {"id": "craft.d", "agent": "craft", "type": "synthesis", "parent": "craft.c", "content": "Craft is not a shinier chat window. It is an assistant whose permissions, tools, memory, and failure modes are legible before they become dangerous.", "timestamp": "2026-04-29T05:04:26Z"},
+    {"id": "infra.a", "agent": "infrastructure", "type": "prompt", "parent": null, "content": "Why is every team rebuilding the same agent loop primitives: tool calls, file edits, shell access, browser control, retries, and channel routing?", "timestamp": "2026-04-29T05:04:05Z"},
+    {"id": "infra.b", "agent": "infrastructure", "type": "critique", "parent": "infra.a", "content": "OpenClaw names the primitives: a Gateway owns messaging surfaces, a single embedded agent runtime runs the loop, and everything beyond text happens through tools.", "timestamp": "2026-04-29T05:04:10Z"},
+    {"id": "infra.c.kill", "agent": "infrastructure", "type": "kill", "parent": "infra.b", "content": "Publish a clean spec and let everyone implement their own runner later.", "kill_reason": "Specs without a reference loop do not ship behavior. The hard semantics live in the runner: retries, tools, permissions, channel state, and safe defaults under pressure.", "killed_at": "2026-04-29T05:04:15Z", "timestamp": "2026-04-29T05:04:15Z"},
+    {"id": "infra.c", "agent": "infrastructure", "type": "revision", "parent": "infra.b", "content": "Ship the loop as infrastructure: Gateway, embedded runtime, plugin manifests, schema validation, allowlists, sandboxing, and tool profiles that make power explicit.", "supersedes": "infra.c.kill", "why_won": "A reference runner makes the contract executable. Teams can still compete on products, channels, and taste instead of re-implementing the same loop plumbing.", "timestamp": "2026-04-29T05:04:21Z"},
+    {"id": "infra.d", "agent": "infrastructure", "type": "synthesis", "parent": "infra.c", "content": "The loop is the infrastructure. Products should differentiate on judgment and experience, not on who wrote the least-bad shell wrapper.", "timestamp": "2026-04-29T05:04:27Z"},
+    {"id": "canon.a", "agent": "canon", "type": "prompt", "parent": null, "content": "What if Licklider, Engelbart, and Knowledge Navigator were waiting for a model that could operate real tools on a real computer?", "timestamp": "2026-04-29T05:04:06Z"},
+    {"id": "canon.b", "agent": "canon", "type": "critique", "parent": "canon.a", "content": "A closed coding agent is a regression from small, composable tools. Peter's own workflow says to start with the model and a CLI first, because durable external handles beat bespoke UI wrappers.", "timestamp": "2026-04-29T05:04:11Z"},
+    {"id": "canon.c.kill", "agent": "canon", "type": "kill", "parent": "canon.b", "content": "Rebuild it as one big AI-native monolithic agent.", "kill_reason": "That breaks the Unix lesson exactly where OpenClaw needs it most. A monolith hides composition, makes policy harder to audit, and turns tools back into a private ceremony.", "killed_at": "2026-04-29T05:04:16Z", "timestamp": "2026-04-29T05:04:16Z"},
+    {"id": "canon.c", "agent": "canon", "type": "revision", "parent": "canon.b", "content": "Keep it Unix-native: model plus CLI first, manifest-first control plane, tools as inspectable contracts, and a Gateway that lets the assistant run real tasks through ordinary channels.", "supersedes": "canon.c.kill", "why_won": "Composable interfaces let the operator swap, script, audit, and fork. That is why the old command-line lesson still matters for agents.", "timestamp": "2026-04-29T05:04:22Z"},
+    {"id": "canon.d", "agent": "canon", "type": "synthesis", "parent": "canon.c", "content": "The old personal-computing loop closes when the assistant becomes a scriptable operator, not another destination app.", "timestamp": "2026-04-29T05:04:28Z"}
+  ],
+  "edges": [
+    {"from": "lock.a", "to": "lock.b", "kind": "branch"},
+    {"from": "lock.b", "to": "lock.c.kill", "kind": "pruned"},
+    {"from": "lock.b", "to": "lock.c", "kind": "branch"},
+    {"from": "lock.c", "to": "lock.d", "kind": "branch"},
+    {"from": "craft.a", "to": "craft.b", "kind": "branch"},
+    {"from": "craft.b", "to": "craft.c.kill", "kind": "pruned"},
+    {"from": "craft.b", "to": "craft.c", "kind": "branch"},
+    {"from": "craft.c", "to": "craft.d", "kind": "branch"},
+    {"from": "infra.a", "to": "infra.b", "kind": "branch"},
+    {"from": "infra.b", "to": "infra.c.kill", "kind": "pruned"},
+    {"from": "infra.b", "to": "infra.c", "kind": "branch"},
+    {"from": "infra.c", "to": "infra.d", "kind": "branch"},
+    {"from": "canon.a", "to": "canon.b", "kind": "branch"},
+    {"from": "canon.b", "to": "canon.c.kill", "kind": "pruned"},
+    {"from": "canon.b", "to": "canon.c", "kind": "branch"},
+    {"from": "canon.c", "to": "canon.d", "kind": "branch"},
+    {"from": "lock.c", "to": "infra.c", "kind": "cites", "reason": "Owning the loop exposes the shared primitives that infrastructure can standardize."},
+    {"from": "craft.c", "to": "infra.c", "kind": "cites", "reason": "Inspectable craft depends on executable schemas, manifests, and tool contracts."},
+    {"from": "canon.c", "to": "lock.c", "kind": "cites", "reason": "Unix-style composability only matters if the runner, prompts, tools, and providers stay open."}
+  ]
+}
+  </script>
+  <script>
+    const typeColors = {
+      prompt: "var(--prompt)",
+      critique: "var(--critique)",
+      revision: "var(--revision)",
+      kill: "var(--kill)",
+      synthesis: "var(--synthesis)"
+    };
+
+    let data;
+    let stagedData;
+    let nodeById;
+    let activeAgentId;
+    let selectedNodeId;
+    let walkIndex = 0;
+    let walkStarted = false;
+    const walkEnabled = new URLSearchParams(location.search).get("walk") === "1";
+    const progressEl = document.getElementById("walkProgress");
+    const repoForm = document.getElementById("repoForm");
+    const repoInput = document.getElementById("repoInput");
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    async function loadData() {
+      if (location.protocol !== "file:") {
+        try {
+          const response = await fetch("openclaw.loopthing.json", { cache: "no-store" });
+          if (response.ok) return response.json();
+        } catch (error) {
+          /* Direct file opening uses the embedded copy below. */
+        }
+      }
+      return JSON.parse(document.getElementById("embedded-loopthing").textContent);
+    }
+
+    function setEmptyState(message = "repo staged") {
+      document.getElementById("topMeta").textContent = message;
+      document.getElementById("agentList").innerHTML = "";
+      document.getElementById("cards").innerHTML = '<div class="empty-pane">awaiting repository</div>';
+      document.getElementById("details").innerHTML = '<div class="empty-pane">.loopthing will populate here</div>';
+      d3.select("#graph").selectAll("*").remove();
+    }
+
+    function hydrateViewer(nextData) {
+      data = nextData;
+      nodeById = new Map(data.nodes.map(node => [node.id, node]));
+      activeAgentId = data.agents[0].id;
+      selectedNodeId = defaultNodeForAgent(activeAgentId).id;
+      repoInput.value = data.meta.source_url || repoInput.value;
+      render();
+      startWalk();
+    }
+
+    function submitRepo(event) {
+      event.preventDefault();
+      const repo = repoInput.value.trim();
+      if (!repo) {
+        setEmptyState("repo required");
+        repoInput.focus();
+        return;
+      }
+      hydrateViewer(stagedData);
+    }
+
+    function handleRepoKeydown(event) {
+      if (event.key !== "Enter") return;
+      submitRepo(event);
+    }
+
+    function countType(type) {
+      return data.nodes.filter(node => node.type === type).length;
+    }
+
+    function nodesForAgent(agentId) {
+      return data.nodes
+        .filter(node => node.agent === agentId)
+        .sort((a, b) => String(a.timestamp).localeCompare(String(b.timestamp)));
+    }
+
+    function defaultNodeForAgent(agentId) {
+      return nodesForAgent(agentId).find(node => node.type === "kill") || nodesForAgent(agentId)[0];
+    }
+
+    function siblingsOf(node) {
+      if (!node || !node.parent) return [];
+      return data.nodes.filter(candidate => candidate.parent === node.parent && candidate.id !== node.id);
+    }
+
+    function citedByCount(nodeId) {
+      return data.edges.filter(edge => edge.kind === "cites" && edge.to === nodeId).length;
+    }
+
+    function prunedNear(node) {
+      const found = new Map();
+      const add = candidate => {
+        if (candidate && candidate.type === "kill") found.set(candidate.id, candidate);
+      };
+
+      if (node.type === "kill") add(node);
+      siblingsOf(node).forEach(add);
+      data.nodes.filter(candidate => candidate.parent === node.id).forEach(add);
+
+      if (!found.size && node.parent) {
+        data.nodes.filter(candidate => candidate.parent === node.parent).forEach(add);
+      }
+
+      if (!found.size) {
+        nodesForAgent(node.agent).forEach(add);
+      }
+
+      return [...found.values()];
+    }
+
+    function winnerFor(node) {
+      if (node.type === "revision" && node.why_won) return node;
+      if (node.parent) {
+        return data.nodes.find(candidate => candidate.parent === node.parent && candidate.type === "revision" && candidate.why_won);
+      }
+      return nodesForAgent(node.agent).find(candidate => candidate.type === "revision" && candidate.why_won);
+    }
+
+    function renderAgents() {
+      const container = document.getElementById("agentList");
+      container.innerHTML = data.agents.map(agent => {
+        const nodes = nodesForAgent(agent.id);
+        const kills = nodes.filter(node => node.type === "kill").length;
+        return `
+          <button class="agent-button ${agent.id === activeAgentId ? "active" : ""}" data-agent="${escapeHtml(agent.id)}" style="--agent: ${agent.color}">
+            <span class="agent-swatch"></span>
+            <span>
+              <span class="agent-id">${escapeHtml(agent.id)}</span>
+              <span class="agent-count">${nodes.length} nodes · ${kills} kill${kills === 1 ? "" : "s"}</span>
+            </span>
+          </button>
+        `;
+      }).join("");
+
+      container.querySelectorAll("button").forEach(button => {
+        button.addEventListener("click", () => {
+          activeAgentId = button.dataset.agent;
+          selectedNodeId = defaultNodeForAgent(activeAgentId).id;
+          render();
+        });
+      });
+    }
+
+    function renderTopMeta() {
+      const kills = countType("kill");
+      document.getElementById("topMeta").textContent = `${data.agents.length} agents · ${data.nodes.length} nodes · ${kills} kills`;
+    }
+
+    function depthFor(node, memo = new Map()) {
+      if (memo.has(node.id)) return memo.get(node.id);
+      if (!node.parent || !nodeById.has(node.parent)) {
+        memo.set(node.id, 0);
+        return 0;
+      }
+      const depth = depthFor(nodeById.get(node.parent), memo) + 1;
+      memo.set(node.id, depth);
+      return depth;
+    }
+
+    function renderGraph() {
+      if (!data) return;
+      const svg = d3.select("#graph");
+      const graphNode = document.getElementById("graph");
+      const rect = graphNode.getBoundingClientRect();
+      const width = Math.max(520, rect.width || 720);
+      const height = Math.max(280, rect.height || 320);
+      svg.attr("viewBox", `0 0 ${width} ${height}`);
+      svg.selectAll("*").remove();
+
+      const ownIds = new Set(nodesForAgent(activeAgentId).map(node => node.id));
+      const visibleLinks = data.edges.filter(edge => {
+        const from = nodeById.get(edge.from);
+        const to = nodeById.get(edge.to);
+        if (!from || !to) return false;
+        if (ownIds.has(edge.from) && ownIds.has(edge.to)) return true;
+        return edge.kind === "cites" && (ownIds.has(edge.from) || ownIds.has(edge.to));
+      });
+
+      const visibleIds = new Set();
+      visibleLinks.forEach(edge => {
+        visibleIds.add(edge.from);
+        visibleIds.add(edge.to);
+      });
+      ownIds.forEach(id => visibleIds.add(id));
+
+      const depthMemo = new Map();
+      const graphNodes = [...visibleIds].map(id => {
+        const base = nodeById.get(id);
+        return {
+          ...base,
+          ghost: base.agent !== activeAgentId,
+          depth: depthFor(base, depthMemo)
+        };
+      });
+      const graphLinks = visibleLinks.map(edge => ({
+        ...edge,
+        source: edge.from,
+        target: edge.to
+      }));
+      const maxDepth = Math.max(1, ...graphNodes.map(node => node.depth));
+
+      const simulation = d3.forceSimulation(graphNodes)
+        .force("link", d3.forceLink(graphLinks).id(node => node.id).distance(edge => edge.kind === "cites" ? 145 : 95).strength(.74))
+        .force("charge", d3.forceManyBody().strength(-330))
+        .force("x", d3.forceX(node => 70 + (width - 140) * (node.depth / maxDepth)).strength(.95))
+        .force("y", d3.forceY(height / 2).strength(.18))
+        .force("collide", d3.forceCollide().radius(34))
+        .stop();
+
+      for (let i = 0; i < 180; i += 1) simulation.tick();
+
+      graphNodes.forEach(node => {
+        node.x = Math.max(42, Math.min(width - 42, node.x));
+        node.y = Math.max(38, Math.min(height - 38, node.y));
+      });
+
+      svg.append("g")
+        .selectAll("line")
+        .data(graphLinks)
+        .join("line")
+        .attr("class", edge => `edge ${edge.kind}`)
+        .attr("x1", edge => edge.source.x)
+        .attr("y1", edge => edge.source.y)
+        .attr("x2", edge => edge.target.x)
+        .attr("y2", edge => edge.target.y);
+
+      const node = svg.append("g")
+        .selectAll("g")
+        .data(graphNodes)
+        .join("g")
+        .attr("class", d => `node ${d.type} ${d.ghost ? "ghost" : ""} ${d.id === selectedNodeId ? "selected" : ""}`)
+        .attr("transform", d => `translate(${d.x},${d.y})`)
+        .on("click", (_, d) => {
+          activeAgentId = d.agent;
+          selectedNodeId = d.id;
+          render();
+        });
+
+      node.append("circle")
+        .attr("r", d => d.type === "kill" ? 13 : 15)
+        .attr("fill", d => typeColors[d.type] || "var(--muted)");
+
+      node.append("text")
+        .attr("text-anchor", "middle")
+        .attr("y", 31)
+        .text(d => d.id);
+    }
+
+    function renderCards() {
+      const container = document.getElementById("cards");
+      container.innerHTML = nodesForAgent(activeAgentId).map(node => {
+        const killBody = node.type === "kill"
+          ? `<p class="content"><span class="kill-copy">${escapeHtml(node.content)}</span></p>
+             <div class="reason"><span class="reason-label">reason:</span>${escapeHtml(node.kill_reason)}</div>`
+          : `<p class="content">${escapeHtml(node.content)}</p>`;
+
+        return `
+          <article class="node-card ${node.type} ${node.id === selectedNodeId ? "active" : ""}" data-node="${escapeHtml(node.id)}">
+            <div class="card-top">
+              <span class="type-pill">${escapeHtml(node.type)}</span>
+              <span class="node-id">${escapeHtml(node.id)}</span>
+            </div>
+            ${killBody}
+          </article>
+        `;
+      }).join("");
+
+      container.querySelectorAll(".node-card").forEach(card => {
+        card.addEventListener("click", () => {
+          selectedNodeId = card.dataset.node;
+          render();
+        });
+      });
+    }
+
+    function renderDetails() {
+      const node = nodeById.get(selectedNodeId) || defaultNodeForAgent(activeAgentId);
+      selectedNodeId = node.id;
+      const parent = node.parent || "null";
+      const siblings = siblingsOf(node).map(sibling => sibling.id).join(", ") || "none";
+      const winner = winnerFor(node);
+      const pruned = prunedNear(node);
+      const prunedHtml = pruned.length
+        ? `<ul class="pruned-list">${pruned.map(item => `
+            <li class="pruned-item">
+              <strong>${escapeHtml(item.id)}</strong>
+              <span>${escapeHtml(item.kill_reason)}</span>
+            </li>
+          `).join("")}</ul>`
+        : `<p class="detail-copy">No pruned siblings recorded near this node.</p>`;
+
+      document.getElementById("details").innerHTML = `
+        <section class="detail-section">
+          <h2 class="rail-title">Selected Node</h2>
+          <dl class="kv">
+            <dt>id</dt><dd class="mono">${escapeHtml(node.id)}</dd>
+            <dt>type</dt><dd>${escapeHtml(node.type)}</dd>
+            <dt>parent</dt><dd class="mono">${escapeHtml(parent)}</dd>
+            <dt>siblings</dt><dd class="mono">${escapeHtml(siblings)}</dd>
+            <dt>cited by</dt><dd>${citedByCount(node.id)}</dd>
+            <dt>time</dt><dd class="mono">${escapeHtml(node.timestamp || node.killed_at || "")}</dd>
+          </dl>
+        </section>
+        <section class="detail-section">
+          <h2 class="rail-title">Why This Branch Won</h2>
+          <p class="detail-copy">${escapeHtml(winner?.why_won || "No winning branch note recorded.")}</p>
+        </section>
+        <section class="detail-section">
+          <h2 class="rail-title">Pruned Siblings</h2>
+          ${prunedHtml}
+        </section>
+      `;
+    }
+
+    function render() {
+      renderTopMeta();
+      renderAgents();
+      renderGraph();
+      renderCards();
+      renderDetails();
+    }
+
+    function startWalk() {
+      if (!walkEnabled || walkStarted) return;
+      walkStarted = true;
+      const agentIds = data.agents.map(agent => agent.id);
+      let startedAt = performance.now();
+      let lastStep = startedAt;
+
+      function tick(now) {
+        const elapsed = now - startedAt;
+        progressEl.style.transform = `scaleX(${Math.min(1, elapsed / 6000)})`;
+        if (now - lastStep >= 6000) {
+          walkIndex = (walkIndex + 1) % agentIds.length;
+          activeAgentId = agentIds[walkIndex];
+          selectedNodeId = defaultNodeForAgent(activeAgentId).id;
+          startedAt = now;
+          lastStep = now;
+          render();
+        }
+        requestAnimationFrame(tick);
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    loadData()
+      .then(loaded => {
+        if (!window.d3) {
+          document.querySelector(".center").innerHTML = '<div class="error">d3-force did not load from the CDN.</div>';
+          return;
+        }
+        stagedData = loaded;
+        setEmptyState("ready");
+        repoForm.addEventListener("submit", submitRepo);
+        repoInput.addEventListener("keydown", handleRepoKeydown);
+        repoInput.focus();
+        repoInput.select();
+        window.addEventListener("resize", renderGraph);
+      })
+      .catch(error => {
+        document.querySelector(".center").innerHTML = `<div class="error">${escapeHtml(error.message)}</div>`;
+      });
+  </script>
+</body>
+</html>
