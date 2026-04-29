@@ -66,6 +66,8 @@ No build step. No backend. No framework. Just the viewer and the container.
 
 The viewer starts as an artifact stage: the thought loop stays visible while the selected prompt, media object, explainer, slide, prototype, or code artifact opens in the lens.
 
+These shots are captured from the viewer with `loopthing.loopthing` open.
+
 ![LoopThing container start](docs/screenshots/01-package-start.png)
 
 The prompt spine now includes the real earlier context: Karpathy, LLMWiki, Ralph Loops, constraint vectors, OpenClaw, and the killed repo-input branch.
@@ -87,6 +89,8 @@ Generated explainers turn the chat session into context that a coworker, judge, 
 The same container can carry working artifacts such as slides, prototypes, and the viewer code.
 
 ![LoopThing code artifact](docs/screenshots/05-viewer-code-artifact.png)
+
+Previous screenshot sets are kept for comparison in `docs/screenshots/archive/`.
 
 ## What This Repo Shows
 

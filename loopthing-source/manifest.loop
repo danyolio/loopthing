@@ -62,6 +62,13 @@ files:
   - Artifacts/Screenshots/04-slide-artifact.png
   - Artifacts/Screenshots/05-viewer-code-artifact.png
   - Artifacts/Screenshots/06-generated-explainer.png
+  - Artifacts/Screenshots/archive/2026-04-30-before-viewer-refresh/README.md
+  - Artifacts/Screenshots/archive/2026-04-30-before-viewer-refresh/01-package-start.png
+  - Artifacts/Screenshots/archive/2026-04-30-before-viewer-refresh/02-lineage-track-changes.png
+  - Artifacts/Screenshots/archive/2026-04-30-before-viewer-refresh/03-thought-graph.png
+  - Artifacts/Screenshots/archive/2026-04-30-before-viewer-refresh/04-slide-artifact.png
+  - Artifacts/Screenshots/archive/2026-04-30-before-viewer-refresh/05-viewer-code-artifact.png
+  - Artifacts/Screenshots/archive/2026-04-30-before-viewer-refresh/06-generated-explainer.png
   - Artifacts/Docs/Container Format.md
   - Artifacts/Slides/Problem Solution How It Works.html
   - Artifacts/Prototypes/Viewer Prototype.html
