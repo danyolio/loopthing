@@ -1025,7 +1025,10 @@
         { value: "5", label: "artifact families" }
       ],
       topics: [
-        ["hackathon", "var(--blue)"],
+        ["compression", "var(--green)"],
+        ["handoff", "var(--green)"],
+        ["semantic decision layer", "var(--purple)"],
+        ["creator leverage", "var(--amber)"],
         ["OpenAI Codex", "var(--blue)"],
         ["Karpathy", "var(--amber)"],
         ["LLMWiki", "var(--amber)"],
@@ -1033,17 +1036,14 @@
         ["Ralph Loop", "var(--purple)"],
         ["file format", "var(--purple)"],
         ["prompt lineage", "var(--blue)"],
-        ["killed branches", "var(--red)"],
+        ["discarded branches", "var(--red)"],
         ["generated artifacts", "var(--green)"],
-        ["rich PDF", "var(--amber)"],
-        ["viewer UI", "var(--green)"],
-        ["screenshots", "var(--amber)"],
         ["GitHub", "var(--purple)"]
       ],
       primitives: [
         { title: "Prompt Spine", copy: "Initial ask, follow-ups, and one-line changes." },
         { title: "Chat Metadata", copy: "Message counts, topics, tags, and source shape." },
-        { title: "Journey Map", copy: "Lineage, killed paths, and why the direction changed." }
+        { title: "Reasoning Compression", copy: "Intent, framing diffs, discarded branches, risks, and outcome." }
       ]
     };
 
@@ -1193,6 +1193,31 @@ The user feedback killed that branch: you do not LoopThing a repo. You LoopThing
 The current shape is a rich portable container: prompts, follow-ups, discarded ideas, generated explainers, media, screenshots, slides, prototype, and code.`
       },
       {
+        path: "Thinking/Stress Test.md",
+        kind: "stress test",
+        accent: "var(--red)",
+        description: "The newest compression artifact testing whether LoopThing has a real wedge.",
+        content: `# Stress Test
+
+A reasoning artifact compressed from a conversation testing whether LoopThing has a real wedge or is a feature inside a bigger platform's roadmap.
+
+## Intent
+
+Stress-test whether LoopThing has a defensible wedge, identify whether the value is real or theatrical, and decide what to commit to before building further.
+
+## Problem
+
+People accumulate large corpuses of AI conversations where modern reasoning increasingly happens. They copy-paste old chats into new chats because they know value is in there but cannot locate it: "They grab everything. That's the problem. I don't know where my gold is."
+
+## What Survives Criticism
+
+There is a missing primitive: a compressed reasoning artifact. The most valuable initial use case is handoff between people working with AI tools.
+
+## Next Action
+
+Run the compression test: 20 chats, three variants per chat, mixed contexts. This gates everything else.`
+      },
+      {
         path: "Thinking/Journey Map.md",
         kind: "journey map",
         accent: "var(--purple)",
@@ -1272,11 +1297,13 @@ A .loopthing generates and carries the explainers, media, maps, drafts, screensh
         description: "A net-new explainer generated from the session.",
         content: `# Problem Statement
 
-AI work now happens inside chat sessions, but chat sessions are terrible as public artifacts.
+AI work now happens inside chat sessions, but the reasoning gets lost.
 
 Raw chat is too noisy. Final outputs are too compressed.
 
-The missing artifact is a shareable file that turns the session into a readable explanation of the work: what was asked, what changed, what was discarded, what was generated, and what someone else should understand before forking the idea.`
+The useful thing is often between them: intent, critical messages, framing diffs, discarded branches, risks, outcome, and next action.
+
+LoopThing exists for that gap: a compressed reasoning artifact for handoff.`
       },
       {
         path: "Generated Explainers/Solution Overview.md",
@@ -1285,11 +1312,11 @@ The missing artifact is a shareable file that turns the session into a readable 
         description: "A generated overview that did not exist in the raw chat.",
         content: `# Solution Overview
 
-A .loopthing is a portable exploration tree for AI work.
+A .loopthing is a compressed reasoning artifact for AI work.
 
-It takes a messy session and generates a clean set of artifacts: master prompt, follow-up history, discarded ideas, journey map, rough drafts, generated explainers, media diagrams, screenshots, docs, slides, prototype, and code.
+It takes messy chat history and extracts the structure someone else needs to inherit the work: intent, problem, critical messages, framing diffs, discarded branches, risks, outcome, next action, and asks.
 
-The point is not to expose the whole transcript. The point is to generate the right artifacts so another person can understand the thinking and feel the quality of the work.`
+Supporting artifacts still matter, but only when they help the handoff. The product is compression quality: did it find the gold?`
       },
       {
         path: "Generated Explainers/How It Works.md",
@@ -1298,21 +1325,21 @@ The point is not to expose the whole transcript. The point is to generate the ri
         description: "A generated explanation of the mechanism.",
         content: `# How It Works
 
-## 1. Start With The Session
+## 1. Start With The Conversation
 
-The raw material is not a repo. It is the user's prompts, follow-ups, revisions, decisions, and artifacts created during AI work.
+The raw material is the user's prompts, follow-ups, revisions, decisions, and generated artifacts across one or more AI sessions.
 
-## 2. Run The Ralph Loop
+## 2. Compress The Reasoning
 
-Agents explore under constraints, critique themselves, regenerate, and diverge from siblings. The human judges what survives.
+LoopThing does not summarize the transcript. It extracts the load-bearing structure: intent, problem, critical messages, framing diffs, discarded branches, surviving claim, risks, outcome, next action, and asks.
 
-\`\`\`text
-EXPLORE -> JUDGE -> DEEPEN -> SEAL
-\`\`\`
+## 3. Preserve Judgment
 
-## 3. Generate New Context
+Killed branches stay visible with reasons so the recipient does not re-propose dead directions.
 
-LoopThing generates artifacts that did not exist in the chat: problem statements, solution summaries, journey maps, relevant context, share briefs, media diagrams, screenshots, slides, prototypes, and code views.`
+## 4. Package The Handoff
+
+The .loopthing file carries compressed reasoning and supporting artifacts as one portable object.`
       },
       {
         path: "Generated Explainers/Relevant Context.md",
@@ -1486,11 +1513,11 @@ The container carries multiple artifact types: prompts, follow-ups, discarded id
         description: "The simplest explanation of the filetype.",
         content: `# One Liner
 
-A .loopthing is a portable exploration tree for AI work: prompts, branches, critiques, killed paths, generated explainers, media, and artifacts in one forkable file.
+A .loopthing is a compressed reasoning artifact for AI work: critical messages, framing diffs, discarded branches, risks, outcomes, and supporting artifacts in one portable file.
 
 ## Tagline
 
-The thinking ships too.`
+The reasoning ships too.`
       },
       {
         path: "manifest.loop",
@@ -1498,15 +1525,15 @@ The thinking ships too.`
         accent: "var(--purple)",
         description: "Container metadata and generated-file inventory.",
         content: `format: loopthing/container-v0.6
-title: The Missing Artifact
-kind: portable-exploration-tree
+title: Compressed Reasoning Artifact
+kind: reasoning-handoff
 entry: Prompts/Master Prompt.md
 
-tagline: The thinking ships too.
+tagline: The reasoning ships too.
 
 generator:
   input: messy AI chat session
-  output: net new artifacts, media, and explainers for sharing the work`
+  output: compressed reasoning artifact and supporting handoff materials`
       }
     ];
 
@@ -1514,6 +1541,7 @@ generator:
       "Metadata/Chat Messages.md",
       "Prompts/Master Prompt.md",
       "Prompts/Follow Ups.md",
+      "Thinking/Stress Test.md",
       "Thinking/Journey Map.md",
       "Thinking/Discarded Ideas.md",
       "Generated Explainers/Problem Statement.md",

@@ -1,22 +1,22 @@
 format: loopthing/container-v0.6
-title: The Missing Artifact
-kind: portable-exploration-tree
+title: Compressed Reasoning Artifact
+kind: reasoning-handoff
 created: 2026-04-30T00:24:00+10:00
 entry: Prompts/Master Prompt.md
 origin: OpenAI Codex hackathon demo
 mimetype: application/vnd.loopthing+zip
-tagline: The thinking ships too.
+tagline: The reasoning ships too.
 
 summary:
-  A .loopthing is a portable exploration tree for AI work: prompts,
-  follow-ups, chat metadata, branches, critiques, killed paths,
-  generated explainers, media, screenshots, docs, slides, prototypes,
-  and code that show how an idea arrived.
+  A .loopthing is a compressed reasoning artifact for AI work:
+  intent, critical messages, framing diffs, discarded branches,
+  risks, outcomes, next actions, and supporting artifacts that
+  help someone inherit the reasoning without reading the transcript.
 
 generator:
   input: messy AI chat session
-  output: net new artifacts, media, and explainers for sharing the work
-  promise: make the creator look clear, deliberate, intelligent, and easy to learn from
+  output: compressed reasoning artifact and supporting handoff materials
+  promise: help a recipient land where the creator landed, fast
 
 lineage:
   - Began as an OpenAI Codex hackathon demo around Karpathy's LLMWiki.
@@ -28,14 +28,16 @@ lineage:
   - Became a portable rich-file container for AI work.
   - Added generated explainers and media as core functions, not side effects.
   - Reframed the viewer as an artifact stage rather than a file browser.
+  - Narrowed the wedge to handoff and compression quality.
+  - Reframed LoopThing as a semantic decision layer over git-like history.
 
 principles:
   - One .loopthing file is the shareable container.
   - loopthing-source/ is only the unpacked editing source.
   - Prompts are the canonical spine.
-  - The container generates context artifacts and media, not just summaries.
-  - Discarded ideas make the sharer look clearer, not messier.
-  - Screenshots, media, docs, slides, prototypes, and code travel with the thought process.
+  - Compression quality is the product.
+  - Discarded ideas prevent recipients from re-proposing dead branches.
+  - Screenshots, media, docs, slides, prototypes, and code travel only when they help the handoff.
 
 files:
   - Metadata/Chat Messages.md
@@ -44,6 +46,7 @@ files:
   - Prompts/Follow Ups.md
   - Prompts/Prompt Change Log.md
   - Thinking/Process Narrative.md
+  - Thinking/Stress Test.md
   - Thinking/Journey Map.md
   - Thinking/Discarded Ideas.md
   - Drafts/Rough Drafts.md

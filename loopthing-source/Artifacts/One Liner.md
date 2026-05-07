@@ -1,11 +1,11 @@
 # One Liner
 
-A `.loopthing` is a portable exploration tree for AI work: prompts, branches, critiques, killed paths, generated explainers, media, and artifacts in one forkable file.
+A `.loopthing` is a compressed reasoning artifact for AI work: the critical messages, framing diffs, discarded branches, risks, outcomes, and supporting artifacts in one portable file.
 
 ## Shorter
 
-A `.loopthing` turns a messy AI session into a shareable rich artifact that makes the work easy to understand and easy to inherit.
+A `.loopthing` finds the gold in messy AI chats and turns it into a handoff someone else can understand fast.
 
 ## Tagline
 
-The thinking ships too.
+The reasoning ships too.

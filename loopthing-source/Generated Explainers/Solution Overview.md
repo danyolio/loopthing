@@ -1,23 +1,19 @@
 # Solution Overview
 
-A `.loopthing` is a portable exploration tree for AI work.
+A `.loopthing` is a compressed reasoning artifact for AI work.
 
-It takes a messy session and generates a clean set of artifacts:
+It takes messy chat history and extracts the structure someone else needs to inherit the work:
 
-- a master prompt
-- follow-up prompt history
-- discarded ideas and reasons
-- a journey map
-- rough drafts
-- problem and solution explainers
-- relevant context
-- media diagrams
-- screenshots
-- docs
-- slides
-- prototypes
-- code
+- intent
+- problem
+- critical messages
+- framing diffs
+- discarded branches
+- risks
+- outcome
+- next action
+- asks
 
-The point is not to expose the whole transcript. The point is to generate the right artifacts so another person can understand the thinking and feel the quality of the work.
+Supporting artifacts still matter, but only when they help the handoff. The product is not the viewer, the folder, or the transcript.
 
-It is closer to a modern PDF or slide deck than a chat export, except it can carry code, images, maps, prototypes, and structured provenance inside it.
+The product is compression quality: did it find the gold?

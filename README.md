@@ -1,24 +1,28 @@
 # LoopThing
 
-LoopThing is a file format for turning AI chat into a shareable artifact that shows how an idea arrived.
+LoopThing is a file format for turning AI chat into a compressed reasoning artifact.
+
+It is not a transcript and not a "summarize this chat" wrapper. It extracts the load-bearing structure: intent, critical messages, framing diffs, discarded branches, risks, outcome, and next action.
 
 **In this meta demo:** LoopThing itself was created from 67 chat messages across 3 AI tools. `loopthing.loopthing` contains 3 primitives and 5 artifact families.
 
 ## Why It Exists
 
-Have you ever written "summarize this chat" to share your AI project with a friend, but the response lacked depth?
+People copy-paste old chats into new chats because they know there is gold in there, but they do not know where it is.
 
-LoopThing is for that. You LoopThing your messages across multiple chat sessions to generate artifacts that demonstrate your thinking: prompts, metadata, maps, discarded ideas, explainers, media, slides, prototypes, and code.
+LoopThing is for that. You LoopThing your messages across multiple chat sessions to generate a handoff artifact: something a friend, cofounder, teammate, or future self can read in minutes and land where you landed.
 
-The final output is not the only artifact. The thinking can ship too.
+The final output is not the only artifact. The reasoning can ship too.
 
 ## What Is A `.loopthing`
 
-A `.loopthing` is not JSON, not a folder, and not a transcript. It is a single portable container file with a MIME marker: `application/vnd.loopthing+zip`.
+A `.loopthing` is a single portable container file with a MIME marker: `application/vnd.loopthing+zip`.
 
 The thing you share is named for the project: `agent-docs.loopthing`, `openclaw-origin.loopthing`, `yourproject.loopthing`. This repo's example is `loopthing.loopthing`.
 
-The point is simple: make the work understandable to someone who was not in the chat.
+The narrow wedge: compress messy AI work into the minimum artifact that preserves the move.
+
+The test: can someone who was not in the conversation read it in under five minutes and end up roughly where the creator ended up?
 
 ## What It Contains
 
@@ -26,7 +30,7 @@ This demo container has three core primitives:
 
 - `Metadata/`: message counts, topic tags, and source-shape stats
 - `Prompts/`: initial prompt, follow-ups, and one-line prompt changes
-- `Thinking/`: journey map, discarded ideas, and process narrative
+- `Thinking/`: journey map, discarded ideas, stress test, and process narrative
 
 And five artifact families:
 
@@ -66,7 +70,7 @@ The final `.loopthing` file is the entire exploration: portable, forkable, audit
 
 Future versions could:
 
+- Run the compression test across real chat corpuses before building more infrastructure.
 - Generate `.loopthing` files from one chat, many chats, or a project workspace.
-- Turn chat history into metadata, prompt lineage, journey maps, and generated explainers.
-- Preserve discarded ideas and the reason each branch died.
-- Package media, slides, prototypes, and code so the artifact feels closer to a rich PDF for AI work.
+- Turn chat history into metadata, prompt lineage, framing diffs, discarded branches, and generated explainers.
+- Package media, slides, prototypes, and code only when they help the handoff.

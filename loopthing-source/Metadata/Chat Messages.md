@@ -11,7 +11,10 @@ LoopThing treats source-chat metadata as a primitive, not hidden analytics.
 
 ## Topics
 
-- hackathon
+- compression
+- handoff
+- semantic decision layer
+- creator leverage
 - OpenAI Codex
 - Karpathy
 - LLMWiki
@@ -19,18 +22,15 @@ LoopThing treats source-chat metadata as a primitive, not hidden analytics.
 - Ralph Loop
 - file format
 - prompt lineage
-- killed branches
+- discarded branches
 - generated artifacts
-- rich PDF
-- viewer UI
-- screenshots
 - GitHub
 
 ## Primitives
 
 - Prompt spine: initial ask, follow-ups, and one-line changes.
 - Chat metadata: message counts, topics, tags, and source shape.
-- Journey map: lineage, killed paths, and why the direction changed.
+- Reasoning compression: intent, critical messages, framing diffs, discarded branches, risks, and outcome.
 
 ## Artifact Families
 

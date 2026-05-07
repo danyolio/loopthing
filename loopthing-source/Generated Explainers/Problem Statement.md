@@ -1,11 +1,9 @@
 # Problem Statement
 
-AI work now happens inside chat sessions, but chat sessions are terrible as public artifacts.
+AI work now happens inside chat sessions, but the reasoning gets lost.
 
-Raw chat is too noisy. It contains false starts, half-thoughts, repeated instructions, formatting corrections, and context that made sense only in the moment.
+Raw chat is too noisy. Final outputs are too compressed. The useful thing is often between them: the intent, the critical messages, the framing diffs, the branches that died, and the narrow claim that survived.
 
-Final outputs are too compressed. A repo, slide deck, document, or prototype shows what shipped, but not how the idea arrived.
+People already do the manual version by copy-pasting old chats into new chats. That proves the pain is real, but the current solution grabs everything and still does not tell you where the gold is.
 
-The missing artifact is a shareable file that turns the session into a readable explanation of the work: what was asked, what changed, what was discarded, what was generated, and what someone else should understand before forking the idea.
-
-LoopThing exists for that gap.
+LoopThing exists for that gap: a compressed reasoning artifact for handoff.
