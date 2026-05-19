@@ -131,6 +131,7 @@ function classifySource(file) {
   const relative = path.relative(process.cwd(), file).replace(/\\/g, "/");
   const basename = path.basename(relative);
   if (/^rollout-.*\.jsonl$/i.test(basename)) return "chat-transcript";
+  if (/(^|\/)\.claude\/projects\//.test(file.replace(/\\/g, "/"))) return "chat-transcript";
   if (/LOCAL_CHAT_MD_FILES\.md$/i.test(basename)) return "source-index";
   if (/source-metadata\.json$|scores\.jsonl$|compression-score\.md$|agent-handoff\.md$|reasoning\.md$/i.test(basename)) return "generated";
   if (/START_HERE\.md$/i.test(basename) && relative.split("/").some((part) => ["current-run", "runs"].includes(part))) return "generated";
@@ -188,6 +189,74 @@ function collectJsonMessages(value, source, messages = []) {
   return messages;
 }
 
+function textOfClaudeContent(content) {
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => {
+        if (typeof part === "string") return part;
+        if (!part || typeof part !== "object") return "";
+        const type = part.type || "";
+        if (type && !["text", "input_text", "output_text"].includes(type)) return "";
+        if (typeof part.text === "string") return part.text;
+        if (typeof part.content === "string") return part.content;
+        return "";
+      })
+      .filter(Boolean)
+      .join("\n");
+  }
+  if (content && typeof content === "object") {
+    const type = content.type || "";
+    if (type && !["text", "input_text", "output_text"].includes(type)) return "";
+    if (typeof content.text === "string") return content.text;
+    if (typeof content.content === "string") return content.content;
+  }
+  return "";
+}
+
+function isClaudeNoiseMessage(content) {
+  const compact = content.trim();
+  return /^<local-command-(?:caveat|stdout|stderr)>/.test(compact)
+    || /^<task-notification>/.test(compact)
+    || /^<command-(?:message|name)>/.test(compact)
+    || /^Base directory for this skill:/.test(compact)
+    || /^\{"status":"error","message":"TTS failed/.test(compact)
+    || /^toolu_[a-zA-Z0-9_-]+$/.test(compact);
+}
+
+function claudeMessagesFromRows(rows, source) {
+  const hasClaudeShape = rows.some((row) => (
+    row
+    && typeof row === "object"
+    && typeof row.sessionId === "string"
+    && row.message
+    && ["user", "assistant"].includes(row.type)
+  ));
+  if (!hasClaudeShape) return [];
+
+  const messages = [];
+  for (const row of rows) {
+    if (!row || typeof row !== "object") continue;
+    if (!["user", "assistant"].includes(row.type)) continue;
+    const role = normalizeRole(String(row.message?.role || row.type || ""));
+    if (!["user", "assistant"].includes(role)) continue;
+    const content = textOfClaudeContent(row.message?.content ?? row.content).trim();
+    if (!content || isClaudeNoiseMessage(content)) continue;
+    messages.push({
+      role,
+      content,
+      source,
+      source_kind: "chat-transcript",
+      provider: "claude-code",
+      role_confidence: "exact",
+      created_at: row.timestamp || null,
+      conversation_id: row.sessionId || null,
+      message_id: row.uuid || row.message?.id || null
+    });
+  }
+  return messages;
+}
+
 function collectJsonlMessages(raw, source) {
   const rows = raw
     .split(/\r?\n/)
@@ -205,6 +274,9 @@ function collectJsonlMessages(raw, source) {
 
   const codexMessages = codexMessagesFromRows(rows, source);
   if (codexMessages.length) return codexMessages;
+
+  const claudeMessages = claudeMessagesFromRows(rows, source);
+  if (claudeMessages.length) return claudeMessages;
 
   const normalizedMessages = [];
   for (const row of rows) collectJsonMessages(row, source, normalizedMessages);
@@ -660,31 +732,35 @@ function lineCandidates(messages, regexes, limit = 6, options = {}) {
 }
 
 function transcriptThesis(messages) {
-  const sections = matchingSections(messages, [/clean thesis/, /^what it is$/, /current thesis/, /one-line summary/, /pinned direction/, /product spine/]);
-  if (sections[0]) return sectionSummary(sections[0], 360);
-  const lines = lineCandidates(messages, [
+  const preferred = preferredReasoningMessages(messages);
+  const lines = lineCandidates(preferred, [
     /\b(you're running|business shape|mission framing|underlying model|bridge organisation|workforce bridge|flat placement fee|train-and-place|recruiter|placement service)\b/i
   ], 3, { role: "assistant", recentFirst: true, max: 300, noQuestions: true });
   if (lines.length) return lines.map((item) => item.line).join(" ");
-  const candidates = sentenceCandidates(messages, [
+  const candidates = sentenceCandidates(preferred, [
     /\b(you're running|the business shape|the mission framing|the actual business|bridge organisation|workforce bridge|train-and-place|handoff cli|compressed reasoning)\b/i
   ], 3, { role: "assistant", recentFirst: true, max: 300, noQuestions: true });
   if (candidates.length) return candidates.map((item) => item.sentence).join(" ");
+  const sections = matchingSections(preferred, [/clean thesis/, /^what it is$/, /current thesis/, /one-line summary/, /pinned direction/, /product spine/]).reverse();
+  const fallbackSections = sections.length ? sections : matchingSections(messages, [/clean thesis/, /^what it is$/, /current thesis/, /one-line summary/, /pinned direction/, /product spine/]).reverse();
+  if (fallbackSections[0]) return sectionSummary(fallbackSections[0], 360);
   return "The useful work is to preserve the decisions, direction, killed branches, risks, and next action so a new person or session can continue without starting cold.";
 }
 
 function transcriptWedge(messages) {
-  const sections = matchingSections(messages, [/^wedge$/, /pinned wedge/, /pinned direction/, /current wedge/, /what survives criticism/, /narrowest claim/]);
-  if (sections[0]) return sectionSummary(sections[0], 360);
-  const lines = lineCandidates(messages, [
+  const preferred = preferredReasoningMessages(messages);
+  const lines = lineCandidates(preferred, [
     /\b(strongest economic wedge|highest-value lane|picking one lane|primary lane|lead with|best entry|cleanest entry)\b/i,
     /\b(largest market|bottom of the funnel|niche premium lane|not a year-1 wedge)\b/i
   ], 4, { role: "assistant", recentFirst: true, max: 280, noQuestions: true });
   if (lines.length) return lines.map((item) => item.line).join(" ");
-  const candidates = sentenceCandidates(messages, [
+  const candidates = sentenceCandidates(preferred, [
     /\b(strongest economic wedge|highest-value lane|primary lane|lead with|start with|entry point|uniquely suited|best fit|wedge)\b/i
   ], 3, { role: "assistant", recentFirst: true, max: 300, noQuestions: true });
   if (candidates.length) return candidates.map((item) => item.sentence).join(" ");
+  const sections = matchingSections(preferred, [/^wedge$/, /pinned wedge/, /pinned direction/, /current wedge/, /what survives criticism/, /narrowest claim/]).reverse();
+  const fallbackSections = sections.length ? sections : matchingSections(messages, [/^wedge$/, /pinned wedge/, /pinned direction/, /current wedge/, /what survives criticism/, /narrowest claim/]).reverse();
+  if (fallbackSections[0]) return sectionSummary(fallbackSections[0], 360);
   return "The strongest surviving direction is the one that remains after discarded branches and risks are made explicit.";
 }
 
@@ -755,6 +831,27 @@ function inferIntent(messages, critical) {
   return `The participant starts from "${excerpt(firstUser?.content || "", 140)}" and ends near "${excerpt(lastUser?.content || "", 140)}". The underlying intent is to compress messy exploration into a handoff artifact another person can use without reading the transcript.`;
 }
 
+function cleanDictatedQuestion(text) {
+  return String(text)
+    .replace(/\b(?:uh|um|er|ah)\b[,\s]*/gi, "")
+    .replace(/\blike,\s*/gi, "")
+    .replace(/\b(\w+)(?:\s+\1\b)+/gi, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function synthesizedProblemFromQuestion(text, context = "") {
+  const clean = cleanDictatedQuestion(text);
+  const lowered = `${clean}\n${context}`.toLowerCase();
+  if (/\bpsych(?:ology)? students?\b/.test(lowered) && /\bndis\b/.test(lowered)) {
+    return "Decide where psych students and psychology graduates legitimately fit in NDIS work, which role lane is the strongest initial wedge, and what candidate cohort to target first.";
+  }
+  if (/\bwhich role\b|\bwhat role\b|\bwhere .* fit\b|\bhow many\b|\bwhat should\b/i.test(clean)) {
+    return "Decide which role, segment, or candidate cohort is the strongest initial wedge, and what first target is concrete enough to organize the next loop.";
+  }
+  return clean;
+}
+
 function inferProblem(messages) {
   const preferred = preferredReasoningMessages(messages);
   const section = matchingSections(preferred, [/^problem$/, /problem statement/])[0]
@@ -766,7 +863,10 @@ function inferProblem(messages) {
   const recentQuestion = sentenceCandidates(preferred, [
     /\b(real question|biggest question|stuck|where .* fit|which role|what role|how many|what should|what's the gap|is .* suited)\b/i
   ], 2, { role: "user", recentFirst: true, max: 260 }).map((item) => item.sentence);
-  if (recentQuestion.length) return recentQuestion.join(" ");
+  if (recentQuestion.length) {
+    const context = recentMessages(preferred, 0.2).map((message) => message.content).join("\n");
+    return synthesizedProblemFromQuestion(recentQuestion.join(" "), context);
+  }
   const problem = findSentences(messages, [/problem/, /gold/, /messy/, /chaos/, /noisy/, /copy/, /handoff/, /trust/, /share/], 1)[0];
   if (problem) return `The problem surfaced in the source language: "${excerpt(problem.sentence, 260)}"`;
   return "The problem is that useful AI reasoning is buried in long sessions; the final output loses context, while the raw transcript is too noisy to hand off.";
