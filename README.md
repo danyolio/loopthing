@@ -42,7 +42,7 @@ The renderer builds a project model before writing Markdown, so it tries to prod
 
 The latest checked-in demo was regenerated from the cleaned repo and compresses 17 messages across 9 source files. Its structural score is 13/13. That score is a shape check, not a claim that the reasoning is perfect; the recipient test is still the real bar.
 
-## Structured Sessions
+## Structured Chat Sources
 
 For Codex work, LoopThing can use the structured local session log instead of guessing roles from pasted text:
 
@@ -55,6 +55,19 @@ node bin/loopthing.mjs create-session <session-id> \
 
 Codex session imports preserve exact `user` / `assistant` roles from the rollout JSONL and skip synthetic environment-context messages. Pasted transcripts still work, but they are the fallback path because role boundaries can be ambiguous.
 
+Claude Code conversations can also be passed directly as JSONL inputs:
+
+```bash
+node bin/loopthing.mjs create \
+  ~/.claude/projects/<project>/<session>.jsonl \
+  --out claude-session.loopthing \
+  --title "Claude Session Handoff"
+```
+
+Claude Code imports preserve exact `user` / `assistant` roles, skip local command wrappers, and ignore tool/thinking blocks so the artifact is based on the actual conversation instead of terminal noise.
+
+Mixed runs are supported. You can combine pasted ChatGPT text, Codex rollout JSONL, Claude Code JSONL, and project docs in one command when a decision was spread across multiple tools or dates. `source-metadata.json` records where messages came from, including `provider_counts` and `role_quality`, so a recipient can see which roles were exact and which were inferred.
+
 ## Quality Guardrails
 
 `npm run test:product` now covers the product path end to end:
@@ -62,6 +75,9 @@ Codex session imports preserve exact `user` / `assistant` roles from the rollout
 - fixture compression
 - one-command create, score, compare, and seal
 - structured Codex session scan, inspect, normalize, compress, and create
+- Claude Code JSONL import with exact roles and tool-noise filtering
+- mixed source runs where recent structured chat beats stale source-doc summaries
+- dictated / voice-style problem statements that must be synthesized into a clean decision question
 - a full self-run on this repo
 - regressions that keep the checked-in demo focused on LoopThing's own project evolution
 - repeated-run checks so regenerated artifacts do not accumulate stale score records
