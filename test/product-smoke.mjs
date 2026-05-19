@@ -253,7 +253,7 @@ const selfReasoning = fs.readFileSync(path.join(selfRunDir, "reasoning.md"), "ut
 const selfHandoff = fs.readFileSync(path.join(selfRunDir, "agent-handoff.md"), "utf8");
 const selfMetadata = JSON.parse(fs.readFileSync(path.join(selfRunDir, "source-metadata.json"), "utf8"));
 for (const expected of [
-  "LoopThing compresses messy AI work into a handoff artifact",
+  "LoopThing turns local Codex and Claude Code history into a handoff artifact",
   "Raw archive as product",
   "Run the compression test on 20 real chats",
   "Show-your-work format for recipients is weak",

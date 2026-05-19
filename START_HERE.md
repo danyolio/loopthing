@@ -7,9 +7,9 @@ This folder has been cleaned into two tracks:
 
 ## What LoopThing Is Now
 
-LoopThing is a compression tool for AI work.
+LoopThing is a compression tool for local AI work history.
 
-It takes messy chats, project docs, prompts, and notes, then produces a handoff artifact that shows the decisions, direction, discarded branches, risks, and next action.
+It scans local Codex sessions and Claude Code project history, takes messy chats, project docs, prompts, and notes, then produces a handoff artifact that shows the decisions, direction, discarded branches, risks, and next action.
 
 The point is not to store everything. The point is to find the gold and make it easy to hand into a new chat, agent session, collaborator, or future self.
 

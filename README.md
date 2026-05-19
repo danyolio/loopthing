@@ -1,8 +1,8 @@
 # LoopThing
 
-LoopThing compresses messy AI work into a handoff artifact for the next chat, agent, collaborator, or future self.
+LoopThing turns your local Codex and Claude Code history into a handoff artifact for the next chat, agent, collaborator, or future self.
 
-It is an exportable `.loopthing` container plus a local CLI that extracts the load-bearing shape of a project: intent, problem, critical messages, framing shifts, discarded branches, risks, decisions, and the next action.
+It is an exportable `.loopthing` container plus a local CLI that scans structured AI session logs, imports exact `user` / `assistant` turns where available, and extracts the load-bearing shape of a project: intent, problem, critical messages, framing shifts, discarded branches, risks, decisions, and the next action.
 
 ## Why It Exists
 
@@ -12,21 +12,24 @@ Have you ever:
 - seen a strong AI-built prototype and wondered how the person actually made it?
 - written "summarize this chat" to share your AI project, only to get something that missed the gold?
 
-AI work now happens across long chats, Codex sessions, notes, prototypes, screenshots, and docs. The useful context is usually in the turns: the moment the framing changed, the branch that died, the reason a decision stuck.
+AI work now happens across local Codex sessions, Claude Code projects, long pasted chats, notes, prototypes, screenshots, and docs. The useful context is usually in the turns: the moment the framing changed, the branch that died, the reason a decision stuck.
 
-LoopThing turns that mess into something sendable.
+LoopThing finds those local histories, lets you opt selected conversations into a run, and turns that mess into something sendable.
 
 The test is simple: can someone who was not in the conversation read the artifact in under five minutes and land where the creator landed?
 
 ## The Current Product
 
-The actual product is a local CLI:
+The actual product is a local CLI that can run on a project folder or scan local AI histories first:
 
 ```bash
 node bin/loopthing.mjs create . \
   --out demo/loopthing-clean.loopthing \
   --run-dir demo/current-run \
   --title "LoopThing Clean Project Handoff"
+
+node bin/loopthing.mjs sessions scan
+node bin/loopthing.mjs claude scan "Future Allied NDIS psych students"
 ```
 
 That command creates:
@@ -43,6 +46,8 @@ The renderer builds a project model before writing Markdown, so it tries to prod
 The latest checked-in demo was regenerated from the cleaned repo and compresses 17 messages across 9 source files. Its structural score is 13/13. That score is a shape check, not a claim that the reasoning is perfect; the recipient test is still the real bar.
 
 ## Structured Chat Sources
+
+This is the clutch path: prefer structured local AI history over copied transcript text whenever possible.
 
 For Codex work, LoopThing can use the structured local session log instead of guessing roles from pasted text:
 

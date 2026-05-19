@@ -10,7 +10,7 @@ Clean up the project into something readable, improve the actual LoopThing produ
 
 ## Current Thesis
 
-LoopThing compresses messy AI work into a handoff artifact for the next chat, agent, collaborator, or future self.
+LoopThing turns local Codex and Claude Code history into a handoff artifact for the next chat, agent, collaborator, or future self.
 
 ## Current Wedge
 

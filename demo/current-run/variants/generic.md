@@ -6,7 +6,7 @@ Main visible topics: handoff, compression, brand, product, life-design, format, 
 
 Current thesis:
 
-LoopThing compresses messy AI work into a handoff artifact for the next chat, agent, collaborator, or future self.
+LoopThing turns local Codex and Claude Code history into a handoff artifact for the next chat, agent, collaborator, or future self.
 
 Next action:
 

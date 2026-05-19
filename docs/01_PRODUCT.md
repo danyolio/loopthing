@@ -1,20 +1,20 @@
 # Product Spine
 
-LoopThing compresses messy AI work into a handoff artifact for the next chat, agent, collaborator, or future self.
+LoopThing turns local Codex and Claude Code history into a handoff artifact for the next chat, agent, collaborator, or future self.
 
-It is a local CLI and portable file format. The CLI reads Markdown, text, and JSON sources, extracts the project thesis, pivots, killed branches, risks, next actions, and important source files, then seals the result into a `.loopthing` zip container.
+It is a local CLI and portable file format. The CLI reads structured Codex rollout JSONL, Claude Code project JSONL, Markdown, text, and JSON sources, extracts the project thesis, pivots, killed branches, risks, next actions, and important source files, then seals the result into a `.loopthing` zip container.
 
 ## Wedge
 
 The strongest product direction is handoff.
 
-People already copy-paste old chats into new chats because they know the useful context is in there. The problem is that they do not know where the gold is.
+People already copy-paste old chats into new chats because they know the useful context is in there. But the stronger version is local-history first: scan Codex and Claude Code conversations on disk, preserve exact roles where possible, and only fall back to pasted transcript parsing when structured history is unavailable.
 
 LoopThing replaces that manual behavior with a structured compression pass.
 
 ## Job
 
-Given a messy project folder or transcript, produce the smallest useful artifact that lets a recipient inherit the reasoning without reading the raw source.
+Given a messy project folder, transcript, or selected set of local Codex / Claude Code conversations, produce the smallest useful artifact that lets a recipient inherit the reasoning without reading the raw source.
 
 The output should read like a project-specific brief, not like chopped transcript excerpts.
 

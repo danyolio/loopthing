@@ -11,7 +11,7 @@ The project had too many folders and stale artifacts. A structural compression s
 
 ## Current thesis
 
-LoopThing compresses messy AI work into a handoff artifact for the next chat, agent, collaborator, or future self.
+LoopThing turns local Codex and Claude Code history into a handoff artifact for the next chat, agent, collaborator, or future self.
 
 ## Current wedge
 

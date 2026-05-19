@@ -549,13 +549,16 @@
         <div class="hero-copy">
           <div>
             <p class="eyebrow mono">LoopThing</p>
-            <h1>Your next session starts warm.</h1>
-            <p class="dek">LoopThing compresses messy AI work into a handoff artifact for the next chat, agent, collaborator, or future self.</p>
+            <h1>Your local AI history becomes the handoff.</h1>
+            <p class="dek">LoopThing scans local Codex and Claude Code conversations, then compresses the load-bearing turns into a handoff for the next chat, agent, collaborator, or future self.</p>
           </div>
           <pre class="command mono"><code>node bin/loopthing.mjs create . \
   --out demo/loopthing-clean.loopthing \
   --run-dir demo/current-run \
-  --title "LoopThing Clean Project Handoff"</code></pre>
+  --title "LoopThing Clean Project Handoff"
+
+node bin/loopthing.mjs sessions scan
+node bin/loopthing.mjs claude scan "Future Allied NDIS"</code></pre>
         </div>
 
         <div class="artifact-stage">
@@ -568,14 +571,14 @@
           </svg>
 
           <div class="source-stack">
-            <p class="stack-title mono">source shape</p>
-            <div class="source-row"><span>chat transcript</span><strong>9</strong></div>
-            <div class="source-row"><span>docs</span><strong>5</strong></div>
-            <div class="source-row"><span>source files</span><strong>2</strong></div>
-            <div class="source-row"><span>orientation</span><strong>1</strong></div>
+            <p class="stack-title mono">local sources</p>
+            <div class="source-row"><span>Codex sessions</span><strong>exact</strong></div>
+            <div class="source-row"><span>Claude Code</span><strong>scan</strong></div>
+            <div class="source-row"><span>pasted chats</span><strong>fallback</strong></div>
+            <div class="source-row"><span>project docs</span><strong>context</strong></div>
           </div>
 
-          <div class="compressor"><span class="mono">compress decisions direction thinking</span></div>
+          <div class="compressor"><span class="mono">scan local history compress decisions</span></div>
 
           <article class="handoff-file">
             <p class="file-title mono">sealed artifact</p>
@@ -613,13 +616,13 @@
       <section class="section" aria-label="Why handoff">
         <div>
           <h2>The job is handoff.</h2>
-          <p class="section-intro">The manual behavior already exists: people copy-paste old AI chats into new chats because they know the useful context is somewhere in there.</p>
+          <p class="section-intro">The manual behavior already exists: people copy-paste old AI chats into new chats because they know the useful context is somewhere in there. LoopThing makes the stronger path obvious: scan local Codex and Claude Code history, pick the right conversations, then hand off the reasoning.</p>
         </div>
         <div class="evidence-grid">
           <article class="evidence">
             <h3 class="mono">problem</h3>
             <strong>"I don't know where my gold is."</strong>
-            <p>Raw AI work grabs everything. LoopThing is the compression pass that pulls out the load-bearing turns.</p>
+            <p>Local AI history has the turns, but not the handoff. LoopThing pulls out the load-bearing moves without pretending raw logs are the product.</p>
           </article>
           <article class="evidence">
             <h3 class="mono">test</h3>
@@ -629,7 +632,7 @@
           <article class="evidence">
             <h3 class="mono">artifact</h3>
             <strong>Portable, forkable, auditable</strong>
-            <p>The sealed file can move across chats, agents, collaborators, and future project sessions.</p>
+            <p>The sealed file records source shape and role quality, then moves across chats, agents, collaborators, and future project sessions.</p>
           </article>
         </div>
       </section>
@@ -662,8 +665,8 @@
               </marker>
             </defs>
             <rect x="26" y="54" width="210" height="104" rx="8"></rect>
-            <text x="46" y="94">messy AI work</text>
-            <text class="small" x="46" y="124">chats, docs, prompts</text>
+            <text x="46" y="94">local AI history</text>
+            <text class="small" x="46" y="124">Codex, Claude Code, chats</text>
             <rect x="26" y="222" width="210" height="104" rx="8"></rect>
             <text x="46" y="262">old material</text>
             <text class="small" x="46" y="292">preserved in archive</text>

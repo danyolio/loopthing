@@ -11,7 +11,7 @@ It is intentionally simple:
 
 The page should make one thing obvious:
 
-> LoopThing turns messy AI work into a compact handoff artifact.
+> LoopThing turns local Codex and Claude Code history into a compact reasoning handoff.
 
 ## Current Story
 
@@ -30,4 +30,3 @@ It should show:
 This can be hosted as a single static file on `loopthing.ai`.
 
 If the page becomes public, keep the copy close to the product spine in `docs/01_PRODUCT.md` and the latest generated output in `demo/current-run/`.
-

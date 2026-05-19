@@ -10,9 +10,9 @@ Next loop: add a model-backed compression mode and compare it against the determ
 
 ## 2. Expand Structured Importers
 
-Codex sessions now have a role-safe import path from local rollout JSONL. That should become the pattern for every provider.
+Codex sessions and Claude Code conversations now have role-safe import paths from local JSONL history. This should become the pattern for every provider.
 
-Next loop: add Claude Code JSONL import, Claude web/Desktop export import, and a Gemini Takeout/browser-capture adapter. Pasted transcript parsing should remain the fallback, not the primary path.
+Next loop: add Claude web/Desktop export import and a Gemini Takeout/browser-capture adapter. Pasted transcript parsing should remain the fallback, not the primary path.
 
 ## 3. Add Recipient Tests
 
