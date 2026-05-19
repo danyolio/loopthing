@@ -38,6 +38,19 @@ Paste `demo/current-run/agent-handoff.md` into a fresh chat or agent session whe
 
 Read `demo/current-run/reasoning.md` when you want the fuller artifact.
 
+## Use Structured Codex Sessions
+
+When the work happened in Codex, prefer the local rollout JSONL over pasted text. The roles are exact instead of inferred.
+
+```bash
+node bin/loopthing.mjs sessions scan
+node bin/loopthing.mjs sessions inspect <session-id>
+node bin/loopthing.mjs sessions normalize <session-id> --out tmp/messages.jsonl
+node bin/loopthing.mjs create-session <session-id> --out selected-session.loopthing
+```
+
+Use `sessions scan --all` to see sessions outside the current workspace. Use `create-session` with multiple session ids when you deliberately want to include related conversations from different dates.
+
 ## Score Meaning
 
 `compression-score.md` is a structural and readability smoke test. It checks that required pieces exist and catches obvious jank:

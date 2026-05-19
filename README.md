@@ -42,12 +42,26 @@ The renderer builds a project model before writing Markdown, so it tries to prod
 
 The latest checked-in demo was regenerated from the cleaned repo and compresses 17 messages across 9 source files. Its structural score is 13/13. That score is a shape check, not a claim that the reasoning is perfect; the recipient test is still the real bar.
 
+## Structured Sessions
+
+For Codex work, LoopThing can use the structured local session log instead of guessing roles from pasted text:
+
+```bash
+node bin/loopthing.mjs sessions scan
+node bin/loopthing.mjs sessions inspect <session-id>
+node bin/loopthing.mjs create-session <session-id> \
+  --out selected-session.loopthing
+```
+
+Codex session imports preserve exact `user` / `assistant` roles from the rollout JSONL and skip synthetic environment-context messages. Pasted transcripts still work, but they are the fallback path because role boundaries can be ambiguous.
+
 ## Quality Guardrails
 
 `npm run test:product` now covers the product path end to end:
 
 - fixture compression
 - one-command create, score, compare, and seal
+- structured Codex session scan, inspect, normalize, compress, and create
 - a full self-run on this repo
 - regressions that keep the checked-in demo focused on LoopThing's own project evolution
 - repeated-run checks so regenerated artifacts do not accumulate stale score records

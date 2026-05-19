@@ -7,7 +7,7 @@ import { spawnSync } from "node:child_process";
 
 const VERSION = "0.1.0";
 const MIME = "application/vnd.loopthing+zip";
-const TEXT_EXTENSIONS = new Set([".md", ".txt", ".json"]);
+const TEXT_EXTENSIONS = new Set([".md", ".txt", ".json", ".jsonl"]);
 const DEFAULT_IGNORED_DIRS = new Set([
   ".git",
   ".next",
@@ -28,12 +28,20 @@ function usage() {
 Usage:
   loopthing create <file-or-dir...> --out <name.loopthing> [--title <title>] [--run-dir <run-dir>]
   loopthing compress <file-or-dir...> --out <run-dir> [--title <title>] [--mode handoff]
+  loopthing create-session <codex-session-id-or-jsonl...> --out <name.loopthing> [--title <title>] [--run-dir <run-dir>]
+  loopthing compress-session <codex-session-id-or-jsonl...> --out <run-dir> [--title <title>]
+  loopthing sessions scan [--cwd <path>] [--all] [--limit <n>] [--codex-home <dir>]
+  loopthing sessions inspect <codex-session-id-or-jsonl> [--codex-home <dir>]
+  loopthing sessions normalize <codex-session-id-or-jsonl...> --out <messages.jsonl> [--codex-home <dir>]
   loopthing score <run-dir>
   loopthing compare <file-a> <file-b> [...file-c]
   loopthing seal <run-dir> --out <name.loopthing>
 
 Examples:
   loopthing create ./transcripts --out pricing-decision.loopthing --title "Pricing decision"
+  loopthing sessions scan
+  loopthing sessions inspect 019e3fbd
+  loopthing create-session 019e3fbd --out repo-decision.loopthing
   loopthing compress ./transcripts --out ./runs/run-001 --title "Pricing decision"
   loopthing score ./runs/run-001
   loopthing seal ./runs/run-001 --out pricing-decision.loopthing`);
@@ -122,6 +130,7 @@ function textOfContent(content) {
 function classifySource(file) {
   const relative = path.relative(process.cwd(), file).replace(/\\/g, "/");
   const basename = path.basename(relative);
+  if (/^rollout-.*\.jsonl$/i.test(basename)) return "chat-transcript";
   if (/LOCAL_CHAT_MD_FILES\.md$/i.test(basename)) return "source-index";
   if (/source-metadata\.json$|scores\.jsonl$|compression-score\.md$|agent-handoff\.md$|reasoning\.md$/i.test(basename)) return "generated";
   if (/START_HERE\.md$/i.test(basename) && relative.split("/").some((part) => ["current-run", "runs"].includes(part))) return "generated";
@@ -165,13 +174,70 @@ function collectJsonMessages(value, source, messages = []) {
       role: normalizeRole(String(roleValue)),
       content,
       source,
-      source_kind: "chat-transcript"
+      source_kind: "chat-transcript",
+      provider: value.provider,
+      role_confidence: value.role_confidence,
+      created_at: value.created_at,
+      conversation_id: value.conversation_id,
+      message_id: value.message_id
     });
     return messages;
   }
 
   for (const child of Object.values(value)) collectJsonMessages(child, source, messages);
   return messages;
+}
+
+function collectJsonlMessages(raw, source) {
+  const rows = raw
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      try {
+        return JSON.parse(line);
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+  if (!rows.length) return [];
+
+  const codexMessages = codexMessagesFromRows(rows, source);
+  if (codexMessages.length) return codexMessages;
+
+  const normalizedMessages = [];
+  for (const row of rows) collectJsonMessages(row, source, normalizedMessages);
+  return normalizedMessages;
+}
+
+function codexMessagesFromRows(rows, source) {
+  const messages = [];
+  for (const row of rows) {
+    const payload = row?.payload;
+    if (row?.type !== "response_item" || payload?.type !== "message") continue;
+    const role = normalizeRole(String(payload.role || ""));
+    if (!["user", "assistant"].includes(role)) continue;
+    const content = textOfContent(payload.content).trim();
+    if (!content) continue;
+    if (role === "user" && isCodexContextOnly(content)) continue;
+    messages.push({
+      role,
+      content,
+      source,
+      source_kind: "chat-transcript",
+      provider: "codex",
+      role_confidence: "exact",
+      created_at: row.timestamp || null
+    });
+  }
+  return messages;
+}
+
+function isCodexContextOnly(content) {
+  const compact = content.trim();
+  return /^<environment_context>[\s\S]*<\/environment_context>$/.test(compact)
+    || /^<user_info>[\s\S]*<\/user_info>$/.test(compact);
 }
 
 function normalizeRole(role) {
@@ -279,6 +345,10 @@ function parseFile(file) {
   const raw = fs.readFileSync(file, "utf8");
   const source = path.relative(process.cwd(), file);
   const sourceKind = classifySource(file);
+  if (path.extname(file).toLowerCase() === ".jsonl") {
+    const jsonlMessages = collectJsonlMessages(raw, source);
+    if (jsonlMessages.length) return jsonlMessages;
+  }
   if (path.extname(file).toLowerCase() === ".json") {
     try {
       const parsed = JSON.parse(raw);
@@ -643,12 +713,24 @@ function sourceMetadata(messages, files) {
     acc[kind] = (acc[kind] || 0) + 1;
     return acc;
   }, {});
+  const providerCounts = messages.reduce((acc, message) => {
+    const provider = message.provider || "file";
+    acc[provider] = (acc[provider] || 0) + 1;
+    return acc;
+  }, {});
+  const roleQuality = messages.reduce((acc, message) => {
+    const quality = message.role_confidence || (message.source_kind === "chat-transcript" ? "inferred" : "source");
+    acc[quality] = (acc[quality] || 0) + 1;
+    return acc;
+  }, {});
   return {
     format: "loopthing/source-metadata-v0.1",
     created: new Date().toISOString(),
     message_count: messages.length,
     role_counts: roleCounts,
     source_kind_counts: sourceKindCounts,
+    provider_counts: providerCounts,
+    role_quality: roleQuality,
     topic_tags: topicTags(messages),
     source_files: files.map((file) => ({
       path: path.relative(process.cwd(), file),
@@ -1423,12 +1505,228 @@ Be optimistic but corrective. If the project drifts, restore the current thesis,
 `;
 }
 
-function runCompression(inputs, flags) {
-  const files = walkInputs(inputs);
-  if (!files.length) throw new Error("No .md, .txt, or .json transcript files found.");
-  const messages = files.flatMap(parseFile).map((message, index) => ({ ...message, index }));
+function codexHome(flags = {}) {
+  return path.resolve(flags["codex-home"] || process.env.CODEX_HOME || path.join(os.homedir(), ".codex"));
+}
+
+function walkJsonlFiles(dir, maxDepth = 8, depth = 0) {
+  if (!fs.existsSync(dir) || depth > maxDepth) return [];
+  const files = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) files.push(...walkJsonlFiles(full, maxDepth, depth + 1));
+    else if (entry.isFile() && entry.name.endsWith(".jsonl")) files.push(full);
+  }
+  return files;
+}
+
+function loadCodexSessionIndex(home) {
+  const indexFile = path.join(home, "session_index.jsonl");
+  const index = new Map();
+  if (!fs.existsSync(indexFile)) return index;
+  for (const line of fs.readFileSync(indexFile, "utf8").split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    try {
+      const row = JSON.parse(line);
+      if (row.id) index.set(row.id, row);
+    } catch {
+      // Ignore corrupt index rows. Rollout files remain the source of truth.
+    }
+  }
+  return index;
+}
+
+function jsonRowsFromFile(file) {
+  return fs.readFileSync(file, "utf8")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      try {
+        return JSON.parse(line);
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+}
+
+function codexIdFromPath(file) {
+  const match = path.basename(file).match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.jsonl$/i);
+  return match?.[1] || path.basename(file, ".jsonl");
+}
+
+function parseCodexSessionFile(file, index = new Map()) {
+  const rows = jsonRowsFromFile(file);
+  const source = path.relative(process.cwd(), file);
+  const sessionMeta = rows.find((row) => row.type === "session_meta")?.payload || {};
+  const id = sessionMeta.id || codexIdFromPath(file);
+  const messages = codexMessagesFromRows(rows, source).map((message, messageIndex) => ({
+    ...message,
+    conversation_id: id,
+    message_id: `${id}:${messageIndex}`
+  }));
+  const stat = fs.statSync(file);
+  const timestamps = rows.map((row) => row.timestamp).filter(Boolean).sort();
+  const firstUser = messages.find((message) => message.role === "user");
+  const lastUser = [...messages].reverse().find((message) => message.role === "user");
+  const roleCounts = messages.reduce((acc, message) => {
+    acc[message.role] = (acc[message.role] || 0) + 1;
+    return acc;
+  }, {});
+  const indexed = index.get(id) || {};
+  return {
+    id,
+    provider: "codex",
+    file,
+    title: indexed.thread_name || excerpt(firstUser?.content || path.basename(file, ".jsonl"), 90),
+    cwd: sessionMeta.cwd || "",
+    created_at: timestamps[0] || stat.birthtime.toISOString(),
+    updated_at: indexed.updated_at || timestamps[timestamps.length - 1] || stat.mtime.toISOString(),
+    first_user: firstUser?.content || "",
+    last_user: lastUser?.content || "",
+    message_count: messages.length,
+    role_counts: roleCounts,
+    role_quality: messages.length ? "exact structured roles" : "no chat messages found",
+    messages
+  };
+}
+
+function listCodexSessions(flags = {}) {
+  const home = codexHome(flags);
+  const index = loadCodexSessionIndex(home);
+  const files = [
+    ...walkJsonlFiles(path.join(home, "sessions")),
+    ...walkJsonlFiles(path.join(home, "archived_sessions"), 2)
+  ];
+  const summaries = [];
+  for (const file of files) {
+    try {
+      const session = parseCodexSessionFile(file, index);
+      if (session.message_count) summaries.push(session);
+    } catch {
+      // Ignore non-rollout or malformed JSONL files.
+    }
+  }
+  const cwdFilter = flags.cwd ? path.resolve(String(flags.cwd)) : process.cwd();
+  const filtered = flags.all ? summaries : summaries.filter((session) => session.cwd === cwdFilter);
+  return filtered.sort((a, b) => String(b.updated_at).localeCompare(String(a.updated_at)));
+}
+
+function resolveCodexSessionRefs(refs, flags = {}) {
+  if (!refs.length) throw new Error("Expected at least one Codex session id or JSONL path");
+  const home = codexHome(flags);
+  const index = loadCodexSessionIndex(home);
+  const scanned = listCodexSessions({ ...flags, all: true });
+  return refs.map((ref) => {
+    const direct = path.resolve(ref);
+    if (fs.existsSync(direct)) return parseCodexSessionFile(direct, index);
+    const matches = scanned.filter((session) => session.id.startsWith(ref) || path.basename(session.file).includes(ref));
+    if (!matches.length) throw new Error(`No Codex session matched: ${ref}`);
+    if (matches.length > 1) throw new Error(`Ambiguous Codex session id "${ref}" matched ${matches.length} sessions; use a longer id`);
+    return matches[0];
+  });
+}
+
+function printSessionRows(sessions, flags = {}) {
+  const limit = Number(flags.limit || 20);
+  const selected = sessions.slice(0, limit);
+  console.log(`Found ${sessions.length} Codex session${sessions.length === 1 ? "" : "s"}${flags.all ? "" : " for this workspace"}`);
+  console.log("");
+  console.log("| ID | Updated | Messages | Roles | Title |");
+  console.log("| --- | --- | ---: | --- | --- |");
+  for (const session of selected) {
+    const roles = Object.entries(session.role_counts).map(([role, count]) => `${role}:${count}`).join(", ");
+    console.log(`| ${escapeCell(session.id.slice(0, 8))} | ${escapeCell(String(session.updated_at).slice(0, 19))} | ${session.message_count} | ${escapeCell(roles)} | ${escapeCell(session.title)} |`);
+  }
+  if (sessions.length > selected.length) console.log(`\nShowing ${selected.length}. Re-run with --limit ${sessions.length} to see all.`);
+}
+
+function normalizedRowsForSessions(sessions) {
+  return sessions.flatMap((session) => session.messages.map((message, index) => ({
+    provider: "codex",
+    conversation_id: session.id,
+    message_id: message.message_id || `${session.id}:${index}`,
+    role: message.role,
+    role_confidence: message.role_confidence || "exact",
+    created_at: message.created_at,
+    source: message.source,
+    content: message.content
+  })));
+}
+
+function sessionsCommand(argv) {
+  const [subcommand, ...rest] = argv;
+  const { positional, flags } = parseArgs(rest);
+  if (!subcommand || subcommand === "scan") {
+    printSessionRows(listCodexSessions(flags), flags);
+    return;
+  }
+  if (subcommand === "inspect") {
+    const session = resolveCodexSessionRefs(positional, flags)[0];
+    console.log(`# Codex Session ${session.id}`);
+    console.log("");
+    console.log("Provider: Codex");
+    console.log(`Path: ${session.file}`);
+    console.log(`CWD: ${session.cwd || "(unknown)"}`);
+    console.log(`Title: ${session.title}`);
+    console.log(`Messages: ${session.message_count}`);
+    console.log(`Roles: ${Object.entries(session.role_counts).map(([role, count]) => `${role}:${count}`).join(", ")}`);
+    console.log(`Role quality: ${session.role_quality}`);
+    console.log("");
+    console.log(`First user: ${excerpt(session.first_user, 260) || "(none)"}`);
+    console.log(`Latest user: ${excerpt(session.last_user, 260) || "(none)"}`);
+    return;
+  }
+  if (subcommand === "normalize") {
+    if (!flags.out) throw new Error("sessions normalize requires --out <messages.jsonl>");
+    const sessions = resolveCodexSessionRefs(positional, flags);
+    const normalized = normalizedRowsForSessions(sessions);
+    write(path.resolve(flags.out), `${normalized.map((row) => JSON.stringify(row)).join("\n")}\n`);
+    console.log(`Wrote ${normalized.length} normalized messages to ${path.relative(process.cwd(), path.resolve(flags.out))}`);
+    return;
+  }
+  throw new Error(`Unknown sessions subcommand: ${subcommand}`);
+}
+
+function runSessionCompression(refs, flags) {
+  const sessions = resolveCodexSessionRefs(refs, flags);
+  const files = sessions.map((session) => session.file);
+  const messages = sessions.flatMap((session) => session.messages).map((message, index) => ({ ...message, index }));
+  if (!messages.length) throw new Error("Selected sessions did not contain user/assistant messages.");
+  const title = flags.title || (sessions.length === 1 ? sessionTitle(sessions[0]) : "Selected Codex Sessions");
+  return writeCompressionRun({
+    messages,
+    files,
+    flags: { ...flags, title },
+    sourceLabel: `${sessions.length} Codex session${sessions.length === 1 ? "" : "s"}`
+  });
+}
+
+function sessionTitle(session) {
+  return session.title ? `Codex Session: ${session.title}` : `Codex Session: ${session.id.slice(0, 8)}`;
+}
+
+function compressSessionCommand(argv) {
+  const { positional, flags } = parseArgs(argv);
+  if (!positional.length || !flags.out) throw new Error("compress-session requires <session-id-or-jsonl...> and --out <run-dir>");
+  runSessionCompression(positional, flags);
+}
+
+function createSessionCommand(argv) {
+  const { positional, flags } = parseArgs(argv);
+  if (!positional.length || !flags.out) throw new Error("create-session requires <session-id-or-jsonl...> and --out <name.loopthing>");
+  const outFile = flags.out.endsWith(".loopthing") ? flags.out : `${flags.out}.loopthing`;
+  const runDir = path.resolve(flags["run-dir"] || path.join("tmp", `${slugify(path.basename(outFile, ".loopthing"))}-run`));
+  const compression = runSessionCompression(positional, { ...flags, out: runDir });
+  scoreRun(compression.outDir);
+  sealRun(compression.outDir, outFile);
+  console.log(`Done. Open ${outFile} or inspect ${path.relative(process.cwd(), compression.outDir)}`);
+}
+
+function writeCompressionRun({ messages, files, flags, sourceLabel }) {
   const outDir = path.resolve(flags.out);
-  const title = flags.title || titleFromInputs(inputs);
+  const title = flags.title || titleFromInputs(files);
   const metadata = sourceMetadata(messages, files);
   const reasoning = renderReasoning({ title, messages, metadata });
   const handoff = renderAgentHandoff({ title, messages, metadata });
@@ -1443,8 +1741,15 @@ function runCompression(inputs, flags) {
   write(path.join(outDir, "prompts", "compression-prompt.md"), compressionPrompt());
   write(path.join(outDir, "variants", "generic.md"), genericSummary(messages, metadata));
   write(path.join(outDir, "manifest.loop"), manifestForRun(title, metadata));
-  console.log(`Compressed ${metadata.message_count} messages from ${files.length} file${files.length === 1 ? "" : "s"} into ${path.relative(process.cwd(), outDir)}`);
+  console.log(`Compressed ${metadata.message_count} messages from ${sourceLabel || `${files.length} file${files.length === 1 ? "" : "s"}`} into ${path.relative(process.cwd(), outDir)}`);
   return { outDir, title, metadata };
+}
+
+function runCompression(inputs, flags) {
+  const files = walkInputs(inputs);
+  if (!files.length) throw new Error("No .md, .txt, .json, or .jsonl transcript files found.");
+  const messages = files.flatMap(parseFile).map((message, index) => ({ ...message, index }));
+  return writeCompressionRun({ messages, files, flags });
 }
 
 function compressCommand(argv) {
@@ -1605,6 +1910,9 @@ function main() {
     if (!command || command === "help" || command === "--help") usage();
     else if (command === "create") createCommand(rest);
     else if (command === "compress") compressCommand(rest);
+    else if (command === "create-session") createSessionCommand(rest);
+    else if (command === "compress-session") compressSessionCommand(rest);
+    else if (command === "sessions") sessionsCommand(rest);
     else if (command === "score") scoreCommand(rest);
     else if (command === "compare") compareCommand(rest);
     else if (command === "seal") sealCommand(rest);

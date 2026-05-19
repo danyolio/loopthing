@@ -9,6 +9,12 @@ const oneCommandArchive = path.join(root, "tmp", "one-command.loopthing");
 const qualityRunDir = path.join(root, "tmp", "quality-smoke-run");
 const codexRunDir = path.join(root, "tmp", "codex-chat-smoke-run");
 const timestampRunDir = path.join(root, "tmp", "timestamp-chat-smoke-run");
+const codexSessionRunDir = path.join(root, "tmp", "codex-session-smoke-run");
+const codexSessionArchive = path.join(root, "tmp", "codex-session-smoke.loopthing");
+const codexSessionCreateRunDir = path.join(root, "tmp", "codex-session-create-run");
+const normalizedSessionFile = path.join(root, "tmp", "codex-session-normalized.jsonl");
+const normalizedSessionRunDir = path.join(root, "tmp", "codex-normalized-smoke-run");
+const fakeCodexHome = path.join(root, "tmp", "fake-codex-home");
 const selfRunDir = path.join(root, "tmp", "self-run-smoke");
 const selfArchive = path.join(root, "tmp", "self-run-smoke.loopthing");
 
@@ -16,9 +22,15 @@ fs.rmSync(runDir, { recursive: true, force: true });
 fs.rmSync(qualityRunDir, { recursive: true, force: true });
 fs.rmSync(codexRunDir, { recursive: true, force: true });
 fs.rmSync(timestampRunDir, { recursive: true, force: true });
+fs.rmSync(codexSessionRunDir, { recursive: true, force: true });
+fs.rmSync(codexSessionCreateRunDir, { recursive: true, force: true });
+fs.rmSync(normalizedSessionRunDir, { recursive: true, force: true });
+fs.rmSync(fakeCodexHome, { recursive: true, force: true });
 fs.rmSync(selfRunDir, { recursive: true, force: true });
 fs.rmSync(archive, { force: true });
 fs.rmSync(oneCommandArchive, { force: true });
+fs.rmSync(codexSessionArchive, { force: true });
+fs.rmSync(normalizedSessionFile, { force: true });
 fs.rmSync(selfArchive, { force: true });
 
 function run(args) {
@@ -39,6 +51,16 @@ run(["create", "test/fixtures/founder-chat.md", "--out", oneCommandArchive, "--t
 run(["compress", "test/fixtures/project-docs.md", "--out", qualityRunDir, "--title", "Project Docs Quality Test"]);
 run(["compress", "test/fixtures/codex-project-chat.md", "--out", codexRunDir, "--title", "Codex Project Chat Test"]);
 run(["compress", "test/fixtures/timestamp-chat.md", "--out", timestampRunDir, "--title", "Timestamp Chat Test"]);
+const fakeSessionDir = path.join(fakeCodexHome, "sessions", "2026", "05", "20");
+fs.mkdirSync(fakeSessionDir, { recursive: true });
+fs.copyFileSync(path.join(root, "test/fixtures/codex-rollout.jsonl"), path.join(fakeSessionDir, "rollout-2026-05-20T00-00-00-11111111-2222-3333-4444-555555555555.jsonl"));
+fs.writeFileSync(path.join(fakeCodexHome, "session_index.jsonl"), `${JSON.stringify({ id: "11111111-2222-3333-4444-555555555555", thread_name: "Fixture Codex Session", updated_at: "2026-05-20T00:00:07.000Z" })}\n`);
+const sessionInspect = run(["sessions", "inspect", "test/fixtures/codex-rollout.jsonl"]);
+const sessionScan = run(["sessions", "scan", "--codex-home", fakeCodexHome, "--all"]);
+run(["sessions", "normalize", "test/fixtures/codex-rollout.jsonl", "--out", normalizedSessionFile]);
+run(["compress-session", "test/fixtures/codex-rollout.jsonl", "--out", codexSessionRunDir, "--title", "Structured Codex Session Test"]);
+run(["compress", normalizedSessionFile, "--out", normalizedSessionRunDir, "--title", "Normalized Codex Session Test"]);
+run(["create-session", "11111111", "--codex-home", fakeCodexHome, "--out", codexSessionArchive, "--run-dir", codexSessionCreateRunDir]);
 run(["create", ".", "--out", selfArchive, "--run-dir", selfRunDir, "--title", "LoopThing Clean Project Handoff"]);
 run(["create", ".", "--out", selfArchive, "--run-dir", selfRunDir, "--title", "LoopThing Clean Project Handoff"]);
 
@@ -51,6 +73,10 @@ const required = [
   path.join(runDir, "scores.jsonl"),
   archive,
   oneCommandArchive,
+  codexSessionArchive,
+  normalizedSessionFile,
+  path.join(codexSessionRunDir, "reasoning.md"),
+  path.join(normalizedSessionRunDir, "reasoning.md"),
   path.join(selfRunDir, "START_HERE.md"),
   path.join(selfRunDir, "reasoning.md"),
   path.join(selfRunDir, "agent-handoff.md"),
@@ -114,6 +140,41 @@ for (const expected of [
 }
 if (timestampReasoning.includes("Preserve the current thesis, boundaries, killed branches, risks, and next evidence gate")) {
   throw new Error("Timestamp fixture should not use generic outcome boilerplate");
+}
+
+if (!sessionInspect.includes("Role quality: exact structured roles")) {
+  throw new Error("Codex session inspect should report exact structured roles");
+}
+if (!sessionInspect.includes("this isn't working so great")) {
+  throw new Error("Codex session inspect should show the first user message");
+}
+if (!sessionScan.includes("Fixture Codex Session")) {
+  throw new Error("Codex session scan should use session index titles");
+}
+
+const codexSessionReasoning = fs.readFileSync(path.join(codexSessionRunDir, "reasoning.md"), "utf8");
+const codexSessionMetadata = JSON.parse(fs.readFileSync(path.join(codexSessionRunDir, "source-metadata.json"), "utf8"));
+if (codexSessionMetadata.role_counts.user !== 2 || codexSessionMetadata.role_counts.assistant !== 2) {
+  throw new Error("Codex session import should preserve exact user/assistant role counts without event duplicates");
+}
+if (codexSessionMetadata.role_quality.exact !== 4) {
+  throw new Error("Codex session import should mark roles as exact");
+}
+for (const expected of [
+  "structured session importer",
+  "separate finding conversations from compressing conversations",
+  "exact session matching"
+]) {
+  if (!codexSessionReasoning.includes(expected)) throw new Error(`Codex session reasoning missing ${expected}`);
+}
+
+const normalizedRows = fs.readFileSync(normalizedSessionFile, "utf8").trim().split(/\n/).map((line) => JSON.parse(line));
+if (normalizedRows.length !== 4 || normalizedRows.some((row) => row.role_confidence !== "exact")) {
+  throw new Error("Normalized Codex session should preserve exact role confidence");
+}
+const normalizedMetadata = JSON.parse(fs.readFileSync(path.join(normalizedSessionRunDir, "source-metadata.json"), "utf8"));
+if (normalizedMetadata.role_quality.exact !== 4) {
+  throw new Error("Compression from normalized messages should preserve exact role quality");
 }
 
 const selfReasoning = fs.readFileSync(path.join(selfRunDir, "reasoning.md"), "utf8");
