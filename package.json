@@ -1,0 +1,14 @@
+{
+  "name": "loopthing",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "loopthing": "./bin/loopthing.mjs"
+  },
+  "scripts": {
+    "test:product": "node test/product-smoke.mjs",
+    "demo:create": "node bin/loopthing.mjs create . --out demo/loopthing-clean.loopthing --run-dir demo/current-run --title \"LoopThing Clean Project Handoff\"",
+    "archive:loop:list": "node archive/2026-05-08-readability-cleanup/legacy-loops/company/scripts/ralph/loopthing-ralph.mjs list"
+  }
+}

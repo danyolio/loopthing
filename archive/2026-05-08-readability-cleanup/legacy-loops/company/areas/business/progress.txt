@@ -1,0 +1,13 @@
+# Business Progress
+
+## 2026-05-08 - business-001
+
+- Status: pass
+- Note: Created the one-page plan around compression-first handoff and the revenue ladder.
+---
+
+## 2026-05-08 - business-002
+
+- Status: partial
+- Note: Wrote `FIVE_MINUTE_HANDOFF_TEST.md` with participants, variants, scoring, and pass thresholds. This story remains open until 20 conversations are actually tested.
+---

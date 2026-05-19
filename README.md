@@ -1,75 +1,88 @@
 # LoopThing
 
-LoopThing is an exportable file format combining AI-generated outputs with the AI chats that created them, showing exactly how the idea arrived and was refined.
+LoopThing compresses messy AI work into a handoff artifact for the next chat, agent, collaborator, or future self.
 
-**In this meta demo:** LoopThing itself was created from 67 chat messages across 3 AI tools. `loopthing.loopthing` contains 3 primitives and 5 artifact families.
+It is an exportable `.loopthing` container plus a local CLI that extracts the load-bearing shape of a project: intent, problem, critical messages, framing shifts, discarded branches, risks, decisions, and the next action.
 
 ## Why It Exists
 
 Have you ever:
-* Gotten an AI-generated doc from your boss and wished you knew what their prompts were?
-* Seen a super-impressive prototype on AI Twitter and wondered how they made it?
-* Written "summarize this chat" to share your AI project with a friend, but the response just wasn't there?
 
-LoopThing is for that. You LoopThing your messages across multiple chat sessions to generate artifacts that demonstrate your thinking: prompts, metadata, maps, discarded ideas, explainers, media, slides, prototypes, and code.
+- gotten an AI-generated doc from someone and wished you knew what prompts, pivots, and rejected ideas led there?
+- seen a strong AI-built prototype and wondered how the person actually made it?
+- written "summarize this chat" to share your AI project, only to get something that missed the gold?
 
-The final output is not the only artifact. The thinking can ship too.
+AI work now happens across long chats, Codex sessions, notes, prototypes, screenshots, and docs. The useful context is usually in the turns: the moment the framing changed, the branch that died, the reason a decision stuck.
 
-## What Is A `.loopthing`
+LoopThing turns that mess into something sendable.
 
-A `.loopthing` is not JSON, not a folder, and not a transcript. It is a single portable container file with a MIME marker: `application/vnd.loopthing+zip`.
+The test is simple: can someone who was not in the conversation read the artifact in under five minutes and land where the creator landed?
 
-The thing you share is named for the project: `agent-docs.loopthing`, `openclaw-origin.loopthing`, `yourproject.loopthing`. This repo's example is `loopthing.loopthing`.
+## The Current Product
 
-The point is simple: make the work understandable to someone who was not in the chat.
+The actual product is a local CLI:
 
-## What It Contains
+```bash
+node bin/loopthing.mjs create . \
+  --out demo/loopthing-clean.loopthing \
+  --run-dir demo/current-run \
+  --title "LoopThing Clean Project Handoff"
+```
 
-This demo container has three core primitives:
+That command creates:
 
-- `Metadata/`: message counts, topic tags, and source-shape stats
-- `Prompts/`: initial prompt, follow-ups, and one-line prompt changes
-- `Thinking/`: journey map, discarded ideas, and process narrative
+- `demo/current-run/START_HERE.md`: the reading order.
+- `demo/current-run/agent-handoff.md`: paste-ready context for a new AI session.
+- `demo/current-run/reasoning.md`: the full compressed reasoning artifact.
+- `demo/current-run/source-metadata.json`: message counts, source shape, topic tags, and file hashes.
+- `demo/current-run/compression-score.md`: structural and readability smoke checks.
+- `demo/loopthing-clean.loopthing`: a sealed portable container with MIME marker `application/vnd.loopthing+zip`.
 
-And five artifact families:
+The renderer builds a project model before writing Markdown, so it tries to produce a readable project-specific handoff instead of chopped transcript snippets.
 
-- `Generated Explainers/`: problem, solution, how it works, relevant context, share brief
-- `Artifacts/Media/`: generated visual explainers
-- `Artifacts/Screenshots/`: meta screenshots of the viewer explaining the repo
-- `Artifacts/Slides/` and `Artifacts/Docs/`: presentation and reference material
-- `Artifacts/Prototypes/` and `Artifacts/Code/`: runnable examples and source code
+The latest checked-in demo was regenerated from the cleaned repo and compresses 17 messages across 9 source files. Its structural score is 13/13. That score is a shape check, not a claim that the reasoning is perfect; the recipient test is still the real bar.
 
-## Demo
+## Quality Guardrails
 
-Open `index.html` in a browser. The top bar is prefilled with the example container name; press `Enter` to browse the unpacked contents of `loopthing.loopthing`.
+`npm run test:product` now covers the product path end to end:
 
-No build step. No backend. No framework. Just the viewer and the container.
+- fixture compression
+- one-command create, score, compare, and seal
+- a full self-run on this repo
+- regressions that keep the checked-in demo focused on LoopThing's own project evolution
+- repeated-run checks so regenerated artifacts do not accumulate stale score records
 
-## Screenshots
+This matters because an earlier deterministic pass could score green while producing a semantically wrong handoff. The checked-in demo is now the LoopThing of LoopThing: it compresses how this project moved from a broad artifact/viewer idea into a handoff-first CLI product.
 
-These are meta screenshots: the LoopThing viewer explains the thinking behind this repo, while the README stays focused on the concept.
+## Project Map
 
-The artifact stage keeps the thought object visible while a selected primitive or artifact opens in the lens.
+```text
+START_HERE.md     human front door
+README.md         concept and current usage
+index.html        static public demo page
+bin/              LoopThing CLI product
+docs/             short current docs
+source/           current curated chat/context used by the demo run
+demo/             latest generated output
+test/             fixtures and product smoke test
+archive/          old demos, screenshots, source folders, and prior loops
+```
 
-![LoopThing meta artifact stage](docs/screenshots/01-meta-artifact-stage.png)
+Everything historical is preserved in `archive/2026-05-08-readability-cleanup/`.
 
-Chat metadata becomes a primitive: message counts, topic tags, and source-shape stats.
+## Read Next
 
-![LoopThing chat metadata](docs/screenshots/02-meta-chat-metadata.png)
+Start here:
 
-The journey map is a whiteboard-style lineage view with boxes and arrows, inspired by Excalidraw's hand-drawn diagram style.
+- [START_HERE.md](START_HERE.md)
+- [docs/01_PRODUCT.md](docs/01_PRODUCT.md)
+- [docs/02_RUN_LOOPTHING.md](docs/02_RUN_LOOPTHING.md)
+- [docs/03_PUBLIC_DEMO.md](docs/03_PUBLIC_DEMO.md)
+- [docs/05_ARCHIVE_MAP.md](docs/05_ARCHIVE_MAP.md)
+- [demo/current-run/START_HERE.md](demo/current-run/START_HERE.md)
 
-![LoopThing journey map](docs/screenshots/03-meta-journey-map.png)
+## Validate
 
-Previous screenshot sets are kept for comparison in `docs/screenshots/archive/`.
-
-## Potential Future Directions
-
-The final `.loopthing` file is the entire exploration: portable, forkable, auditable.
-
-Future versions could:
-
-- Generate `.loopthing` files from one chat, many chats, or a project workspace.
-- Turn chat history into metadata, prompt lineage, journey maps, and generated explainers.
-- Preserve discarded ideas and the reason each branch died.
-- Package media, slides, prototypes, and code so the artifact feels closer to a rich PDF for AI work.
+```bash
+npm run test:product
+```

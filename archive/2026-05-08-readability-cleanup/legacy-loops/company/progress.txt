@@ -1,0 +1,13 @@
+# Ralph Company Progress
+
+Started: 2026-05-08
+
+## Codebase Patterns
+
+- Area loops live under `loops/company/areas/<area>/`.
+- Each area has its own `prd.json`, `progress.txt`, and `artifacts/`.
+- `scripts/ralph/loopthing-ralph.mjs` is dependency-free Node and should stay that way.
+- Business strategy artifacts that should ship inside the demo container are mirrored into `loopthing-source/Generated Explainers/`.
+
+---
+

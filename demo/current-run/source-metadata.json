@@ -1,0 +1,80 @@
+{
+  "format": "loopthing/source-metadata-v0.1",
+  "created": "2026-05-19T10:46:16.160Z",
+  "message_count": 17,
+  "role_counts": {
+    "user": 16,
+    "assistant": 1
+  },
+  "source_kind_counts": {
+    "orientation": 1,
+    "source": 2,
+    "docs": 5,
+    "chat-transcript": 9
+  },
+  "topic_tags": [
+    "handoff",
+    "compression",
+    "brand",
+    "product",
+    "life-design",
+    "format",
+    "discarded-ideas"
+  ],
+  "source_files": [
+    {
+      "path": "README.md",
+      "kind": "orientation",
+      "bytes": 3836,
+      "sha256": "9ddc3d0a535be508318542e0066b401305eac589e777f71bf4dafa1327274bff"
+    },
+    {
+      "path": "START_HERE.md",
+      "kind": "source",
+      "bytes": 1285,
+      "sha256": "79c2256ef9df8dd461409f9b20416c62664bda1a61e5d88109994845319ce123"
+    },
+    {
+      "path": "docs/01_PRODUCT.md",
+      "kind": "docs",
+      "bytes": 1845,
+      "sha256": "1ce7cd450cea9e6471a397a8f311c6bd8963cb8a2761c768f467c0347b6f8f7e"
+    },
+    {
+      "path": "docs/02_RUN_LOOPTHING.md",
+      "kind": "docs",
+      "bytes": 1581,
+      "sha256": "7dcabb39250f703e2855aca3a8c9001d69b0db780374f1cc1988385882a7aca1"
+    },
+    {
+      "path": "docs/03_PUBLIC_DEMO.md",
+      "kind": "docs",
+      "bytes": 791,
+      "sha256": "7a65231bf62ac4eb507e8a34750dbb49b43fd4dbad3b146e6c14e4e4492260e7"
+    },
+    {
+      "path": "docs/04_PRODUCT_IMPROVEMENTS.md",
+      "kind": "docs",
+      "bytes": 1395,
+      "sha256": "0806384f6270dfdb2ce6f99b4d692d67b7ea74ad4009c04db786cf317e859e45"
+    },
+    {
+      "path": "docs/05_ARCHIVE_MAP.md",
+      "kind": "docs",
+      "bytes": 663,
+      "sha256": "97b84992e8576b0be57b71c4ff233756145fac9bcadc0f21521e927a7566131a"
+    },
+    {
+      "path": "package.json",
+      "kind": "source",
+      "bytes": 506,
+      "sha256": "18a2d3ff6ca80c097e3f4429bd8996043eeb6c5a2a2b7fc5bad581dc3cdd2493"
+    },
+    {
+      "path": "source/current-project-chat.md",
+      "kind": "chat-transcript",
+      "bytes": 3258,
+      "sha256": "806427fa5258eabe7f582a2cdaa8dea0c92cda1945d7f5d993062e6265c3cbf0"
+    }
+  ]
+}

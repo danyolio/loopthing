@@ -1,0 +1,9 @@
+milestone,price_point,customers_or_workspaces,mrr,solo_feasibility,notes
+10k_founding_teams,1000,10,10000,strong,"Best early path; capped design partner program."
+10k_pro,40,250,10000,strong,"Self-serve if activation works."
+10k_teams,199,50,9950,strong,"Requires workspace packaging."
+100k_mixed_pro,39,1000,39000,possible,"Needs importers and strong onboarding."
+100k_mixed_teams,249,250,62250,possible,"Combined with pro gets roughly 101k MRR."
+1m_team,500,2000,1000000,not_solo,"Requires team product and support systems."
+1m_org,2000,500,1000000,not_solo,"Requires trust, permissions, compliance posture."
+
