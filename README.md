@@ -49,10 +49,10 @@ The latest checked-in demo was regenerated from the cleaned repo and compresses 
 - fixture compression
 - one-command create, score, compare, and seal
 - a full self-run on this repo
-- a regression that prevents a stray domain reference from hijacking the LoopThing demo output
-- a positive test that the Future Allied domain adapter still activates when the source actually supports it
+- regressions that keep the checked-in demo focused on LoopThing's own project evolution
+- repeated-run checks so regenerated artifacts do not accumulate stale score records
 
-This matters because an earlier deterministic pass could score green while producing a semantically wrong handoff. The current domain selection is evidence-weighted so a single example mention in docs does not override the project identity.
+This matters because an earlier deterministic pass could score green while producing a semantically wrong handoff. The checked-in demo is now the LoopThing of LoopThing: it compresses how this project moved from a broad artifact/viewer idea into a handoff-first CLI product.
 
 ## Project Map
 

@@ -692,30 +692,17 @@ function countMatches(text, regexes) {
 }
 
 function domainSignalScores(messages, title) {
-  const patterns = {
-    loopthing: [
-      /\bloopthing\b/g,
-      /\.loopthing\b/g,
-      /\breasoning handoff\b/g,
-      /\bhandoff artifact\b/g,
-      /\bcompressed reasoning\b/g,
-      /\bcompression\b/g,
-      /\bchat transcript\b/g,
-      /\brecipient\b/g,
-      /\bwhere (?:my|the) gold\b/g
-    ],
-    futureAllied: [
-      /\bfuture allied\b/g,
-      /\bndis\b/g,
-      /\bndis-heavy\b/g,
-      /\ballied[- ]health\b/g,
-      /\bdelegated[- ]assistant\b/g,
-      /\bpsych[- ]student\b/g,
-      /\bprovider discovery\b/g,
-      /\bclinician review\b/g,
-      /\bassistant-suitable\b/g
-    ]
-  };
+  const patterns = [
+    /\bloopthing\b/g,
+    /\.loopthing\b/g,
+    /\breasoning handoff\b/g,
+    /\bhandoff artifact\b/g,
+    /\bcompressed reasoning\b/g,
+    /\bcompression\b/g,
+    /\bchat transcript\b/g,
+    /\brecipient\b/g,
+    /\bwhere (?:my|the) gold\b/g
+  ];
   const sourceWeights = {
     "chat-transcript": 3,
     fixture: 2,
@@ -724,19 +711,15 @@ function domainSignalScores(messages, title) {
     docs: 0.75,
     generated: 0.25
   };
-  const scores = {
-    loopthing: countMatches(title.toLowerCase(), patterns.loopthing) * 8,
-    futureAllied: countMatches(title.toLowerCase(), patterns.futureAllied) * 8
-  };
+  let score = countMatches(title.toLowerCase(), patterns) * 8;
 
   for (const message of messages) {
     const text = message.content.toLowerCase();
     const weight = sourceWeights[message.source_kind] ?? 1;
-    scores.loopthing += countMatches(text, patterns.loopthing) * weight;
-    scores.futureAllied += countMatches(text, patterns.futureAllied) * weight;
+    score += countMatches(text, patterns) * weight;
   }
 
-  return scores;
+  return score;
 }
 
 function cleanProjectName(title) {
@@ -748,11 +731,7 @@ function cleanProjectName(title) {
 }
 
 function domainFor(messages, title) {
-  const scores = domainSignalScores(messages, title);
-  if (scores.futureAllied >= 10 && scores.futureAllied > scores.loopthing * 1.2) return "future-allied";
-  if (scores.loopthing >= 4 && scores.loopthing >= scores.futureAllied) return "loopthing";
-  if (scores.futureAllied >= 14) return "future-allied";
-  return "generic";
+  return domainSignalScores(messages, title) >= 4 ? "loopthing" : "generic";
 }
 
 function importantArtifacts(metadata, limit = 10) {
@@ -810,119 +789,6 @@ function importantUserDirections(messages, limit = 12) {
   return ranked.map(({ message }) => readableExcerpt(message.content, 260));
 }
 
-function futureAlliedModel(title, messages, metadata) {
-  const discarded = [
-    {
-      branch: "Student counselling or student therapy platform",
-      reason: "Students should not be positioned as counsellors, therapists, psychologists, clinicians, or independent clinical decision-makers."
-    },
-    {
-      branch: "Direct participant marketplace",
-      reason: "A direct participant relationship increases safeguarding, clinical-service, registration, insurance, and compliance exposure."
-    },
-    {
-      branch: "AI-supervised clinical workforce",
-      reason: "AI does not make students clinically qualified or remove provider responsibility."
-    },
-    {
-      branch: "Clinic SaaS or AI notes as the wedge",
-      reason: "Existing software already covers much of the software layer; the unproven pain is reliable bounded labour."
-    },
-    {
-      branch: "Gig marketplace",
-      reason: "Trust requires structure, continuity, role boundaries, QA, and replacement coverage."
-    },
-    {
-      branch: "Small psych clinics first",
-      reason: "They are likely too low-volume and too therapy or assessment-led for the first wedge."
-    }
-  ];
-  return {
-    domain: "future-allied",
-    projectName: cleanProjectName(title),
-    intent: "Validate and shape Future Allied into a narrow, trustable, evidence-led business before building more product.",
-    problem: "NDIS-heavy allied-health providers may have repeated plan-follow-through work between appointments, but hiring, training, replacing, and quality-managing junior assistants is operationally painful.",
-    thesis: "Future Allied supplies and manages trained junior allied-health assistants for NDIS-heavy providers that need reliable delegated support between appointments.",
-    currentWedge: "A managed delegated-assistant workforce for providers with enough repeated assistant-suitable work to justify an external assistant bench.",
-    ownership: [
-      "Providers own participant relationships, plans, clinical decisions, consent, safeguarding, supervision, risk response, and lawful billing decisions.",
-      "Future Allied owns worker sourcing, screening, onboarding, role-boundary training, task-sheet workflow, note QA, replacement coverage, worker support, and performance management.",
-      "Assistants follow provider-approved delegated task sheets, record what happened, stay in scope, and escalate risk, ambiguity, refusal, or distress."
-    ],
-    notThis: [
-      "student therapy",
-      "counselling",
-      "psychology-student independent practice",
-      "diagnosis, assessment, treatment planning, or clinical judgement",
-      "generic clinic SaaS",
-      "AI clinical notes",
-      "NDIS billing software",
-      "casual gig marketplace",
-      "cheap clinical labour"
-    ],
-    framingDiffs: [
-      {
-        from: "Students provide mental-health support directly to participants.",
-        to: "Providers delegate bounded assistant-suitable work to managed junior assistants.",
-        trigger: "Legal, clinical, insurance, safeguarding, and NDIS registration risk.",
-        why: "This keeps clinicians responsible for clinical work and Future Allied responsible for the worker system."
-      },
-      {
-        from: "Build software, protocols, dashboards, or AI supervision first.",
-        to: "Run a manual service-led pilot first.",
-        trigger: "Existing tools already cover many software claims.",
-        why: "The real thing to prove is reliable labour, role boundaries, replacement, and bounded review burden."
-      },
-      {
-        from: "Recruit students first because supply is exciting.",
-        to: "Validate provider demand first.",
-        trigger: "Student supply without provider demand creates noise and risk.",
-        why: "The next evidence gate is provider calls, not a student waitlist."
-      },
-      {
-        from: "Sell to any clinic that likes cheaper help.",
-        to: "Qualify for 20+ assistant hours per week and clear delegated scope.",
-        trigger: "Low-volume work cannot carry the operational complexity.",
-        why: "The model needs repeated hours and bounded QA to make money."
-      }
-    ],
-    discarded,
-    survival: [
-      "The surviving claim is not that students replace clinicians.",
-      "The surviving claim is that Future Allied may be a reliability and management layer around delegated junior assistant work.",
-      "It survives only if providers have repeated assistant-suitable work, prefer managed workforce over direct hire, and can keep clinician review bounded."
-    ],
-    risks: [
-      "Providers may prefer direct hire once the workflow is clear.",
-      "Providers may not have enough assistant-suitable hours to justify the management layer.",
-      "Clinician review burden may erase the margin.",
-      "Students may expect the full headline NDIS hourly rate rather than a wage.",
-      "The offer may be misunderstood as therapy, counselling, software, or cheap clinical labour.",
-      "Legal and compliance advice is still needed before any pilot."
-    ],
-    nextActions: [
-      "Run 5 provider discovery calls.",
-      "Record each call in `project/market/INTERVIEW_TRACKER.csv`.",
-      "Write a call note in `project/market/call-notes/`.",
-      "Use `project/market/FIVE_CALL_TARGET_REVIEW_CHECKLIST.md` after 5 calls.",
-      "Update the ICP and target list only from evidence."
-    ],
-    asks: [
-      "Can providers credibly use 20+ assistant hours per week?",
-      "Do they prefer a managed bench over direct hire?",
-      "Can clinician review burden stay bounded?"
-    ],
-    artifacts: keyArtifactBullets(messages, metadata, 10),
-    directions: [
-      "Keep the Future Allied pinned wedge intact unless evidence kills it.",
-      "Do not drift into therapy, counselling, generic clinic SaaS, AI notes, billing, or gig-marketplace language.",
-      "Prefer manual validation artifacts over product fantasy.",
-      "Do not recruit students at scale before provider demand is validated.",
-      "The next real work is provider discovery, not more product build."
-    ]
-  };
-}
-
 function genericModel(title, messages, metadata) {
   const reasoningMessages = preferredReasoningMessages(messages);
   const discarded = discardedBranches(messages).slice(0, 8);
@@ -956,8 +822,6 @@ function genericModel(title, messages, metadata) {
 }
 
 function buildHandoffModel(title, messages, metadata) {
-  const domain = domainFor(messages, title);
-  if (domain === "future-allied") return futureAlliedModel(title, messages, metadata);
   return genericModel(title, messages, metadata);
 }
 

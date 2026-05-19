@@ -10,13 +10,11 @@ const qualityRunDir = path.join(root, "tmp", "quality-smoke-run");
 const codexRunDir = path.join(root, "tmp", "codex-chat-smoke-run");
 const selfRunDir = path.join(root, "tmp", "self-run-smoke");
 const selfArchive = path.join(root, "tmp", "self-run-smoke.loopthing");
-const futureAlliedRunDir = path.join(root, "tmp", "future-allied-smoke-run");
 
 fs.rmSync(runDir, { recursive: true, force: true });
 fs.rmSync(qualityRunDir, { recursive: true, force: true });
 fs.rmSync(codexRunDir, { recursive: true, force: true });
 fs.rmSync(selfRunDir, { recursive: true, force: true });
-fs.rmSync(futureAlliedRunDir, { recursive: true, force: true });
 fs.rmSync(archive, { force: true });
 fs.rmSync(oneCommandArchive, { force: true });
 fs.rmSync(selfArchive, { force: true });
@@ -40,7 +38,6 @@ run(["compress", "test/fixtures/project-docs.md", "--out", qualityRunDir, "--tit
 run(["compress", "test/fixtures/codex-project-chat.md", "--out", codexRunDir, "--title", "Codex Project Chat Test"]);
 run(["create", ".", "--out", selfArchive, "--run-dir", selfRunDir, "--title", "LoopThing Clean Project Handoff"]);
 run(["create", ".", "--out", selfArchive, "--run-dir", selfRunDir, "--title", "LoopThing Clean Project Handoff"]);
-run(["compress", "test/fixtures/future-allied-chat.md", "--out", futureAlliedRunDir, "--title", "Future Allied Handoff"]);
 
 const required = [
   path.join(runDir, "START_HERE.md"),
@@ -55,8 +52,7 @@ const required = [
   path.join(selfRunDir, "reasoning.md"),
   path.join(selfRunDir, "agent-handoff.md"),
   path.join(selfRunDir, "compression-score.md"),
-  selfArchive,
-  path.join(futureAlliedRunDir, "reasoning.md")
+  selfArchive
 ];
 
 for (const file of required) {
@@ -106,19 +102,13 @@ const selfMetadata = JSON.parse(fs.readFileSync(path.join(selfRunDir, "source-me
 for (const expected of [
   "LoopThing compresses messy AI work into a handoff artifact",
   "Raw archive as product",
-  "Run the compression test on 20 real chats"
+  "Run the compression test on 20 real chats",
+  "Show-your-work format for recipients is weak",
+  "Memory but better is probably wrong",
+  "Viewer-first polish"
 ]) {
   if (!selfReasoning.includes(expected) && !selfHandoff.includes(expected)) {
     throw new Error(`Self-run output missing LoopThing content ${expected}`);
-  }
-}
-for (const unexpected of [
-  "Future Allied supplies and manages",
-  "NDIS-heavy allied-health providers",
-  "Run 5 provider discovery calls"
-]) {
-  if (selfReasoning.includes(unexpected) || selfHandoff.includes(unexpected)) {
-    throw new Error(`Self-run output leaked Future Allied adapter content: ${unexpected}`);
   }
 }
 if (selfMetadata.source_kind_counts.generated) {
@@ -129,16 +119,5 @@ const selfScore = fs.readFileSync(path.join(selfRunDir, "compression-score.md"),
 if (!selfScore.includes("13/13 checks passed")) throw new Error("Self-run score did not pass 13/13 checks");
 const selfScoreRecords = fs.readFileSync(path.join(selfRunDir, "scores.jsonl"), "utf8").trim().split(/\n/).filter(Boolean);
 if (selfScoreRecords.length !== 1) throw new Error("Self-run should replace stale score records on repeated create");
-
-const futureAlliedReasoning = fs.readFileSync(path.join(futureAlliedRunDir, "reasoning.md"), "utf8");
-for (const expected of [
-  "Future Allied supplies and manages",
-  "NDIS-heavy allied-health providers",
-  "Run 5 provider discovery calls"
-]) {
-  if (!futureAlliedReasoning.includes(expected)) {
-    throw new Error(`Future Allied adapter missing expected content ${expected}`);
-  }
-}
 
 console.log("product smoke ok");

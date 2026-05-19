@@ -14,11 +14,11 @@ The product should be judged by handoff quality.
 
 Next loop: give `agent-handoff.md` to a fresh chat or collaborator and ask whether they can continue the work without reading the source.
 
-## 3. Expand Domain-Agnostic Project Modeling
+## 3. Expand Project Modeling
 
-Future Allied exposed the need for project-specific handoffs: thesis, boundaries, killed branches, risks, and next evidence gate. The deterministic renderer now has a stronger generic project model and one Future Allied domain adapter. Adapter selection is evidence-weighted so a passing reference in docs does not hijack the whole artifact.
+The current demo should stay recursive: LoopThing compressing the evolution of LoopThing itself. That means the source material, generated run, README, and static page should all describe the same project history and product direction.
 
-Next loop: make the same quality work across arbitrary startups, code projects, research projects, and design projects without hand-written domain adapters.
+Next loop: improve the generic project model enough to handle startups, code projects, research projects, and design projects without hard-written domain adapters or unrelated fixture stories.
 
 ## 4. Support Project Bundles
 
