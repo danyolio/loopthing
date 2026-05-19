@@ -8,6 +8,8 @@ const archive = path.join(root, "tmp", "product-smoke.loopthing");
 const oneCommandArchive = path.join(root, "tmp", "one-command.loopthing");
 const qualityRunDir = path.join(root, "tmp", "quality-smoke-run");
 const codexRunDir = path.join(root, "tmp", "codex-chat-smoke-run");
+const claudeRunDir = path.join(root, "tmp", "claude-code-smoke-run");
+const staleThesisRunDir = path.join(root, "tmp", "stale-thesis-smoke-run");
 const timestampRunDir = path.join(root, "tmp", "timestamp-chat-smoke-run");
 const codexSessionRunDir = path.join(root, "tmp", "codex-session-smoke-run");
 const codexSessionArchive = path.join(root, "tmp", "codex-session-smoke.loopthing");
@@ -21,6 +23,8 @@ const selfArchive = path.join(root, "tmp", "self-run-smoke.loopthing");
 fs.rmSync(runDir, { recursive: true, force: true });
 fs.rmSync(qualityRunDir, { recursive: true, force: true });
 fs.rmSync(codexRunDir, { recursive: true, force: true });
+fs.rmSync(claudeRunDir, { recursive: true, force: true });
+fs.rmSync(staleThesisRunDir, { recursive: true, force: true });
 fs.rmSync(timestampRunDir, { recursive: true, force: true });
 fs.rmSync(codexSessionRunDir, { recursive: true, force: true });
 fs.rmSync(codexSessionCreateRunDir, { recursive: true, force: true });
@@ -50,6 +54,8 @@ run(["seal", runDir, "--out", archive]);
 run(["create", "test/fixtures/founder-chat.md", "--out", oneCommandArchive, "--title", "One Command Smoke Test"]);
 run(["compress", "test/fixtures/project-docs.md", "--out", qualityRunDir, "--title", "Project Docs Quality Test"]);
 run(["compress", "test/fixtures/codex-project-chat.md", "--out", codexRunDir, "--title", "Codex Project Chat Test"]);
+run(["compress", "test/fixtures/claude-code.jsonl", "--out", claudeRunDir, "--title", "Claude Code Chat Test"]);
+run(["compress", "test/fixtures/old-thesis-source.md", "test/fixtures/claude-code.jsonl", "--out", staleThesisRunDir, "--title", "Stale Thesis Test"]);
 run(["compress", "test/fixtures/timestamp-chat.md", "--out", timestampRunDir, "--title", "Timestamp Chat Test"]);
 const fakeSessionDir = path.join(fakeCodexHome, "sessions", "2026", "05", "20");
 fs.mkdirSync(fakeSessionDir, { recursive: true });
@@ -76,6 +82,8 @@ const required = [
   codexSessionArchive,
   normalizedSessionFile,
   path.join(codexSessionRunDir, "reasoning.md"),
+  path.join(claudeRunDir, "reasoning.md"),
+  path.join(staleThesisRunDir, "reasoning.md"),
   path.join(normalizedSessionRunDir, "reasoning.md"),
   path.join(selfRunDir, "START_HERE.md"),
   path.join(selfRunDir, "reasoning.md"),
@@ -123,6 +131,35 @@ for (const expected of [
   "real ChatGPT / Codex project"
 ]) {
   if (!codexReasoning.includes(expected)) throw new Error(`Codex chat fixture missing ${expected}`);
+}
+
+const claudeMetadata = JSON.parse(fs.readFileSync(path.join(claudeRunDir, "source-metadata.json"), "utf8"));
+const claudeReasoning = fs.readFileSync(path.join(claudeRunDir, "reasoning.md"), "utf8");
+if (claudeMetadata.role_counts.user !== 2 || claudeMetadata.role_counts.assistant !== 1) {
+  throw new Error("Claude Code import should preserve exact user/assistant role counts and skip local-command noise");
+}
+if (claudeMetadata.provider_counts["claude-code"] !== 3 || claudeMetadata.role_quality.exact !== 3) {
+  throw new Error("Claude Code import should mark structured roles as exact");
+}
+for (const expected of [
+  "recovery coach roles",
+  "graduate-level NDIS mental health roles",
+  "not first-year students doing therapy"
+]) {
+  if (!claudeReasoning.includes(expected)) throw new Error(`Claude Code fixture missing ${expected}`);
+}
+if (claudeReasoning.includes("private chain of thought should be ignored") || claudeReasoning.includes("local-command-caveat")) {
+  throw new Error("Claude Code fixture should omit thinking/tool/local-command noise");
+}
+
+const staleThesisReasoning = fs.readFileSync(path.join(staleThesisRunDir, "reasoning.md"), "utf8");
+const staleThesisMatch = staleThesisReasoning.match(/## Current thesis\n\n([\s\S]*?)\n\n## Current wedge/);
+if (!staleThesisMatch) throw new Error("Stale thesis fixture should include current thesis section");
+if (!staleThesisMatch[1].includes("graduate-to-NDIS-workforce bridge")) {
+  throw new Error("Recent chat thesis should beat stale source-doc one-line summary");
+}
+if (staleThesisMatch[1].includes("automated claims processing")) {
+  throw new Error("Stale source-doc thesis should not override recent chat thesis");
 }
 
 const timestampReasoning = fs.readFileSync(path.join(timestampRunDir, "reasoning.md"), "utf8");
