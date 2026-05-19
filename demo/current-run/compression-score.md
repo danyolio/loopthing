@@ -9,7 +9,7 @@
 - [x] Risks present
 - [x] Next action present
 - [x] No mangled markdown snippets
-- [x] No generic product-spine boilerplate in handoff
+- [x] No generic handoff boilerplate
 - [x] Start file present
 - [x] Agent handoff present
 - [x] Metadata present

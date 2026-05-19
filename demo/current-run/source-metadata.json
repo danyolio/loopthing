@@ -1,6 +1,6 @@
 {
   "format": "loopthing/source-metadata-v0.1",
-  "created": "2026-05-19T10:46:16.160Z",
+  "created": "2026-05-19T22:58:53.979Z",
   "message_count": 17,
   "role_counts": {
     "user": 16,
@@ -11,6 +11,13 @@
     "source": 2,
     "docs": 5,
     "chat-transcript": 9
+  },
+  "provider_counts": {
+    "file": 17
+  },
+  "role_quality": {
+    "source": 8,
+    "inferred": 9
   },
   "topic_tags": [
     "handoff",
@@ -25,8 +32,8 @@
     {
       "path": "README.md",
       "kind": "orientation",
-      "bytes": 3836,
-      "sha256": "9ddc3d0a535be508318542e0066b401305eac589e777f71bf4dafa1327274bff"
+      "bytes": 4478,
+      "sha256": "c62e5327ab10c806d842f000ca4dc86e8b26f2624a7b681c19b10430eda293ba"
     },
     {
       "path": "START_HERE.md",
@@ -43,8 +50,8 @@
     {
       "path": "docs/02_RUN_LOOPTHING.md",
       "kind": "docs",
-      "bytes": 1581,
-      "sha256": "7dcabb39250f703e2855aca3a8c9001d69b0db780374f1cc1988385882a7aca1"
+      "bytes": 2209,
+      "sha256": "6cd3dee962b280572f99ca670e0afe8224bc94f3de724423c04d446077f36813"
     },
     {
       "path": "docs/03_PUBLIC_DEMO.md",
@@ -55,8 +62,8 @@
     {
       "path": "docs/04_PRODUCT_IMPROVEMENTS.md",
       "kind": "docs",
-      "bytes": 1395,
-      "sha256": "0806384f6270dfdb2ce6f99b4d692d67b7ea74ad4009c04db786cf317e859e45"
+      "bytes": 1754,
+      "sha256": "695d8fad55835980ad0d57c3d98cc35080028505474f374cd712fd6ac01d1122"
     },
     {
       "path": "docs/05_ARCHIVE_MAP.md",

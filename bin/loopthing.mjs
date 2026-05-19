@@ -7,7 +7,7 @@ import { spawnSync } from "node:child_process";
 
 const VERSION = "0.1.0";
 const MIME = "application/vnd.loopthing+zip";
-const TEXT_EXTENSIONS = new Set([".md", ".txt", ".json"]);
+const TEXT_EXTENSIONS = new Set([".md", ".txt", ".json", ".jsonl"]);
 const DEFAULT_IGNORED_DIRS = new Set([
   ".git",
   ".next",
@@ -28,12 +28,20 @@ function usage() {
 Usage:
   loopthing create <file-or-dir...> --out <name.loopthing> [--title <title>] [--run-dir <run-dir>]
   loopthing compress <file-or-dir...> --out <run-dir> [--title <title>] [--mode handoff]
+  loopthing create-session <codex-session-id-or-jsonl...> --out <name.loopthing> [--title <title>] [--run-dir <run-dir>]
+  loopthing compress-session <codex-session-id-or-jsonl...> --out <run-dir> [--title <title>]
+  loopthing sessions scan [--cwd <path>] [--all] [--limit <n>] [--codex-home <dir>]
+  loopthing sessions inspect <codex-session-id-or-jsonl> [--codex-home <dir>]
+  loopthing sessions normalize <codex-session-id-or-jsonl...> --out <messages.jsonl> [--codex-home <dir>]
   loopthing score <run-dir>
   loopthing compare <file-a> <file-b> [...file-c]
   loopthing seal <run-dir> --out <name.loopthing>
 
 Examples:
   loopthing create ./transcripts --out pricing-decision.loopthing --title "Pricing decision"
+  loopthing sessions scan
+  loopthing sessions inspect 019e3fbd
+  loopthing create-session 019e3fbd --out repo-decision.loopthing
   loopthing compress ./transcripts --out ./runs/run-001 --title "Pricing decision"
   loopthing score ./runs/run-001
   loopthing seal ./runs/run-001 --out pricing-decision.loopthing`);
@@ -122,6 +130,7 @@ function textOfContent(content) {
 function classifySource(file) {
   const relative = path.relative(process.cwd(), file).replace(/\\/g, "/");
   const basename = path.basename(relative);
+  if (/^rollout-.*\.jsonl$/i.test(basename)) return "chat-transcript";
   if (/LOCAL_CHAT_MD_FILES\.md$/i.test(basename)) return "source-index";
   if (/source-metadata\.json$|scores\.jsonl$|compression-score\.md$|agent-handoff\.md$|reasoning\.md$/i.test(basename)) return "generated";
   if (/START_HERE\.md$/i.test(basename) && relative.split("/").some((part) => ["current-run", "runs"].includes(part))) return "generated";
@@ -165,7 +174,12 @@ function collectJsonMessages(value, source, messages = []) {
       role: normalizeRole(String(roleValue)),
       content,
       source,
-      source_kind: "chat-transcript"
+      source_kind: "chat-transcript",
+      provider: value.provider,
+      role_confidence: value.role_confidence,
+      created_at: value.created_at,
+      conversation_id: value.conversation_id,
+      message_id: value.message_id
     });
     return messages;
   }
@@ -174,11 +188,124 @@ function collectJsonMessages(value, source, messages = []) {
   return messages;
 }
 
+function collectJsonlMessages(raw, source) {
+  const rows = raw
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      try {
+        return JSON.parse(line);
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+  if (!rows.length) return [];
+
+  const codexMessages = codexMessagesFromRows(rows, source);
+  if (codexMessages.length) return codexMessages;
+
+  const normalizedMessages = [];
+  for (const row of rows) collectJsonMessages(row, source, normalizedMessages);
+  return normalizedMessages;
+}
+
+function codexMessagesFromRows(rows, source) {
+  const messages = [];
+  for (const row of rows) {
+    const payload = row?.payload;
+    if (row?.type !== "response_item" || payload?.type !== "message") continue;
+    const role = normalizeRole(String(payload.role || ""));
+    if (!["user", "assistant"].includes(role)) continue;
+    const content = textOfContent(payload.content).trim();
+    if (!content) continue;
+    if (role === "user" && isCodexContextOnly(content)) continue;
+    messages.push({
+      role,
+      content,
+      source,
+      source_kind: "chat-transcript",
+      provider: "codex",
+      role_confidence: "exact",
+      created_at: row.timestamp || null
+    });
+  }
+  return messages;
+}
+
+function isCodexContextOnly(content) {
+  const compact = content.trim();
+  return /^<environment_context>[\s\S]*<\/environment_context>$/.test(compact)
+    || /^<user_info>[\s\S]*<\/user_info>$/.test(compact);
+}
+
 function normalizeRole(role) {
   const lowered = role.toLowerCase();
   if (["human", "user", "participant", "me"].includes(lowered)) return "user";
   if (["assistant", "ai", "chatgpt", "codex", "claude", "system"].includes(lowered)) return lowered === "system" ? "system" : "assistant";
   return lowered;
+}
+
+function looksLikeTimestampMarker(line) {
+  return /^(?:\d{1,2}\s+[A-Z][a-z]{2,8}|\d{1,2}:\d{2})$/.test(line.trim());
+}
+
+function paragraphBoundsBefore(lines, endIndex) {
+  let end = endIndex;
+  while (end >= 0 && !lines[end].trim()) end -= 1;
+  if (end < 0) return null;
+  let start = end;
+  while (start > 0 && lines[start - 1].trim()) start -= 1;
+  return { start, end };
+}
+
+function looksLikeUserContinuation(block) {
+  return /^(?:ok,?$|mission:|how:|don[’']t |i bought|•|[-*]\s|also |the biggest question|source:|original idea:|but the real question|my goal|version [abc]:)/i.test(block)
+    || (block.length < 180 && /\?$/.test(block));
+}
+
+function userStartBeforeTimestamp(lines, markerIndex, firstMarker) {
+  if (firstMarker) return 0;
+  const bounds = paragraphBoundsBefore(lines, markerIndex - 1);
+  if (!bounds) return markerIndex;
+  let { start } = bounds;
+  let capturedChars = lines.slice(bounds.start, bounds.end + 1).join("\n").length;
+  let probe = start - 1;
+  while (probe > 0 && capturedChars < 1400) {
+    const prior = paragraphBoundsBefore(lines, probe);
+    if (!prior) break;
+    const block = lines.slice(prior.start, prior.end + 1).join("\n").trim();
+    if (!looksLikeUserContinuation(block)) break;
+    start = prior.start;
+    capturedChars += block.length;
+    probe = prior.start - 1;
+  }
+  return start;
+}
+
+function parseTimestampedTranscript(raw, source, sourceKind) {
+  const lines = raw.split(/\r?\n/);
+  const markers = lines
+    .map((line, index) => (looksLikeTimestampMarker(line) ? index : -1))
+    .filter((index) => index >= 0);
+  if (markers.length < 2) return [];
+
+  const userStarts = markers.map((marker, index) => userStartBeforeTimestamp(lines, marker, index === 0));
+  const messages = [];
+  for (let index = 0; index < markers.length; index += 1) {
+    const marker = markers[index];
+    const userStart = userStarts[index];
+    const userText = lines.slice(userStart, marker).join("\n").trim();
+    if (userText) messages.push({ role: "user", content: userText, source, source_kind: sourceKind });
+
+    const assistantStart = marker + 1;
+    const nextUserStart = userStarts[index + 1] ?? lines.length;
+    const assistantText = lines.slice(assistantStart, nextUserStart).join("\n").trim();
+    if (assistantText) messages.push({ role: "assistant", content: assistantText, source, source_kind: sourceKind });
+  }
+
+  return messages.length >= 4 ? messages : [];
 }
 
 function parseTextMessages(raw, source, sourceKind = "source") {
@@ -208,13 +335,20 @@ function parseTextMessages(raw, source, sourceKind = "source") {
     }
   }
   flush();
-  return chunks.length ? chunks : [{ role: "user", content: raw.trim(), source, source_kind: sourceKind }];
+  if (chunks.length) return chunks;
+  const timestampedMessages = parseTimestampedTranscript(raw, source, sourceKind);
+  if (timestampedMessages.length) return timestampedMessages;
+  return [{ role: "user", content: raw.trim(), source, source_kind: sourceKind }];
 }
 
 function parseFile(file) {
   const raw = fs.readFileSync(file, "utf8");
   const source = path.relative(process.cwd(), file);
   const sourceKind = classifySource(file);
+  if (path.extname(file).toLowerCase() === ".jsonl") {
+    const jsonlMessages = collectJsonlMessages(raw, source);
+    if (jsonlMessages.length) return jsonlMessages;
+  }
   if (path.extname(file).toLowerCase() === ".json") {
     try {
       const parsed = JSON.parse(raw);
@@ -360,7 +494,9 @@ function scoreMessage(message, index, total) {
     "feedback", "actually", "however", "but", "not", "instead", "decided",
     "kill", "killed", "discard", "rejected", "wrong", "problem", "gold",
     "wedge", "trust", "handoff", "business", "mrr", "pricing", "risk",
-    "next", "build", "ship", "commit", "plan", "strategy", "why"
+    "next", "build", "ship", "commit", "plan", "strategy", "why",
+    "takeaway", "conclusion", "strongest", "cleanest", "recommend",
+    "pricing", "regulatory", "requirements", "target", "role"
   ];
   for (const term of terms) if (text.includes(term)) score += 2;
   const directionTerms = [
@@ -384,6 +520,36 @@ function scoreMessage(message, index, total) {
   if (text.includes("?")) score += 2;
   score += index / Math.max(total, 1);
   return score;
+}
+
+function assistantConclusionScore(message, index, total) {
+  const text = message.content.toLowerCase();
+  let score = scoreMessage(message, index, total);
+  if (/\b(mcp|crustdata|crust data|npx|api token|check current location|fetched:|searched the web)\b/i.test(message.content)) score -= 12;
+  if (message.role === "assistant") score += 4;
+  if (/\b(the honest summary|what this means|what this tells you|the takeaway|the actual matrix|what i'd suggest|what i'd actually|recommend|strongest|cleanest|highest-value|next action)\b/i.test(message.content)) score += 10;
+  if (/\b(should|target|lead with|start with|pick|verify|test|call|discovery|pricing|guarantee|regulatory|role lane|qualification|worker role)\b/i.test(message.content)) score += 6;
+  score += (index / Math.max(total, 1)) * 18;
+  return score;
+}
+
+function criticalMessages(messages, count = 8) {
+  const candidates = messages.filter((message) => message.content.trim().length > 20);
+  const ranked = candidates
+    .map((message, index) => ({
+      ...message,
+      globalIndex: messages.indexOf(message),
+      score: assistantConclusionScore(message, index, candidates.length)
+    }))
+    .sort((a, b) => b.score - a.score);
+  const selected = [];
+  for (const message of ranked) {
+    const tooSimilar = selected.some((existing) => existing.role === message.role && excerpt(existing.content, 100) === excerpt(message.content, 100));
+    if (tooSimilar) continue;
+    selected.push(message);
+    if (selected.length >= count) break;
+  }
+  return selected.sort((a, b) => a.globalIndex - b.globalIndex);
 }
 
 function topMessages(messages, count = 5) {
@@ -417,6 +583,111 @@ function findSentences(messages, regexes, limit = 4) {
   return found;
 }
 
+function recentMessages(messages, fraction = 0.35) {
+  const start = Math.max(0, Math.floor(messages.length * (1 - fraction)));
+  return messages.slice(start);
+}
+
+function sentenceNoise(sentence) {
+  return /^(let me|good question|fair|right|on it|stop\.|wait\.|want me|can you|do you|if you want|i apologise|i'm not going to|i can't|what i can and can't|what i should have said earlier)\b/i.test(sentence)
+    || /\b(mcp|crustdata|crust data|claude settings|npx|api token|tooling|target list|linkedin data api)\b/i.test(sentence)
+    || /^Fetched:|^Searched |^Crustdata |^Check current location/i.test(sentence);
+}
+
+function sentenceCandidates(messages, regexes, limit = 6, options = {}) {
+  const found = [];
+  const recentStart = Math.max(0, Math.floor(messages.length * 0.65));
+  const pool = options.recentFirst
+    ? [...messages.slice(recentStart).reverse(), ...messages.slice(0, recentStart).reverse()]
+    : messages;
+  for (const message of pool) {
+    if (options.role && message.role !== options.role) continue;
+    for (const sentence of splitSentences(message.content)) {
+      const clean = cleanMarkdown(sentence).replace(/\s+/g, " ").trim();
+      if (clean.length < 24) continue;
+      if (!options.includeNoise && sentenceNoise(clean)) continue;
+      if (options.noQuestions && clean.endsWith("?")) continue;
+      if (regexes.some((regex) => regex.test(clean))) {
+        found.push({
+          sentence: readableExcerpt(clean, options.max || 260),
+          source: message.source,
+          role: message.role,
+          index: message.index ?? messages.indexOf(message)
+        });
+      }
+    }
+  }
+  const seen = new Set();
+  return found.filter((item) => {
+    const key = item.sentence.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, limit);
+}
+
+function lineCandidates(messages, regexes, limit = 6, options = {}) {
+  const recentStart = Math.max(0, Math.floor(messages.length * 0.65));
+  const pool = options.recentFirst
+    ? [...messages.slice(recentStart).reverse(), ...messages.slice(0, recentStart).reverse()]
+    : messages;
+  const found = [];
+  for (const message of pool) {
+    if (options.role && message.role !== options.role) continue;
+    for (const rawLine of message.content.split(/\r?\n/)) {
+      const clean = cleanMarkdown(rawLine).replace(/\s+/g, " ").trim();
+      if (clean.length < (options.min || 20)) continue;
+      if (clean.length > (options.maxLine || 360)) continue;
+      if (!options.includeNoise && sentenceNoise(clean)) continue;
+      if (options.noQuestions && clean.endsWith("?")) continue;
+      if (regexes.some((regex) => regex.test(clean))) {
+        found.push({
+          line: readableExcerpt(clean, options.max || 260),
+          source: message.source,
+          role: message.role,
+          index: message.index ?? messages.indexOf(message)
+        });
+      }
+    }
+  }
+  const seen = new Set();
+  return found.filter((item) => {
+    const key = item.line.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, limit);
+}
+
+function transcriptThesis(messages) {
+  const sections = matchingSections(messages, [/clean thesis/, /^what it is$/, /current thesis/, /one-line summary/, /pinned direction/, /product spine/]);
+  if (sections[0]) return sectionSummary(sections[0], 360);
+  const lines = lineCandidates(messages, [
+    /\b(you're running|business shape|mission framing|underlying model|bridge organisation|workforce bridge|flat placement fee|train-and-place|recruiter|placement service)\b/i
+  ], 3, { role: "assistant", recentFirst: true, max: 300, noQuestions: true });
+  if (lines.length) return lines.map((item) => item.line).join(" ");
+  const candidates = sentenceCandidates(messages, [
+    /\b(you're running|the business shape|the mission framing|the actual business|bridge organisation|workforce bridge|train-and-place|handoff cli|compressed reasoning)\b/i
+  ], 3, { role: "assistant", recentFirst: true, max: 300, noQuestions: true });
+  if (candidates.length) return candidates.map((item) => item.sentence).join(" ");
+  return "The useful work is to preserve the decisions, direction, killed branches, risks, and next action so a new person or session can continue without starting cold.";
+}
+
+function transcriptWedge(messages) {
+  const sections = matchingSections(messages, [/^wedge$/, /pinned wedge/, /pinned direction/, /current wedge/, /what survives criticism/, /narrowest claim/]);
+  if (sections[0]) return sectionSummary(sections[0], 360);
+  const lines = lineCandidates(messages, [
+    /\b(strongest economic wedge|highest-value lane|picking one lane|primary lane|lead with|best entry|cleanest entry)\b/i,
+    /\b(largest market|bottom of the funnel|niche premium lane|not a year-1 wedge)\b/i
+  ], 4, { role: "assistant", recentFirst: true, max: 280, noQuestions: true });
+  if (lines.length) return lines.map((item) => item.line).join(" ");
+  const candidates = sentenceCandidates(messages, [
+    /\b(strongest economic wedge|highest-value lane|primary lane|lead with|start with|entry point|uniquely suited|best fit|wedge)\b/i
+  ], 3, { role: "assistant", recentFirst: true, max: 300, noQuestions: true });
+  if (candidates.length) return candidates.map((item) => item.sentence).join(" ");
+  return "The strongest surviving direction is the one that remains after discarded branches and risks are made explicit.";
+}
+
 function topicTags(messages) {
   const text = messages.map((message) => message.content).join("\n").toLowerCase();
   const topics = [
@@ -442,12 +713,24 @@ function sourceMetadata(messages, files) {
     acc[kind] = (acc[kind] || 0) + 1;
     return acc;
   }, {});
+  const providerCounts = messages.reduce((acc, message) => {
+    const provider = message.provider || "file";
+    acc[provider] = (acc[provider] || 0) + 1;
+    return acc;
+  }, {});
+  const roleQuality = messages.reduce((acc, message) => {
+    const quality = message.role_confidence || (message.source_kind === "chat-transcript" ? "inferred" : "source");
+    acc[quality] = (acc[quality] || 0) + 1;
+    return acc;
+  }, {});
   return {
     format: "loopthing/source-metadata-v0.1",
     created: new Date().toISOString(),
     message_count: messages.length,
     role_counts: roleCounts,
     source_kind_counts: sourceKindCounts,
+    provider_counts: providerCounts,
+    role_quality: roleQuality,
     topic_tags: topicTags(messages),
     source_files: files.map((file) => ({
       path: path.relative(process.cwd(), file),
@@ -480,6 +763,10 @@ function inferProblem(messages) {
     const summary = sectionSummary(section, 320);
     if (summary) return summary;
   }
+  const recentQuestion = sentenceCandidates(preferred, [
+    /\b(real question|biggest question|stuck|where .* fit|which role|what role|how many|what should|what's the gap|is .* suited)\b/i
+  ], 2, { role: "user", recentFirst: true, max: 260 }).map((item) => item.sentence);
+  if (recentQuestion.length) return recentQuestion.join(" ");
   const problem = findSentences(messages, [/problem/, /gold/, /messy/, /chaos/, /noisy/, /copy/, /handoff/, /trust/, /share/], 1)[0];
   if (problem) return `The problem surfaced in the source language: "${excerpt(problem.sentence, 260)}"`;
   return "The problem is that useful AI reasoning is buried in long sessions; the final output loses context, while the raw transcript is too noisy to hand off.";
@@ -561,7 +848,14 @@ function discardedBranches(messages) {
     .filter((item) => !/^(next loop|next action|next step)$/i.test(item.branch.trim()))
     .filter((item) => item.reason && !/^(this path was explicitly listed as discarded or not for now\.)$/i.test(item.reason));
   if (cleanedExtracted.length) return dedupeItems(cleanedExtracted, "branch").slice(0, 8);
-  const killed = findSentences(preferred, [/killed?/, /discard/, /rejected/, /wrong direction/, /doesn.?t make sense/, /not the direction/, /not .* product/, /not .* transcript/], 8);
+  const boundaryBranches = lineCandidates(preferred, [
+    /\b(not a student role|not the right role|first-year .*doesn't meet|graduate role|not your primary lane|not a high-volume|year-3 expansion|not therapy|not clinicians|insufficient qualification)\b/i
+  ], 8, { role: "assistant", recentFirst: true, max: 240, noQuestions: true })
+    .map((item) => item.line)
+    .filter(isBoundaryCandidate)
+    .map((line) => boundaryBranch(line));
+  if (boundaryBranches.length) return dedupeItems(boundaryBranches, "branch").slice(0, 8);
+  const killed = sentenceCandidates(preferred, [/killed?/, /discard/, /rejected/, /wrong direction/, /doesn.?t make sense/, /not the direction/, /not .* product/, /not .* transcript/, /not .* role/, /insufficient qualification/, /out of scope/], 8, { role: "assistant", recentFirst: true, max: 180 });
   if (killed.length) {
     return killed.map((item) => ({
       branch: excerpt(item.sentence, 160),
@@ -572,6 +866,44 @@ function discardedBranches(messages) {
     branch: "Treat the transcript as the deliverable.",
     reason: "The source material points toward compression and handoff, not raw logging."
   }];
+}
+
+function boundaryBranch(line) {
+  const quotedNotRunning = line.match(/not running an?\s+"([^"]+)"/i);
+  if (quotedNotRunning) return { branch: quotedNotRunning[1], reason: line };
+  const notPrimary = line.match(/^(.*?)(?:is|was)\s+(?:not|probably not)\s+(?:your|the)\s+primary\b/i);
+  if (notPrimary) return { branch: `${boundarySubject(notPrimary[1])} as the primary wedge`, reason: line };
+  if (/\bbottom of the funnel|lowest revenue|lower-priority\b/i.test(line)) return { branch: `${boundarySubject(line)} as the primary wedge`, reason: line };
+  const notYearOne = line.match(/^(.*?)(?:not a year-?1|not a year-?one|year-3 expansion)/i);
+  if (notYearOne) return { branch: `${boundarySubject(notYearOne[1])} as the year-one wedge`, reason: line };
+  const graduateRole = line.match(/(?:^|[.;:]\s*)([^.;:]+?)\s+is\s+a\s+graduate role/i);
+  if (graduateRole) return { branch: `${boundarySubject(graduateRole[1])} as an early-student role`, reason: line };
+  if (/\binsufficient qualification|insufficient qualification\/experience|doesn[’']?t meet|does not meet\b/i.test(line)) {
+    const branch = /\bfirst-year\b/i.test(line) ? "First-year candidates as qualified candidates" : `${boundarySubject(line)} as an early-student role`;
+    return { branch, reason: line };
+  }
+  return {
+    branch: boundarySubject(line),
+    reason: "The conversation treated this as a boundary or lower-priority path, not the current wedge."
+  };
+}
+
+function boundarySubject(raw) {
+  let text = cleanMarkdown(raw).replace(/\s+/g, " ").trim();
+  text = text.replace(/^[^A-Za-z0-9]+/, "");
+  text = text.replace(/^(?:one|two|three|four|five|six|seven|eight|nine|ten)\s+[—-]\s*/i, "");
+  text = text.replace(/^the honest read:\s*/i, "");
+  text = text.split(/[.;]/)[0].trim();
+  text = text.replace(/\s*\([^)]*\)\s*$/g, "");
+  text = text.replace(/\s+is\s+(?:a|an|the)?\s.*$/i, "");
+  text = text.replace(/\s+as\s+.*$/i, "");
+  return excerpt(text || raw, 140);
+}
+
+function isBoundaryCandidate(line) {
+  const positiveCapability = /\b(can legitimately work|will hire|eligible|fits|meets .*pathway|can pathway|can do|real role|legitimate role)\b/i.test(line);
+  const strongBoundary = /\b(not (?:your|the) primary|not a high-volume|not a year|year-3 expansion|insufficient|doesn[’']?t meet|does not meet|can't|cannot|not a student role|not the right role|graduate role|bottom of the funnel|lowest revenue|lower-priority)\b/i.test(line);
+  return !positiveCapability || strongBoundary;
 }
 
 function risks(messages) {
@@ -591,7 +923,11 @@ function risks(messages) {
     .filter((line) => !/^(custom services|low-margin services|support burden|sales-led enterprise work|enterprise procurement|always-on support)\b/i.test(line))
     .map((line) => excerpt(line, 240));
   if (cleaned.length) return [...new Set(cleaned)].slice(0, 4);
-  const found = findSentences(preferred, [/risk/, /might/, /could fail/, /weak/, /unclear/, /if .* fail/, /hard/, /not honestly/], 4);
+  const riskLines = lineCandidates(preferred, [
+    /\b(verify .*current|pricing tolerance is unknown|supervision question is critical|published .* ceiling|discovery calls .* test|changes every july|before quoting|not a guaranteed rate|supervision .* bottleneck)\b/i
+  ], 5, { role: "assistant", recentFirst: true, max: 240, noQuestions: true }).map((item) => item.line);
+  if (riskLines.length) return riskLines;
+  const found = sentenceCandidates(preferred, [/risk/, /might/, /could fail/, /weak/, /unclear/, /if .* fail/, /hard/, /not honestly/, /pricing tolerance/, /verify/, /changes every july/, /supervision .* bottleneck/, /regulatory/], 4, { role: "assistant", recentFirst: true, max: 220 });
   if (found.length) return found.map((item) => excerpt(item.sentence, 220));
   return [
     "Compression quality may not be good enough to beat a generic summary.",
@@ -620,6 +956,15 @@ function nextAction(messages) {
   const extracted = sections.flatMap((section) => meaningfulLines(section.body))
     .filter((line) => !line.startsWith("{") && !line.startsWith("[") && !/^use the new cli/i.test(line));
   if (extracted.length) return excerpt(extracted[0], 280);
+  const nextLines = lineCandidates(preferred, [
+    /^(?:one|two|three)\s+[—:-]\s+(?:verify|pick|modify|ask|run|start)\b/i,
+    /^(?:first|next)\s+5\s+calls\b/i
+  ], 3, { role: "assistant", recentFirst: true, max: 320, maxLine: 640, noQuestions: true });
+  if (nextLines.length) return nextLines.map((item) => item.line).join(" ");
+  const assistantNext = sentenceCandidates(preferred, [
+    /\b(next action|before the discovery calls|what to do with this|first 5 calls|next 5 calls|start with|pick a primary lane|verify|ask each provider|run .* calls|target)\b/i
+  ], 2, { role: "assistant", recentFirst: true, max: 280 });
+  if (assistantNext.length) return assistantNext.map((item) => item.sentence).join(" ");
   const lastUser = [...preferred].reverse().find((message) => message.role === "user" && !message.content.trim().startsWith("{"));
   return lastUser ? excerpt(lastUser.content, 260) : "Run a recipient comprehension test against this artifact.";
 }
@@ -772,6 +1117,14 @@ function keyArtifactBullets(messages, metadata, limit = 8) {
   });
 }
 
+function criticalMessageBullets(messages, limit = 8) {
+  return criticalMessages(messages, limit).map((message) => ({
+    title: `${message.role} · ${messageTitle(message)}`,
+    source: message.source,
+    summary: readableExcerpt(message.content, 300)
+  }));
+}
+
 function importantUserDirections(messages, limit = 12) {
   const chatUserMessages = messages.filter((message) => message.role === "user" && message.source_kind === "chat-transcript");
   const userMessages = chatUserMessages.length ? chatUserMessages : messages.filter((message) => message.role === "user");
@@ -792,32 +1145,79 @@ function importantUserDirections(messages, limit = 12) {
 function genericModel(title, messages, metadata) {
   const reasoningMessages = preferredReasoningMessages(messages);
   const discarded = discardedBranches(messages).slice(0, 8);
-  const critical = topMessages(reasoningMessages, 6).map((message) => ({
+  const critical = criticalMessages(reasoningMessages, 8).map((message) => ({
     title: messageTitle(message),
     source: message.source,
-    summary: readableExcerpt(message.content, 240)
+    summary: readableExcerpt(message.content, 300)
   }));
   const next = nextAction(messages);
   const riskLines = risks(messages).slice(0, 6);
   const askLines = asks(messages).slice(0, 4);
   const projectDocs = keyArtifactBullets(messages, metadata, 8);
+  const chatHeavy = (metadata.source_kind_counts?.["chat-transcript"] || 0) > (metadata.message_count * 0.5);
+  const outcome = outcomeModel(messages);
   return {
     domain: domainFor(messages, title),
     projectName: cleanProjectName(title),
     intent: sectionParagraph(messages, [/^intent$/, /underlying goal/], inferIntent(messages, topMessages(messages, 5))),
     problem: sectionParagraph(messages, [/^problem$/, /problem statement/], inferProblem(messages)),
-    thesis: sectionParagraph(messages, [/clean thesis/, /^what it is$/, /current thesis/, /one-line summary/, /pinned direction/, /product spine/], "The useful work is to preserve the decisions, direction, killed branches, risks, and next action so a new person or session can continue without starting cold."),
-    currentWedge: sectionParagraph(messages, [/^wedge$/, /pinned wedge/, /pinned direction/, /current wedge/, /what survives criticism/, /narrowest claim/], "The strongest surviving direction is the one that remains after discarded branches and risks are made explicit."),
+    thesis: transcriptThesis(messages),
+    currentWedge: transcriptWedge(messages),
     ownership: sectionBlock(messages, [/ownership/, /responsibilit/, /operating model/, /how it works/], 6),
-    notThis: negativeBoundaryBlock(messages, [/what this is not/, /what it is not/, /do not/, /non-negotiables/, /killed paths/, /killed branches/], 8),
+    notThis: boundariesFromTranscript(messages, outcome),
     framingDiffs: framingDiffs(topMessages(reasoningMessages, 5)),
     discarded,
-    survival: sectionBlock(messages, [/what survives criticism/, /outcome/, /committed to/, /narrowest claim/], 6),
+    survival: survivalClaims(messages, outcome),
     risks: riskLines,
     nextActions: next ? [readableExcerpt(next, 260)] : [],
     asks: askLines,
-    artifacts: projectDocs.length ? projectDocs : critical,
-    directions: importantUserDirections(messages, 12)
+    artifacts: chatHeavy ? criticalMessageBullets(reasoningMessages, 8) : (projectDocs.length ? projectDocs : critical),
+    directions: importantUserDirections(messages, 12),
+    outcome
+  };
+}
+
+function survivalClaims(messages, outcome) {
+  const explicit = sectionBlock(messages, [/what survives criticism/, /outcome/, /committed to/, /narrowest claim/], 6);
+  if (explicit.length) return explicit;
+  const lines = lineCandidates(messages, [
+    /\b(highest-value lane|strongest economic wedge|unit economics are the strongest|largest market|legitimate entry point|mission framing holds|wedge is genuinely real|value-add isn't just placement)\b/i
+  ], 6, { role: "assistant", recentFirst: true, max: 240, noQuestions: true }).map((item) => item.line);
+  if (lines.length) return lines;
+  const candidates = sentenceCandidates(messages, [
+    /\b(strongest|cleanest|highest-value|fits|legitimate|real role|real wedge|mission .* holds|value-add|differentiator|works|survives)\b/i
+  ], 5, { role: "assistant", recentFirst: true, max: 240 }).map((item) => item.sentence);
+  return candidates.length ? candidates : outcome.committed.slice(0, 5);
+}
+
+function boundariesFromTranscript(messages, outcome) {
+  const explicit = negativeBoundaryBlock(messages, [/what this is not/, /what it is not/, /do not/, /non-negotiables/, /killed paths/, /killed branches/], 8);
+  if (explicit.length) return explicit;
+  return outcome.notCommitted.slice(0, 6);
+}
+
+function outcomeModel(messages) {
+  const committed = lineCandidates(messages, [
+    /\b(strongest economic wedge|highest-value lane|unit economics are the strongest|if you're picking one lane|largest market|value-add isn't just placement|mission framing holds|wedge is genuinely real|pick a primary lane|business shape changes|current direction|run .* test|compression-first handoff)\b/i
+  ], 7, { recentFirst: true, max: 240, noQuestions: true }).map((item) => item.line);
+  const committedFallback = sentenceCandidates(messages, [
+    /\b(strongest economic wedge|highest-value lane|unit economics are the strongest|if you're picking one lane|value-add isn't just placement|mission .* holds|wedge .* real|current direction|run .* test|compression-first handoff)\b/i
+  ], 4, { recentFirst: true, max: 240, noQuestions: true }).map((item) => item.sentence);
+  const notCommitted = lineCandidates(messages, [
+    /\b(not a student role|not the right role|insufficient qualification|not your primary lane|not a high-volume|year-3 expansion|first-year .*doesn't meet|can't walk into|not therapy|not clinicians|not the primary lane)\b/i
+  ], 7, { role: "assistant", recentFirst: true, max: 240, noQuestions: true }).map((item) => item.line).filter(isBoundaryCandidate);
+  const notCommittedFallback = sentenceCandidates(messages, [
+    /\b(not a student role|not the right role|insufficient qualification|not your primary lane|not a high-volume|year-3 expansion|first-year .*doesn't meet|can't walk into|not therapy|not clinicians|not the primary lane)\b/i
+  ], 4, { role: "assistant", recentFirst: true, max: 240, noQuestions: true }).map((item) => item.sentence).filter(isBoundaryCandidate);
+  const explicitNotCommitted = negativeBoundaryBlock(messages, [/what this is not/, /what it is not/, /do not/, /non-negotiables/, /killed paths/, /killed branches/], 7);
+  const evidence = lineCandidates(messages, [
+    /\b(line item|worker pay|employer all-in cost|placement fee|gross spread|mandatory minimums|qualification expectations|supervision|pricing tolerance|verify .*price|award rate|all-in cost)\b/i
+  ], 6, { role: "assistant", recentFirst: true, max: 240, noQuestions: true }).map((item) => item.line);
+
+  return {
+    committed: committed.length ? committed : (committedFallback.length ? committedFallback : ["No specific commitment inferred; review Critical messages before using this handoff."]),
+    notCommitted: notCommitted.length ? notCommitted : (notCommittedFallback.length ? notCommittedFallback : (explicitNotCommitted.length ? explicitNotCommitted : ["No specific rejected commitment inferred."])),
+    evidence
   };
 }
 
@@ -916,15 +1316,15 @@ ${markdownList(model.risks)}
 
 Committed to:
 
-- Preserve the current thesis, boundaries, killed branches, risks, and next evidence gate.
-- Treat discarded branches as useful evidence, not trash.
-- Produce a readable handoff that a new AI session or collaborator can use quickly.
+${markdownList(model.outcome.committed)}
 
 Not committed to:
 
-- Treating raw transcript storage as the product.
-- Treating visual polish as proof of reasoning quality.
-- Hiding uncertainty, risk, or inferred structure.
+${markdownList(model.outcome.notCommitted)}
+
+Evidence to check:
+
+${markdownList(model.outcome.evidence, "- No specific evidence bullets inferred.")}
 
 ## Next action
 
@@ -1081,6 +1481,16 @@ ${discardedList(model.discarded.slice(0, 6))}
 
 ${markdownList(model.risks.slice(0, 6))}
 
+## Outcome
+
+Committed to:
+
+${markdownList(model.outcome.committed.slice(0, 5))}
+
+Not committed to:
+
+${markdownList(model.outcome.notCommitted.slice(0, 5))}
+
 ## Next Action
 
 ${markdownList(model.nextActions)}
@@ -1095,12 +1505,228 @@ Be optimistic but corrective. If the project drifts, restore the current thesis,
 `;
 }
 
-function runCompression(inputs, flags) {
-  const files = walkInputs(inputs);
-  if (!files.length) throw new Error("No .md, .txt, or .json transcript files found.");
-  const messages = files.flatMap(parseFile).map((message, index) => ({ ...message, index }));
+function codexHome(flags = {}) {
+  return path.resolve(flags["codex-home"] || process.env.CODEX_HOME || path.join(os.homedir(), ".codex"));
+}
+
+function walkJsonlFiles(dir, maxDepth = 8, depth = 0) {
+  if (!fs.existsSync(dir) || depth > maxDepth) return [];
+  const files = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) files.push(...walkJsonlFiles(full, maxDepth, depth + 1));
+    else if (entry.isFile() && entry.name.endsWith(".jsonl")) files.push(full);
+  }
+  return files;
+}
+
+function loadCodexSessionIndex(home) {
+  const indexFile = path.join(home, "session_index.jsonl");
+  const index = new Map();
+  if (!fs.existsSync(indexFile)) return index;
+  for (const line of fs.readFileSync(indexFile, "utf8").split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    try {
+      const row = JSON.parse(line);
+      if (row.id) index.set(row.id, row);
+    } catch {
+      // Ignore corrupt index rows. Rollout files remain the source of truth.
+    }
+  }
+  return index;
+}
+
+function jsonRowsFromFile(file) {
+  return fs.readFileSync(file, "utf8")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      try {
+        return JSON.parse(line);
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+}
+
+function codexIdFromPath(file) {
+  const match = path.basename(file).match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.jsonl$/i);
+  return match?.[1] || path.basename(file, ".jsonl");
+}
+
+function parseCodexSessionFile(file, index = new Map()) {
+  const rows = jsonRowsFromFile(file);
+  const source = path.relative(process.cwd(), file);
+  const sessionMeta = rows.find((row) => row.type === "session_meta")?.payload || {};
+  const id = sessionMeta.id || codexIdFromPath(file);
+  const messages = codexMessagesFromRows(rows, source).map((message, messageIndex) => ({
+    ...message,
+    conversation_id: id,
+    message_id: `${id}:${messageIndex}`
+  }));
+  const stat = fs.statSync(file);
+  const timestamps = rows.map((row) => row.timestamp).filter(Boolean).sort();
+  const firstUser = messages.find((message) => message.role === "user");
+  const lastUser = [...messages].reverse().find((message) => message.role === "user");
+  const roleCounts = messages.reduce((acc, message) => {
+    acc[message.role] = (acc[message.role] || 0) + 1;
+    return acc;
+  }, {});
+  const indexed = index.get(id) || {};
+  return {
+    id,
+    provider: "codex",
+    file,
+    title: indexed.thread_name || excerpt(firstUser?.content || path.basename(file, ".jsonl"), 90),
+    cwd: sessionMeta.cwd || "",
+    created_at: timestamps[0] || stat.birthtime.toISOString(),
+    updated_at: indexed.updated_at || timestamps[timestamps.length - 1] || stat.mtime.toISOString(),
+    first_user: firstUser?.content || "",
+    last_user: lastUser?.content || "",
+    message_count: messages.length,
+    role_counts: roleCounts,
+    role_quality: messages.length ? "exact structured roles" : "no chat messages found",
+    messages
+  };
+}
+
+function listCodexSessions(flags = {}) {
+  const home = codexHome(flags);
+  const index = loadCodexSessionIndex(home);
+  const files = [
+    ...walkJsonlFiles(path.join(home, "sessions")),
+    ...walkJsonlFiles(path.join(home, "archived_sessions"), 2)
+  ];
+  const summaries = [];
+  for (const file of files) {
+    try {
+      const session = parseCodexSessionFile(file, index);
+      if (session.message_count) summaries.push(session);
+    } catch {
+      // Ignore non-rollout or malformed JSONL files.
+    }
+  }
+  const cwdFilter = flags.cwd ? path.resolve(String(flags.cwd)) : process.cwd();
+  const filtered = flags.all ? summaries : summaries.filter((session) => session.cwd === cwdFilter);
+  return filtered.sort((a, b) => String(b.updated_at).localeCompare(String(a.updated_at)));
+}
+
+function resolveCodexSessionRefs(refs, flags = {}) {
+  if (!refs.length) throw new Error("Expected at least one Codex session id or JSONL path");
+  const home = codexHome(flags);
+  const index = loadCodexSessionIndex(home);
+  const scanned = listCodexSessions({ ...flags, all: true });
+  return refs.map((ref) => {
+    const direct = path.resolve(ref);
+    if (fs.existsSync(direct)) return parseCodexSessionFile(direct, index);
+    const matches = scanned.filter((session) => session.id.startsWith(ref) || path.basename(session.file).includes(ref));
+    if (!matches.length) throw new Error(`No Codex session matched: ${ref}`);
+    if (matches.length > 1) throw new Error(`Ambiguous Codex session id "${ref}" matched ${matches.length} sessions; use a longer id`);
+    return matches[0];
+  });
+}
+
+function printSessionRows(sessions, flags = {}) {
+  const limit = Number(flags.limit || 20);
+  const selected = sessions.slice(0, limit);
+  console.log(`Found ${sessions.length} Codex session${sessions.length === 1 ? "" : "s"}${flags.all ? "" : " for this workspace"}`);
+  console.log("");
+  console.log("| ID | Updated | Messages | Roles | Title |");
+  console.log("| --- | --- | ---: | --- | --- |");
+  for (const session of selected) {
+    const roles = Object.entries(session.role_counts).map(([role, count]) => `${role}:${count}`).join(", ");
+    console.log(`| ${escapeCell(session.id.slice(0, 8))} | ${escapeCell(String(session.updated_at).slice(0, 19))} | ${session.message_count} | ${escapeCell(roles)} | ${escapeCell(session.title)} |`);
+  }
+  if (sessions.length > selected.length) console.log(`\nShowing ${selected.length}. Re-run with --limit ${sessions.length} to see all.`);
+}
+
+function normalizedRowsForSessions(sessions) {
+  return sessions.flatMap((session) => session.messages.map((message, index) => ({
+    provider: "codex",
+    conversation_id: session.id,
+    message_id: message.message_id || `${session.id}:${index}`,
+    role: message.role,
+    role_confidence: message.role_confidence || "exact",
+    created_at: message.created_at,
+    source: message.source,
+    content: message.content
+  })));
+}
+
+function sessionsCommand(argv) {
+  const [subcommand, ...rest] = argv;
+  const { positional, flags } = parseArgs(rest);
+  if (!subcommand || subcommand === "scan") {
+    printSessionRows(listCodexSessions(flags), flags);
+    return;
+  }
+  if (subcommand === "inspect") {
+    const session = resolveCodexSessionRefs(positional, flags)[0];
+    console.log(`# Codex Session ${session.id}`);
+    console.log("");
+    console.log("Provider: Codex");
+    console.log(`Path: ${session.file}`);
+    console.log(`CWD: ${session.cwd || "(unknown)"}`);
+    console.log(`Title: ${session.title}`);
+    console.log(`Messages: ${session.message_count}`);
+    console.log(`Roles: ${Object.entries(session.role_counts).map(([role, count]) => `${role}:${count}`).join(", ")}`);
+    console.log(`Role quality: ${session.role_quality}`);
+    console.log("");
+    console.log(`First user: ${excerpt(session.first_user, 260) || "(none)"}`);
+    console.log(`Latest user: ${excerpt(session.last_user, 260) || "(none)"}`);
+    return;
+  }
+  if (subcommand === "normalize") {
+    if (!flags.out) throw new Error("sessions normalize requires --out <messages.jsonl>");
+    const sessions = resolveCodexSessionRefs(positional, flags);
+    const normalized = normalizedRowsForSessions(sessions);
+    write(path.resolve(flags.out), `${normalized.map((row) => JSON.stringify(row)).join("\n")}\n`);
+    console.log(`Wrote ${normalized.length} normalized messages to ${path.relative(process.cwd(), path.resolve(flags.out))}`);
+    return;
+  }
+  throw new Error(`Unknown sessions subcommand: ${subcommand}`);
+}
+
+function runSessionCompression(refs, flags) {
+  const sessions = resolveCodexSessionRefs(refs, flags);
+  const files = sessions.map((session) => session.file);
+  const messages = sessions.flatMap((session) => session.messages).map((message, index) => ({ ...message, index }));
+  if (!messages.length) throw new Error("Selected sessions did not contain user/assistant messages.");
+  const title = flags.title || (sessions.length === 1 ? sessionTitle(sessions[0]) : "Selected Codex Sessions");
+  return writeCompressionRun({
+    messages,
+    files,
+    flags: { ...flags, title },
+    sourceLabel: `${sessions.length} Codex session${sessions.length === 1 ? "" : "s"}`
+  });
+}
+
+function sessionTitle(session) {
+  return session.title ? `Codex Session: ${session.title}` : `Codex Session: ${session.id.slice(0, 8)}`;
+}
+
+function compressSessionCommand(argv) {
+  const { positional, flags } = parseArgs(argv);
+  if (!positional.length || !flags.out) throw new Error("compress-session requires <session-id-or-jsonl...> and --out <run-dir>");
+  runSessionCompression(positional, flags);
+}
+
+function createSessionCommand(argv) {
+  const { positional, flags } = parseArgs(argv);
+  if (!positional.length || !flags.out) throw new Error("create-session requires <session-id-or-jsonl...> and --out <name.loopthing>");
+  const outFile = flags.out.endsWith(".loopthing") ? flags.out : `${flags.out}.loopthing`;
+  const runDir = path.resolve(flags["run-dir"] || path.join("tmp", `${slugify(path.basename(outFile, ".loopthing"))}-run`));
+  const compression = runSessionCompression(positional, { ...flags, out: runDir });
+  scoreRun(compression.outDir);
+  sealRun(compression.outDir, outFile);
+  console.log(`Done. Open ${outFile} or inspect ${path.relative(process.cwd(), compression.outDir)}`);
+}
+
+function writeCompressionRun({ messages, files, flags, sourceLabel }) {
   const outDir = path.resolve(flags.out);
-  const title = flags.title || titleFromInputs(inputs);
+  const title = flags.title || titleFromInputs(files);
   const metadata = sourceMetadata(messages, files);
   const reasoning = renderReasoning({ title, messages, metadata });
   const handoff = renderAgentHandoff({ title, messages, metadata });
@@ -1115,8 +1741,15 @@ function runCompression(inputs, flags) {
   write(path.join(outDir, "prompts", "compression-prompt.md"), compressionPrompt());
   write(path.join(outDir, "variants", "generic.md"), genericSummary(messages, metadata));
   write(path.join(outDir, "manifest.loop"), manifestForRun(title, metadata));
-  console.log(`Compressed ${metadata.message_count} messages from ${files.length} file${files.length === 1 ? "" : "s"} into ${path.relative(process.cwd(), outDir)}`);
+  console.log(`Compressed ${metadata.message_count} messages from ${sourceLabel || `${files.length} file${files.length === 1 ? "" : "s"}`} into ${path.relative(process.cwd(), outDir)}`);
   return { outDir, title, metadata };
+}
+
+function runCompression(inputs, flags) {
+  const files = walkInputs(inputs);
+  if (!files.length) throw new Error("No .md, .txt, .json, or .jsonl transcript files found.");
+  const messages = files.flatMap(parseFile).map((message, index) => ({ ...message, index }));
+  return writeCompressionRun({ messages, files, flags });
 }
 
 function compressCommand(argv) {
@@ -1144,6 +1777,7 @@ function scoreRun(runDir) {
   const metadata = fs.existsSync(metadataFile) ? JSON.parse(fs.readFileSync(metadataFile, "utf8")) : null;
   const noMangledMarkdown = !/(^|\n)-?\s*# .+## |(^|\n)-\s*### /.test(reasoning + "\n" + handoff);
   const noGenericProductSpine = !/## Product Spine[\s\S]{0,500}LoopThing compresses decisions/i.test(handoff);
+  const noGenericOutcomeBoilerplate = !/## Outcome[\s\S]{0,600}Preserve the current thesis, boundaries, killed branches, risks, and next evidence gate/i.test(reasoning + "\n" + handoff);
   const score = [
     ["Required sections", sectionCount(reasoning) >= 12],
     ["Current thesis present", /## Current thesis[\s\S]+\S/.test(reasoning)],
@@ -1154,7 +1788,7 @@ function scoreRun(runDir) {
     ["Risks present", /## Where the explanation might be wrong[\s\S]*- /.test(reasoning)],
     ["Next action present", /## Next action[\s\S]*- /.test(reasoning)],
     ["No mangled markdown snippets", noMangledMarkdown],
-    ["No generic product-spine boilerplate in handoff", noGenericProductSpine],
+    ["No generic handoff boilerplate", noGenericProductSpine && noGenericOutcomeBoilerplate],
     ["Start file present", fs.existsSync(path.join(runDir, "START_HERE.md"))],
     ["Agent handoff present", Boolean(handoff)],
     ["Metadata present", Boolean(metadata)]
@@ -1276,6 +1910,9 @@ function main() {
     if (!command || command === "help" || command === "--help") usage();
     else if (command === "create") createCommand(rest);
     else if (command === "compress") compressCommand(rest);
+    else if (command === "create-session") createSessionCommand(rest);
+    else if (command === "compress-session") compressSessionCommand(rest);
+    else if (command === "sessions") sessionsCommand(rest);
     else if (command === "score") scoreCommand(rest);
     else if (command === "compare") compareCommand(rest);
     else if (command === "seal") sealCommand(rest);
