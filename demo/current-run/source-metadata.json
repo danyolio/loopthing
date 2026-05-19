@@ -1,6 +1,6 @@
 {
   "format": "loopthing/source-metadata-v0.1",
-  "created": "2026-05-19T10:25:02.392Z",
+  "created": "2026-05-19T10:28:22.172Z",
   "message_count": 17,
   "role_counts": {
     "user": 16,
@@ -25,8 +25,8 @@
     {
       "path": "README.md",
       "kind": "orientation",
-      "bytes": 3511,
-      "sha256": "6a6f7a9f2d942c9462d5aa9b00481f84cbece8eac1d38d7b46278e0ecf0d193e"
+      "bytes": 3832,
+      "sha256": "b5a449a8eaaf4d1bf78f4131b51d2fb941072ae6d15e41fae417570beeb806b2"
     },
     {
       "path": "START_HERE.md",

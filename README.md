@@ -2,11 +2,17 @@
 
 LoopThing compresses messy AI work into a handoff artifact for the next chat, agent, collaborator, or future self.
 
-It is not a transcript viewer and not "summarize this chat." It extracts the load-bearing shape of a project: intent, problem, critical messages, framing shifts, discarded branches, risks, decisions, and the next action.
+It is an exportable `.loopthing` container plus a local CLI that extracts the load-bearing shape of a project: intent, problem, critical messages, framing shifts, discarded branches, risks, decisions, and the next action.
 
 ## Why It Exists
 
-AI work now happens across long chats, Codex sessions, notes, prototypes, screenshots, and docs. The gold is usually in the turns: the moment the framing changed, the branch that died, the reason a decision stuck.
+Have you ever:
+
+- gotten an AI-generated doc from someone and wished you knew what prompts, pivots, and rejected ideas led there?
+- seen a strong AI-built prototype and wondered how the person actually made it?
+- written "summarize this chat" to share your AI project, only to get something that missed the gold?
+
+AI work now happens across long chats, Codex sessions, notes, prototypes, screenshots, and docs. The useful context is usually in the turns: the moment the framing changed, the branch that died, the reason a decision stuck.
 
 LoopThing turns that mess into something sendable.
 
@@ -32,7 +38,7 @@ That command creates:
 - `demo/current-run/compression-score.md`: structural and readability smoke checks.
 - `demo/loopthing-clean.loopthing`: a sealed portable container with MIME marker `application/vnd.loopthing+zip`.
 
-The renderer now builds a project model before writing Markdown, so it tries to produce a readable project-specific handoff instead of chopped transcript snippets.
+The renderer builds a project model before writing Markdown, so it tries to produce a readable project-specific handoff instead of chopped transcript snippets.
 
 The latest checked-in demo was regenerated from the cleaned repo and compresses 17 messages across 9 source files. Its structural score is 13/13. That score is a shape check, not a claim that the reasoning is perfect; the recipient test is still the real bar.
 
