@@ -10,6 +10,7 @@ const qualityRunDir = path.join(root, "tmp", "quality-smoke-run");
 const codexRunDir = path.join(root, "tmp", "codex-chat-smoke-run");
 const claudeRunDir = path.join(root, "tmp", "claude-code-smoke-run");
 const staleThesisRunDir = path.join(root, "tmp", "stale-thesis-smoke-run");
+const dictatedProblemRunDir = path.join(root, "tmp", "dictated-problem-smoke-run");
 const timestampRunDir = path.join(root, "tmp", "timestamp-chat-smoke-run");
 const codexSessionRunDir = path.join(root, "tmp", "codex-session-smoke-run");
 const codexSessionArchive = path.join(root, "tmp", "codex-session-smoke.loopthing");
@@ -25,6 +26,7 @@ fs.rmSync(qualityRunDir, { recursive: true, force: true });
 fs.rmSync(codexRunDir, { recursive: true, force: true });
 fs.rmSync(claudeRunDir, { recursive: true, force: true });
 fs.rmSync(staleThesisRunDir, { recursive: true, force: true });
+fs.rmSync(dictatedProblemRunDir, { recursive: true, force: true });
 fs.rmSync(timestampRunDir, { recursive: true, force: true });
 fs.rmSync(codexSessionRunDir, { recursive: true, force: true });
 fs.rmSync(codexSessionCreateRunDir, { recursive: true, force: true });
@@ -56,6 +58,7 @@ run(["compress", "test/fixtures/project-docs.md", "--out", qualityRunDir, "--tit
 run(["compress", "test/fixtures/codex-project-chat.md", "--out", codexRunDir, "--title", "Codex Project Chat Test"]);
 run(["compress", "test/fixtures/claude-code.jsonl", "--out", claudeRunDir, "--title", "Claude Code Chat Test"]);
 run(["compress", "test/fixtures/old-thesis-source.md", "test/fixtures/claude-code.jsonl", "--out", staleThesisRunDir, "--title", "Stale Thesis Test"]);
+run(["compress", "test/fixtures/dictated-problem-chat.md", "--out", dictatedProblemRunDir, "--title", "Dictated Problem Test"]);
 run(["compress", "test/fixtures/timestamp-chat.md", "--out", timestampRunDir, "--title", "Timestamp Chat Test"]);
 const fakeSessionDir = path.join(fakeCodexHome, "sessions", "2026", "05", "20");
 fs.mkdirSync(fakeSessionDir, { recursive: true });
@@ -84,6 +87,7 @@ const required = [
   path.join(codexSessionRunDir, "reasoning.md"),
   path.join(claudeRunDir, "reasoning.md"),
   path.join(staleThesisRunDir, "reasoning.md"),
+  path.join(dictatedProblemRunDir, "reasoning.md"),
   path.join(normalizedSessionRunDir, "reasoning.md"),
   path.join(selfRunDir, "START_HERE.md"),
   path.join(selfRunDir, "reasoning.md"),
@@ -160,6 +164,16 @@ if (!staleThesisMatch[1].includes("graduate-to-NDIS-workforce bridge")) {
 }
 if (staleThesisMatch[1].includes("automated claims processing")) {
   throw new Error("Stale source-doc thesis should not override recent chat thesis");
+}
+
+const dictatedProblemReasoning = fs.readFileSync(path.join(dictatedProblemRunDir, "reasoning.md"), "utf8");
+const dictatedProblemMatch = dictatedProblemReasoning.match(/## Problem\n\n([\s\S]*?)\n\n## Current thesis/);
+if (!dictatedProblemMatch) throw new Error("Dictated problem fixture should include problem section");
+if (!dictatedProblemMatch[1].includes("Decide where psych students and psychology graduates legitimately fit in NDIS work")) {
+  throw new Error("Dictated problem should synthesize the decision rather than paste the voice transcript");
+}
+if (/to to to|like, which role|thirty of your students/i.test(dictatedProblemMatch[1])) {
+  throw new Error("Dictated problem should not preserve disfluent transcript text");
 }
 
 const timestampReasoning = fs.readFileSync(path.join(timestampRunDir, "reasoning.md"), "utf8");

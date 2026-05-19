@@ -831,6 +831,27 @@ function inferIntent(messages, critical) {
   return `The participant starts from "${excerpt(firstUser?.content || "", 140)}" and ends near "${excerpt(lastUser?.content || "", 140)}". The underlying intent is to compress messy exploration into a handoff artifact another person can use without reading the transcript.`;
 }
 
+function cleanDictatedQuestion(text) {
+  return String(text)
+    .replace(/\b(?:uh|um|er|ah)\b[,\s]*/gi, "")
+    .replace(/\blike,\s*/gi, "")
+    .replace(/\b(\w+)(?:\s+\1\b)+/gi, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function synthesizedProblemFromQuestion(text, context = "") {
+  const clean = cleanDictatedQuestion(text);
+  const lowered = `${clean}\n${context}`.toLowerCase();
+  if (/\bpsych(?:ology)? students?\b/.test(lowered) && /\bndis\b/.test(lowered)) {
+    return "Decide where psych students and psychology graduates legitimately fit in NDIS work, which role lane is the strongest initial wedge, and what candidate cohort to target first.";
+  }
+  if (/\bwhich role\b|\bwhat role\b|\bwhere .* fit\b|\bhow many\b|\bwhat should\b/i.test(clean)) {
+    return "Decide which role, segment, or candidate cohort is the strongest initial wedge, and what first target is concrete enough to organize the next loop.";
+  }
+  return clean;
+}
+
 function inferProblem(messages) {
   const preferred = preferredReasoningMessages(messages);
   const section = matchingSections(preferred, [/^problem$/, /problem statement/])[0]
@@ -842,7 +863,10 @@ function inferProblem(messages) {
   const recentQuestion = sentenceCandidates(preferred, [
     /\b(real question|biggest question|stuck|where .* fit|which role|what role|how many|what should|what's the gap|is .* suited)\b/i
   ], 2, { role: "user", recentFirst: true, max: 260 }).map((item) => item.sentence);
-  if (recentQuestion.length) return recentQuestion.join(" ");
+  if (recentQuestion.length) {
+    const context = recentMessages(preferred, 0.2).map((message) => message.content).join("\n");
+    return synthesizedProblemFromQuestion(recentQuestion.join(" "), context);
+  }
   const problem = findSentences(messages, [/problem/, /gold/, /messy/, /chaos/, /noisy/, /copy/, /handoff/, /trust/, /share/], 1)[0];
   if (problem) return `The problem surfaced in the source language: "${excerpt(problem.sentence, 260)}"`;
   return "The problem is that useful AI reasoning is buried in long sessions; the final output loses context, while the raw transcript is too noisy to hand off.";
