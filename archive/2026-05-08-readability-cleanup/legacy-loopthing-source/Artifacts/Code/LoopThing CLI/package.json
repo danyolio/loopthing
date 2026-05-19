@@ -1,0 +1,14 @@
+{
+  "name": "loopthing",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "loopthing": "./bin/loopthing.mjs"
+  },
+  "scripts": {
+    "test:product": "node test/product-smoke.mjs",
+    "loop:list": "node loops/company/scripts/ralph/loopthing-ralph.mjs list",
+    "demo:create": "node bin/loopthing.mjs create test/fixtures/codex-project-chat.md --out tmp/current-chat.loopthing --run-dir tmp/current-chat-run --title \"Current Codex Project Chat\""
+  }
+}

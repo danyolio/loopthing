@@ -1,0 +1,43 @@
+# Product Progress
+
+## 2026-05-08 - product-001
+
+- Status: pass
+- Note: Created roadmap. Next work is actual compression harness, not more viewer polish.
+---
+
+## 2026-05-08 - product-002
+
+- Status: pass
+- Note: Built `bin/loopthing.mjs`, a local CLI that reads transcript files and writes `reasoning.md`, `source-metadata.json`, prompt, baseline variant, score file, and sealed `.loopthing` archives. Added `test/product-smoke.mjs`.
+---
+
+## 2026-05-08 - product-003
+
+- Status: pass
+- Note: Added `loopthing score`, `compression-score.md`, and `scores.jsonl` tracking. This is a local scoring harness; the recipient comprehension test is still run manually from the generated rubric.
+---
+
+## 2026-05-08 - product-004
+
+- Status: pass
+- Note: Added `loopthing create` so normal use is one command. Wrote `docs/CLI_USAGE.md` and updated the smoke test.
+---
+
+## 2026-05-08 - product-005
+
+- Status: pass
+- Note: Improved section-aware extraction. The compressor now prefers explicit markdown sections for intent, problem, discarded branches, risks, asks, and next action. Added `test/fixtures/project-docs.md` regression coverage and reran the project-folder LoopThing.
+---
+
+## 2026-05-08 - product-006
+
+- Status: pass
+- Note: Added Codex-project chat awareness: source-kind metadata, source-shape output, recent user directions, chat-prioritized critical messages, and `test/fixtures/codex-project-chat.md`. Ran `tmp/current-chat.loopthing` and `tmp/loopthing-folder.loopthing`.
+---
+
+## 2026-05-08 - product-007
+
+- Status: pass
+- Note: Added `agent-handoff.md` as a first-class output. The product now creates paste-ready context for a fresh AI session, not just a readable compression artifact.
+---

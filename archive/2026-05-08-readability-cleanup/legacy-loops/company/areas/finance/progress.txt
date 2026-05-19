@@ -1,0 +1,13 @@
+# Finance Progress
+
+## 2026-05-08 - finance-001
+
+- Status: pass
+- Note: Created the MRR ladder with solo-feasibility notes.
+---
+
+## 2026-05-08 - finance-002
+
+- Status: pass
+- Note: Added `revenue-model.csv` and `REVENUE_MODEL.md`.
+---

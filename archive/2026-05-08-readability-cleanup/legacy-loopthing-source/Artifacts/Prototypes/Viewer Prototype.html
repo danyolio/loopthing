@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LoopThing Handoff Browser Example</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      background: #f6f6f2;
+      color: #191917;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    nav {
+      padding: 18px;
+      border-right: .5px solid rgba(0,0,0,.24);
+      background: #edede7;
+    }
+    main { padding: 32px; }
+    button {
+      width: 100%;
+      margin-bottom: 8px;
+      padding: 9px 10px;
+      border: .5px solid rgba(0,0,0,.2);
+      border-radius: 6px;
+      background: white;
+      text-align: left;
+      font: inherit;
+    }
+    pre {
+      white-space: pre-wrap;
+      padding: 16px;
+      border: .5px solid rgba(0,0,0,.22);
+      background: white;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <button data-file="Generated Explainers/Agent Handoff.md">Agent Handoff</button>
+    <button data-file="Artifacts/Docs/Product Spine.md">Product Spine</button>
+    <button data-file="Generated Explainers/Problem Statement.md">Problem Statement</button>
+    <button data-file="Metadata/Chat Messages.md">Source Metadata</button>
+    <button data-file="Thinking/Journey Map.md">Journey Map</button>
+    <button data-file="Artifacts/Docs/Pressure Test.md">Pressure Test</button>
+  </nav>
+  <main>
+    <h1 id="title">Agent Handoff</h1>
+    <pre id="content">A .loopthing container starts with paste-ready context for the next chat, agent, collaborator, or future self.</pre>
+  </main>
+  <script>
+    const files = {
+      "Generated Explainers/Agent Handoff.md": "Paste this into a fresh AI session so it inherits the work.",
+      "Artifacts/Docs/Product Spine.md": "LoopThing compresses decisions, direction, and thinking into a handoff artifact.",
+      "Generated Explainers/Problem Statement.md": "Raw chats keep everything. Summaries flatten everything.",
+      "Metadata/Chat Messages.md": "100 source messages across 86 files became one handoff.",
+      "Thinking/Journey Map.md": "The journey map shows what got killed and what survived.",
+      "Artifacts/Docs/Pressure Test.md": "The score is structural. The real test is whether the next session continues correctly."
+    };
+    document.querySelectorAll("button").forEach(button => {
+      button.addEventListener("click", () => {
+        document.getElementById("title").textContent = button.dataset.file;
+        document.getElementById("content").textContent = files[button.dataset.file];
+      });
+    });
+  </script>
+</body>
+</html>

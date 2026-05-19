@@ -1,0 +1,13 @@
+# Life Design Progress
+
+## 2026-05-08 - life-001
+
+- Status: pass
+- Note: Created solo operating model and life-design constraints.
+---
+
+## 2026-05-08 - life-002
+
+- Status: pass
+- Note: Added `SUPPORT_BOUNDARIES.md` to keep the company from becoming consulting with a file extension.
+---

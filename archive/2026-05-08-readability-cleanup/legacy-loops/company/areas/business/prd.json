@@ -1,0 +1,47 @@
+{
+  "project": "LoopThing",
+  "branchName": "ralph/business-plan",
+  "area": "business",
+  "description": "Clarify LoopThing's business wedge, one-page plan, packaging, market plan, and revenue progression.",
+  "userStories": [
+    {
+      "id": "business-001",
+      "title": "Write the one-page business plan",
+      "description": "As a solo founder, I need one crisp page explaining the customer, wedge, product, market, pricing, and proof path.",
+      "acceptanceCriteria": [
+        "Create areas/business/artifacts/BUSINESS_PLAN.md",
+        "Include wedge, ICP, market, product, pricing, moat, GTM, risks, and next proof",
+        "Keep it skimmable under 900 words"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Seeded in this loop."
+    },
+    {
+      "id": "business-002",
+      "title": "Validate the five-minute handoff test",
+      "description": "As a founder, I need evidence that recipients can inherit compressed reasoning faster than reading transcripts.",
+      "acceptanceCriteria": [
+        "Define participant profile and scoring rubric",
+        "Run 20 conversations through at least two compression variants",
+        "Log pass/fail results and decide whether to continue"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Protocol written in FIVE_MINUTE_HANDOFF_TEST.md. Still not passed because the 20-conversation test has not run."
+    },
+    {
+      "id": "business-003",
+      "title": "Decide whether the name survives",
+      "description": "As a founder, I need to know whether LoopThing feels charming, unserious, or strategically useful before public launch.",
+      "acceptanceCriteria": [
+        "Test LoopThing against 5 alternate names",
+        "Gather feedback from 10 AI-native builders",
+        "Record decision and rationale"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

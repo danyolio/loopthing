@@ -1,0 +1,34 @@
+{
+  "project": "LoopThing",
+  "branchName": "ralph/marketing-wedge",
+  "area": "marketing",
+  "description": "Create the first distribution loop around private compression challenges and proof artifacts.",
+  "userStories": [
+    {
+      "id": "marketing-001",
+      "title": "Create go-to-market plan",
+      "description": "As a founder, I need a market plan that gets the first 50 high-signal users without pretending this is already a broad category.",
+      "acceptanceCriteria": [
+        "Create areas/marketing/artifacts/GO_TO_MARKET.md",
+        "Include target users, channels, proof assets, first 50 users, and launch sequence",
+        "Avoid generic launch advice"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Seeded in this loop."
+    },
+    {
+      "id": "marketing-002",
+      "title": "Write compression challenge invite",
+      "description": "As a founder, I need the message that asks AI-native builders to bring one messy chat and test whether LoopThing finds the gold.",
+      "acceptanceCriteria": [
+        "Draft invite copy",
+        "Include qualification criteria",
+        "Include the exact ask and time commitment"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Created COMPRESSION_CHALLENGE_INVITE.md with short DM, qualification criteria, ask, and hook."
+    }
+  ]
+}

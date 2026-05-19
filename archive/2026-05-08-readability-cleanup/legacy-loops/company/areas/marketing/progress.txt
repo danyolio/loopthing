@@ -1,0 +1,13 @@
+# Marketing Progress
+
+## 2026-05-08 - marketing-001
+
+- Status: pass
+- Note: Created the GTM plan around private compression challenge proof.
+---
+
+## 2026-05-08 - marketing-002
+
+- Status: pass
+- Note: Wrote `COMPRESSION_CHALLENGE_INVITE.md`.
+---

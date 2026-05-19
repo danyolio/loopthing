@@ -1,0 +1,47 @@
+{
+  "project": "LoopThing",
+  "branchName": "ralph/brand-design",
+  "area": "design",
+  "description": "Design a trust-winning LoopThing brand system using explicit Refero-style design rules future agents can follow.",
+  "userStories": [
+    {
+      "id": "design-001",
+      "title": "Create brand strategy",
+      "description": "As a founder, I need a brand plan that explains how LoopThing wins trust and avoids looking like a vibe-coded AI dashboard.",
+      "acceptanceCriteria": [
+        "Create areas/design/artifacts/BRAND_PLAN.md",
+        "Explain brand promise, trust signals, visual stance, tone, and anti-patterns",
+        "Reference the Refero-style DESIGN.md workflow"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Seeded in this loop."
+    },
+    {
+      "id": "design-002",
+      "title": "Create DESIGN.md",
+      "description": "As an agent building LoopThing UI, I need concrete colors, typography, spacing, components, and no-go rules.",
+      "acceptanceCriteria": [
+        "Create areas/design/artifacts/DESIGN.md",
+        "Include palette, type, layout, components, motion, screenshots, and anti-patterns",
+        "Make the brand feel editorial, exact, and trustworthy"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Seeded in this loop."
+    },
+    {
+      "id": "design-003",
+      "title": "Build visual reference board",
+      "description": "As a founder, I need 5-8 visual references and why each applies to LoopThing.",
+      "acceptanceCriteria": [
+        "Use styles.refero.design or curated screenshots",
+        "Save references and notes under design artifacts",
+        "Extract concrete style rules rather than vague mood words"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Created VISUAL_REFERENCE_BOARD.md with the extraction method and reference directions. Still open until concrete Refero screenshots/references are collected."
+    }
+  ]
+}

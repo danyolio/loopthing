@@ -1,0 +1,8 @@
+# Website Progress
+
+## 2026-05-08 - website-001
+
+- Status: pass
+- Note: Created landing page PRD.
+---
+

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-label="LoopThing compression loop">
+  <rect width="1400" height="900" fill="#10110f"/>
+  <rect x="54" y="54" width="1292" height="792" rx="22" fill="#181917" stroke="#efeee8" stroke-opacity=".22"/>
+  <text x="92" y="132" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="64" font-weight="780" fill="#efeee8">Compression loop</text>
+  <text x="96" y="180" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#a5a69f">run -> inspect misses -> improve compressor -> run again</text>
+
+  <circle cx="700" cy="470" r="242" fill="none" stroke="#efeee8" stroke-opacity=".25" stroke-width="3"/>
+  <path d="M884 312 A242 242 0 0 1 934 566" fill="none" stroke="#68c89d" stroke-width="10" stroke-linecap="round"/>
+  <path d="M856 630 A242 242 0 0 1 536 660" fill="none" stroke="#8eaff4" stroke-width="10" stroke-linecap="round"/>
+  <path d="M456 598 A242 242 0 0 1 484 306" fill="none" stroke="#dfad61" stroke-width="10" stroke-linecap="round"/>
+  <path d="M552 250 A242 242 0 0 1 785 242" fill="none" stroke="#ef7c74" stroke-width="10" stroke-linecap="round"/>
+
+  <g font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-weight="750" font-size="29">
+    <rect x="560" y="218" width="280" height="90" rx="16" fill="#222c44" stroke="#8eaff4"/>
+    <text x="638" y="273" fill="#dbe6ff">READ</text>
+
+    <rect x="862" y="415" width="250" height="90" rx="16" fill="#44310f" stroke="#dfad61"/>
+    <text x="890" y="470" fill="#ffe3ae">COMPRESS</text>
+
+    <rect x="556" y="648" width="288" height="90" rx="16" fill="#183626" stroke="#68c89d"/>
+    <text x="604" y="703" fill="#cbf7de">HANDOFF</text>
+
+    <rect x="286" y="415" width="250" height="90" rx="16" fill="#3d2021" stroke="#ef7c74"/>
+    <text x="356" y="470" fill="#ffd3cf">SEAL</text>
+  </g>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" fill="#efeee8">
+    <text x="514" y="354">read chats and project files</text>
+    <text x="746" y="545">extract load-bearing moves</text>
+    <text x="500" y="606">paste context into next session</text>
+    <text x="352" y="545">seal portable file</text>
+  </g>
+
+  <rect x="104" y="736" width="1192" height="70" rx="14" fill="#efeee8"/>
+  <text x="138" y="781" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#10110f">your next session starts warm</text>
+</svg>

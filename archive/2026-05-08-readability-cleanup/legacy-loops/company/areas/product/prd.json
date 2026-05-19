@@ -1,0 +1,100 @@
+{
+  "project": "LoopThing",
+  "branchName": "ralph/product-roadmap",
+  "area": "product",
+  "description": "Define the v0 product shape and the code loops needed to prove compression-first handoff.",
+  "userStories": [
+    {
+      "id": "product-001",
+      "title": "Create product roadmap",
+      "description": "As a founder, I need a product plan that starts with compression proof and only then earns viewer/container work.",
+      "acceptanceCriteria": [
+        "Create areas/product/artifacts/PRODUCT_ROADMAP.md",
+        "Include v0, v1, and what not to build yet",
+        "Tie roadmap to compression-test evidence"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Seeded in this loop."
+    },
+    {
+      "id": "product-002",
+      "title": "Build transcript compression harness",
+      "description": "As a founder, I need a local CLI command that runs the structured LoopThing prompt on exported chats.",
+      "acceptanceCriteria": [
+        "Implement loopthing compress input/output skeleton",
+        "Write test fixtures for one transcript",
+        "Produce reasoning.md and source-metadata.json"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Built dependency-free CLI in bin/loopthing.mjs with compress, score, compare, and seal commands. Smoke test passes."
+    },
+    {
+      "id": "product-003",
+      "title": "Build scoring harness",
+      "description": "As a founder, I need creator and recipient scoring so compression quality is measurable.",
+      "acceptanceCriteria": [
+        "Implement score template",
+        "Generate compression-score.md",
+        "Track results across runs"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Implemented `loopthing score`, writes compression-score.md, and appends scores.jsonl history. Recipient scoring is still a manual rubric in the generated score file."
+    },
+    {
+      "id": "product-004",
+      "title": "Simplify CLI happy path",
+      "description": "As a user, I should not need to run compress, score, compare, and seal just to create a LoopThing.",
+      "acceptanceCriteria": [
+        "Add one command that compresses, scores, and seals",
+        "Document the normal path separately from advanced/debug commands",
+        "Cover the command in the smoke test"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "Added `loopthing create`, documented CLI usage in docs/CLI_USAGE.md, and covered it in test/product-smoke.mjs."
+    },
+    {
+      "id": "product-005",
+      "title": "Improve section-aware extraction quality",
+      "description": "As a user compressing project folders and docs, I need killed paths, risks, asks, and next actions to come from explicit reasoning sections instead of random keyword matches.",
+      "acceptanceCriteria": [
+        "Prefer explicit markdown sections for intent, problem, discarded branches, risks, asks, and next action",
+        "Add a regression fixture for project-doc style inputs",
+        "Rerun LoopThing on the project folder and verify cleaner discarded branches"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "Added markdown section parsing, project-doc regression fixture, cleaner discarded-branch/risk/ask/next-action extraction, and reran the folder compression."
+    },
+    {
+      "id": "product-006",
+      "title": "Handle real Codex project chats",
+      "description": "As a user compressing a real ChatGPT/Codex project, I need the artifact to distinguish chat transcript, prompts, Ralph loops, generated explainers, and company docs.",
+      "acceptanceCriteria": [
+        "Add source-kind metadata and source-shape output",
+        "Add a Codex-project chat fixture based on this conversation",
+        "Reserve critical-message slots for real chat user directions when chat transcripts are present",
+        "Run the product on the current chat fixture and combined project folder"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "Added source_kind classification, Source shape and Recent user directions sections, chat-prioritized critical-message selection, codex-project-chat fixture, and generated current-chat/folder outputs."
+    },
+    {
+      "id": "product-007",
+      "title": "Emit agent handoff artifact",
+      "description": "As a user handing work to a new AI session or collaborator, I need a paste-ready context brief that carries the decisions, killed branches, risks, and next action.",
+      "acceptanceCriteria": [
+        "Write agent-handoff.md on every compression run",
+        "Include product spine, source shape, recent user directions, critical context, killed branches, risks, next action, asks, and operating instruction",
+        "Add smoke-test coverage and scoring checklist entry"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "Added agent-handoff.md generation, manifest entry, score checklist, smoke-test assertions, pressure-test docs, and viewer/docs references."
+    }
+  ]
+}

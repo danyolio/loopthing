@@ -1,0 +1,13 @@
+# Design Progress
+
+## 2026-05-08 - design-001/design-002
+
+- Status: pass
+- Note: Created brand plan and initial DESIGN.md. A future loop should gather concrete Refero references and screenshots.
+---
+
+## 2026-05-08 - design-003
+
+- Status: partial
+- Note: Added `VISUAL_REFERENCE_BOARD.md` with the Refero extraction method and target reference directions. Story remains open until screenshot-backed concrete references are pulled.
+---

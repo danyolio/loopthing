@@ -1,0 +1,101 @@
+format: loopthing/container-v0.7
+title: LoopThing Project Handoff
+kind: reasoning-handoff
+created: 2026-05-08T00:00:00+10:00
+entry: Generated Explainers/Agent Handoff.md
+origin: compressed LoopThing project workspace
+mimetype: application/vnd.loopthing+zip
+tagline: Your next session starts warm.
+
+summary:
+  A .loopthing is a compressed reasoning artifact for AI work:
+  decisions, direction, critical turns, discarded branches,
+  risks, asks, next actions, and supporting artifacts that
+  help someone or some agent continue without reading the transcript.
+
+generator:
+  input: messy AI chat session
+  output: compressed reasoning artifact and supporting handoff materials
+  promise: help a recipient land where the creator landed, fast
+
+lineage:
+  - Started as a broad file-format demo for AI thought history.
+  - Tested viewer-first, repo-origin, and rich-container branches.
+  - Killed those branches as the center because they do not prove compression quality.
+  - Narrowed the wedge to handoff: helping the next chat, collaborator, or agent inherit the work.
+  - Added `agent-handoff.md` as the most important generated output.
+
+principles:
+  - `agent-handoff.md` is the public entrypoint.
+  - Compression quality is the product.
+  - Discarded ideas prevent recipients from re-proposing dead branches.
+  - The score is structural only; public copy must be reconciled against `docs/PUBLIC_COPY.md`.
+
+files:
+  - Metadata/Chat Messages.md
+  - Prompts/Master Prompt.md
+  - Prompts/Initial Prompt.md
+  - Prompts/Follow Ups.md
+  - Prompts/Prompt Change Log.md
+  - Thinking/Process Narrative.md
+  - Thinking/Stress Test.md
+  - Thinking/Product Direction.md
+  - Thinking/Compression Test Protocol.md
+  - Thinking/Wedge Persona.md
+  - Thinking/Artifact Contract.md
+  - Thinking/First Product.md
+  - Thinking/Distribution Wedge.md
+  - Thinking/30 Day Plan.md
+  - Thinking/Pressure Test Improvements.md
+  - Thinking/Journey Map.md
+  - Thinking/Discarded Ideas.md
+  - Drafts/Rough Drafts.md
+  - Generated Explainers/Problem Statement.md
+  - Generated Explainers/Solution Overview.md
+  - Generated Explainers/How It Works.md
+  - Generated Explainers/Relevant Context.md
+  - Generated Explainers/Share Brief.md
+  - Generated Explainers/Brand Strategy.md
+  - Generated Explainers/Actual Product CLI.md
+  - Generated Explainers/Product Quality Loop.md
+  - Generated Explainers/Codex Project Chat Loop.md
+  - Generated Explainers/Agent Handoff.md
+  - Artifacts/Media/README.md
+  - Artifacts/Media/reasoning-handoff.svg
+  - Artifacts/Media/compression-loop.svg
+  - Artifacts/Media/container-cutaway.svg
+  - Artifacts/Screenshots/README.md
+  - Artifacts/Screenshots/01-meta-artifact-stage.png
+  - Artifacts/Screenshots/02-meta-chat-metadata.png
+  - Artifacts/Screenshots/03-meta-journey-map.png
+  - Artifacts/Screenshots/01-package-start.png
+  - Artifacts/Screenshots/02-lineage-track-changes.png
+  - Artifacts/Screenshots/03-thought-graph.png
+  - Artifacts/Screenshots/04-slide-artifact.png
+  - Artifacts/Screenshots/05-viewer-code-artifact.png
+  - Artifacts/Screenshots/06-generated-explainer.png
+  - Artifacts/Screenshots/archive/2026-04-30-before-viewer-refresh/README.md
+  - Artifacts/Screenshots/archive/2026-04-30-before-viewer-refresh/01-package-start.png
+  - Artifacts/Screenshots/archive/2026-04-30-before-viewer-refresh/02-lineage-track-changes.png
+  - Artifacts/Screenshots/archive/2026-04-30-before-viewer-refresh/03-thought-graph.png
+  - Artifacts/Screenshots/archive/2026-04-30-before-viewer-refresh/04-slide-artifact.png
+  - Artifacts/Screenshots/archive/2026-04-30-before-viewer-refresh/05-viewer-code-artifact.png
+  - Artifacts/Screenshots/archive/2026-04-30-before-viewer-refresh/06-generated-explainer.png
+  - Artifacts/Docs/Container Format.md
+  - Artifacts/Docs/Public Copy.md
+  - Artifacts/Docs/Product Spine.md
+  - Artifacts/Docs/Project Map.md
+  - Artifacts/Docs/Pressure Test.md
+  - Artifacts/Docs/Improvement Backlog.md
+  - Artifacts/Slides/Problem Solution How It Works.html
+  - Artifacts/Prototypes/Viewer Prototype.html
+  - Artifacts/Code/Viewer Repo/README.md
+  - Artifacts/Code/Viewer Repo/index.html
+  - Artifacts/Code/LoopThing CLI/README.md
+  - Artifacts/Code/LoopThing CLI/package.json
+  - Artifacts/Code/LoopThing CLI/bin/loopthing.mjs
+  - Artifacts/Code/LoopThing CLI/test/product-smoke.mjs
+  - Artifacts/Code/LoopThing CLI/test/fixtures/founder-chat.md
+  - Artifacts/Code/LoopThing CLI/test/fixtures/project-docs.md
+  - Artifacts/Code/LoopThing CLI/test/fixtures/codex-project-chat.md
+  - Artifacts/One Liner.md

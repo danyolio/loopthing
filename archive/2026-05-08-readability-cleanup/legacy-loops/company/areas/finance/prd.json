@@ -1,0 +1,34 @@
+{
+  "project": "LoopThing",
+  "branchName": "ralph/finance-mrr-ladder",
+  "area": "finance",
+  "description": "Model the revenue progression from zero to $10k, $100k, and $1M MRR while preserving a solo-friendly company shape.",
+  "userStories": [
+    {
+      "id": "finance-001",
+      "title": "Create MRR ladder",
+      "description": "As a founder, I need concrete paths to $10k, $100k, and $1M MRR with pricing, customer counts, and operating assumptions.",
+      "acceptanceCriteria": [
+        "Create areas/finance/artifacts/MRR_LADDER.md",
+        "Include $10k, $100k, and $1M MRR milestones",
+        "State solo feasibility at each milestone"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Seeded in this loop."
+    },
+    {
+      "id": "finance-002",
+      "title": "Build a simple revenue spreadsheet",
+      "description": "As a founder, I need a small model for price, conversion, churn, support load, and MRR.",
+      "acceptanceCriteria": [
+        "Create a CSV or XLSX model under finance artifacts",
+        "Include assumptions and sensitivity cases",
+        "Keep it editable without a custom app"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Created revenue-model.csv and REVENUE_MODEL.md."
+    }
+  ]
+}

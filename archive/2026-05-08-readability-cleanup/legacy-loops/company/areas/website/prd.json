@@ -1,0 +1,35 @@
+{
+  "project": "LoopThing",
+  "branchName": "ralph/website",
+  "area": "website",
+  "description": "Plan the website that explains LoopThing quickly and makes the artifact feel real.",
+  "userStories": [
+    {
+      "id": "website-001",
+      "title": "Create landing page PRD",
+      "description": "As a founder, I need a website structure that gets to the aha moment fast and shows the artifact.",
+      "acceptanceCriteria": [
+        "Create areas/website/artifacts/WEBSITE_PRD.md",
+        "Include first viewport, proof sections, screenshots, CTA, and copy rules",
+        "Avoid long essay structure"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Seeded in this loop."
+    },
+    {
+      "id": "website-002",
+      "title": "Build the brand landing page",
+      "description": "As a founder, I need a static landing page that reflects the brand plan and links to the viewer.",
+      "acceptanceCriteria": [
+        "Create a static page or prototype",
+        "Show raw chat to compressed artifact above the fold",
+        "Verify visually in browser"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
+

@@ -1,0 +1,183 @@
+{
+  "format": "loops/product-direction/v0.1",
+  "project": "LoopThing",
+  "question": "What is the strongest product direction hiding in LoopThing right now?",
+  "pinned": "compression-first-handoff",
+  "nodes": [
+    {
+      "id": "root",
+      "type": "frame",
+      "status": "sealed",
+      "title": "Find the strongest product direction",
+      "parent": null
+    },
+    {
+      "id": "compression-first-handoff",
+      "type": "branch",
+      "status": "pinned",
+      "parent": "root",
+      "thesis": "LoopThing is a compressed reasoning artifact for multiplayer AI work.",
+      "critique": "Needs proof that compression reliably finds the gold; without that it collapses.",
+      "regenerated": "Start as a compression test and thin CLI before format, viewer, or SaaS."
+    },
+    {
+      "id": "semantic-decision-layer",
+      "type": "branch",
+      "status": "survivor",
+      "parent": "root",
+      "thesis": "LoopThing becomes a semantic decision layer over git-like history.",
+      "critique": "Strong category language but too abstract for v1.",
+      "regenerated": "Use as strategic north star after compression-first handoff works."
+    },
+    {
+      "id": "personal-retrieval-memory",
+      "type": "branch",
+      "status": "killed",
+      "parent": "root",
+      "thesis": "LoopThing helps users retrieve prior thinking for themselves.",
+      "critique": "Labs can ship memory with better integration; second-brain behavior has weak return loops.",
+      "kill_reason": "Wrong wedge for v1."
+    },
+    {
+      "id": "rich-viewer-container",
+      "type": "branch",
+      "status": "killed",
+      "parent": "root",
+      "thesis": "LoopThing wins as a beautiful viewer and rich portable file.",
+      "critique": "Can make weak compression look impressive; infrastructure before proof is theater.",
+      "kill_reason": "Support surface, not product center."
+    },
+    {
+      "id": "rl-data-corpus",
+      "type": "branch",
+      "status": "killed",
+      "parent": "root",
+      "thesis": "LoopThing creates a corpus useful for RL or model training.",
+      "critique": "Tiny customer set, slow B2B path, and labs have richer native signal.",
+      "kill_reason": "Possible downstream asset, not initial wedge."
+    },
+    {
+      "id": "attack-handoff",
+      "type": "critique",
+      "status": "sealed",
+      "parent": "compression-first-handoff",
+      "thesis": "Compression-first handoff may fail if handoff is rare, compression is unreliable, or recipients only want conclusions.",
+      "critique": "The direction survives only if it becomes testable immediately."
+    },
+    {
+      "id": "compression-test-harness",
+      "type": "regeneration",
+      "status": "pinned",
+      "parent": "attack-handoff",
+      "thesis": "LoopThing v1 is a compression test harness before it is a format product.",
+      "critique": "Unsexy but highest leverage; proves or kills the wedge before infrastructure.",
+      "regenerated": "Run 20 chats through three compression variants and score creator faithfulness plus recipient comprehension."
+    },
+    {
+      "id": "compression-test-protocol",
+      "type": "sealed_artifact",
+      "status": "next",
+      "parent": "compression-test-harness",
+      "thesis": "The next loop is empirical: run the protocol and update the product direction.",
+      "regenerated": "Use LOOP_04_TEST_PROTOCOL.md as the gate for CLI, viewer, and format work."
+    },
+    {
+      "id": "wedge-persona",
+      "type": "regeneration",
+      "status": "pinned",
+      "parent": "compression-test-protocol",
+      "thesis": "The first persona is AI-native technical founders and product builders.",
+      "critique": "Potentially too close to the creator, but fastest source of real chats and handoff pressure.",
+      "regenerated": "Run the first test on founder/builder chats with real cofounder or teammate recipients."
+    },
+    {
+      "id": "artifact-contract",
+      "type": "regeneration",
+      "status": "pinned",
+      "parent": "wedge-persona",
+      "thesis": "reasoning.md is the product nucleus.",
+      "critique": "Plain markdown may feel too small, but this keeps the compression test honest.",
+      "regenerated": "Treat the .loopthing container as the seal step after reasoning.md proves useful."
+    },
+    {
+      "id": "first-product-cli",
+      "type": "regeneration",
+      "status": "pinned",
+      "parent": "artifact-contract",
+      "thesis": "The first product is a local CLI compression harness.",
+      "critique": "Developer-heavy, but aligned with the initial wedge and avoids premature platform work.",
+      "regenerated": "Build compress, score, compare, and seal commands only after the manual compression test shows signal."
+    },
+    {
+      "id": "distribution-challenge",
+      "type": "regeneration",
+      "status": "pinned",
+      "parent": "first-product-cli",
+      "thesis": "Distribution starts as a private compression challenge.",
+      "critique": "Small audience, but high-signal and behavior-based.",
+      "regenerated": "Use anonymized before/after artifacts and a thesis post only after test results exist."
+    },
+    {
+      "id": "thirty-day-plan",
+      "type": "sealed_artifact",
+      "status": "next",
+      "parent": "distribution-challenge",
+      "thesis": "The next 30 days prove or kill the compression-first handoff thesis.",
+      "regenerated": "Collect chats, score artifacts, build the thin CLI only after signal, then publish proof."
+    },
+    {
+      "id": "company-brand-business",
+      "type": "regeneration",
+      "status": "pinned",
+      "parent": "thirty-day-plan",
+      "thesis": "LoopThing should be a high-trust reasoning company, not an AI dashboard or services wrapper.",
+      "critique": "Compression-first is strong but incomplete without brand trust, revenue progression, life-design constraints, and an operating system.",
+      "regenerated": "Create loops/company with area PRDs, progress logs, artifacts, and a runner for business, finance, marketing, design, website, product, and life-design loops."
+    },
+    {
+      "id": "product-v0-cli",
+      "type": "implementation",
+      "status": "pinned",
+      "parent": "company-brand-business",
+      "thesis": "LoopThing now has a local product v0: transcript files in, compressed reasoning artifact out.",
+      "critique": "The compressor is still heuristic, so the next loop must improve scoring and real-export importers.",
+      "regenerated": "Ship compress, score, compare, and seal commands as the first real product slice."
+    },
+    {
+      "id": "one-command-create",
+      "type": "regeneration",
+      "status": "pinned",
+      "parent": "product-v0-cli",
+      "thesis": "Normal users should run one command: create.",
+      "critique": "The four-command flow is useful plumbing but bad product shape.",
+      "regenerated": "Add `loopthing create` as the happy path and preserve advanced commands for inspection."
+    },
+    {
+      "id": "section-aware-extraction",
+      "type": "implementation",
+      "status": "pinned",
+      "parent": "one-command-create",
+      "thesis": "The compressor should privilege explicit reasoning sections over flat keyword matches.",
+      "critique": "Keyword-only extraction made the project-folder output plausible but too dumb.",
+      "regenerated": "Parse markdown sections and extract killed paths, risks, asks, and next action from their own sections first."
+    },
+    {
+      "id": "codex-project-chat-awareness",
+      "type": "implementation",
+      "status": "pinned",
+      "parent": "section-aware-extraction",
+      "thesis": "Real AI projects are mixed chat-plus-artifact corpuses, so source shape must be part of the artifact.",
+      "critique": "Folder-only compression lets generated docs drown out the live user directions that moved the project.",
+      "regenerated": "Classify source kinds, render source shape and recent user directions, and reserve critical-message slots for chat user turns."
+    },
+    {
+      "id": "agent-handoff-output",
+      "type": "implementation",
+      "status": "pinned",
+      "parent": "codex-project-chat-awareness",
+      "thesis": "The most valuable compressed artifact is paste-ready context for the next agent or collaborator.",
+      "critique": "A reasoning artifact can still become another document unless it helps a fresh session continue the work.",
+      "regenerated": "Emit `agent-handoff.md` on every run with product spine, source shape, recent user directions, killed branches, risks, asks, next action, and operating instruction."
+    }
+  ]
+}

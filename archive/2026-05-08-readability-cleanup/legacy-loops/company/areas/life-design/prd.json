@@ -1,0 +1,34 @@
+{
+  "project": "LoopThing",
+  "branchName": "ralph/life-design",
+  "area": "life-design",
+  "description": "Design LoopThing as a company that can remain small, high-craft, and compatible with a good life.",
+  "userStories": [
+    {
+      "id": "life-001",
+      "title": "Create solo operating model",
+      "description": "As a founder, I need to know whether this can be run solo and what constraints keep the business surfing-compatible.",
+      "acceptanceCriteria": [
+        "Create areas/life-design/artifacts/SOLO_OPERATING_MODEL.md",
+        "Answer solo feasibility at $10k, $100k, and $1M MRR",
+        "Include life-design constraints and hiring gates"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Seeded in this loop."
+    },
+    {
+      "id": "life-002",
+      "title": "Define support boundaries",
+      "description": "As a founder, I need explicit support rules that prevent the company becoming consulting in disguise.",
+      "acceptanceCriteria": [
+        "Create support policy",
+        "Define what customers can and cannot ask for",
+        "Define escalation and contractor triggers"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Created SUPPORT_BOUNDARIES.md with allowed support, not-allowed work, modes, and escalation triggers."
+    }
+  ]
+}
