@@ -51,6 +51,27 @@ node bin/loopthing.mjs create-session <session-id> --out selected-session.loopth
 
 Use `sessions scan --all` to see sessions outside the current workspace. Use `create-session` with multiple session ids when you deliberately want to include related conversations from different dates.
 
+## Find Related Claude Code Conversations
+
+When related work happened in Claude Code, scan the local Claude history first, then explicitly opt selected JSONL files into the run.
+
+```bash
+node bin/loopthing.mjs claude scan "Future Allied NDIS psych students"
+node bin/loopthing.mjs claude scan --like tmp/pasted-chat.md
+node bin/loopthing.mjs claude inspect ~/.claude/projects/<project>/<session>.jsonl
+```
+
+`claude scan` searches `~/.claude/projects` by default. It prints scored JSONL paths and short first-user excerpts so you can choose the conversations that belong in the loop. Subagent conversations are skipped unless you pass `--include-subagents`.
+
+Then include selected Claude paths directly:
+
+```bash
+node bin/loopthing.mjs create \
+  tmp/pasted-chat.md \
+  ~/.claude/projects/<project>/<session>.jsonl \
+  --out selected-context.loopthing
+```
+
 ## Score Meaning
 
 `compression-score.md` is a structural and readability smoke test. It checks that required pieces exist and catches obvious jank:

@@ -33,6 +33,8 @@ Usage:
   loopthing sessions scan [--cwd <path>] [--all] [--limit <n>] [--codex-home <dir>]
   loopthing sessions inspect <codex-session-id-or-jsonl> [--codex-home <dir>]
   loopthing sessions normalize <codex-session-id-or-jsonl...> --out <messages.jsonl> [--codex-home <dir>]
+  loopthing claude scan [query terms...] [--like <file>] [--limit <n>] [--claude-home <dir>] [--include-subagents]
+  loopthing claude inspect <claude-jsonl> [--claude-home <dir>]
   loopthing score <run-dir>
   loopthing compare <file-a> <file-b> [...file-c]
   loopthing seal <run-dir> --out <name.loopthing>
@@ -41,6 +43,8 @@ Examples:
   loopthing create ./transcripts --out pricing-decision.loopthing --title "Pricing decision"
   loopthing sessions scan
   loopthing sessions inspect 019e3fbd
+  loopthing claude scan "Future Allied NDIS psych students"
+  loopthing claude scan --like ./chat-paste.md
   loopthing create-session 019e3fbd --out repo-decision.loopthing
   loopthing compress ./transcripts --out ./runs/run-001 --title "Pricing decision"
   loopthing score ./runs/run-001
@@ -1609,6 +1613,10 @@ function codexHome(flags = {}) {
   return path.resolve(flags["codex-home"] || process.env.CODEX_HOME || path.join(os.homedir(), ".codex"));
 }
 
+function claudeHome(flags = {}) {
+  return path.resolve(flags["claude-home"] || process.env.CLAUDE_HOME || path.join(os.homedir(), ".claude"));
+}
+
 function walkJsonlFiles(dir, maxDepth = 8, depth = 0) {
   if (!fs.existsSync(dir) || depth > maxDepth) return [];
   const files = [];
@@ -1656,6 +1664,10 @@ function codexIdFromPath(file) {
   return match?.[1] || path.basename(file, ".jsonl");
 }
 
+function claudeIdFromPath(file) {
+  return path.basename(file, ".jsonl");
+}
+
 function parseCodexSessionFile(file, index = new Map()) {
   const rows = jsonRowsFromFile(file);
   const source = path.relative(process.cwd(), file);
@@ -1692,6 +1704,41 @@ function parseCodexSessionFile(file, index = new Map()) {
   };
 }
 
+function parseClaudeSessionFile(file) {
+  const rows = jsonRowsFromFile(file);
+  const source = path.relative(process.cwd(), file);
+  const id = rows.find((row) => row.sessionId)?.sessionId || claudeIdFromPath(file);
+  const messages = claudeMessagesFromRows(rows, source).map((message, messageIndex) => ({
+    ...message,
+    conversation_id: id,
+    message_id: message.message_id || `${id}:${messageIndex}`
+  }));
+  const stat = fs.statSync(file);
+  const timestamps = rows.map((row) => row.timestamp).filter(Boolean).sort();
+  const firstUser = messages.find((message) => message.role === "user");
+  const lastUser = [...messages].reverse().find((message) => message.role === "user");
+  const roleCounts = messages.reduce((acc, message) => {
+    acc[message.role] = (acc[message.role] || 0) + 1;
+    return acc;
+  }, {});
+  const cwd = rows.find((row) => typeof row.cwd === "string")?.cwd || "";
+  return {
+    id,
+    provider: "claude-code",
+    file,
+    title: excerpt(firstUser?.content || path.basename(file, ".jsonl"), 90),
+    cwd,
+    created_at: timestamps[0] || stat.birthtime.toISOString(),
+    updated_at: timestamps[timestamps.length - 1] || stat.mtime.toISOString(),
+    first_user: firstUser?.content || "",
+    last_user: lastUser?.content || "",
+    message_count: messages.length,
+    role_counts: roleCounts,
+    role_quality: messages.length ? "exact structured roles" : "no chat messages found",
+    messages
+  };
+}
+
 function listCodexSessions(flags = {}) {
   const home = codexHome(flags);
   const index = loadCodexSessionIndex(home);
@@ -1713,6 +1760,84 @@ function listCodexSessions(flags = {}) {
   return filtered.sort((a, b) => String(b.updated_at).localeCompare(String(a.updated_at)));
 }
 
+function displayPath(file) {
+  const home = os.homedir();
+  return file.startsWith(`${home}${path.sep}`) ? `~/${path.relative(home, file).replace(/\\/g, "/")}` : path.relative(process.cwd(), file).replace(/\\/g, "/");
+}
+
+function searchTermsFromText(text, limit = 28) {
+  const stop = new Set([
+    "about", "actually", "after", "again", "also", "and", "are", "because", "before", "being", "between", "but", "can", "could", "did", "does", "doing", "for", "from", "get", "had", "has", "have", "haven", "how", "into", "just", "like", "more", "not", "now", "out", "read", "should", "some", "that", "the", "their", "there", "these", "thing", "this", "those", "through", "too", "user", "want", "what", "when", "where", "which", "with", "would", "you", "your"
+  ]);
+  const counts = new Map();
+  for (const match of String(text).toLowerCase().matchAll(/[a-z][a-z0-9-]{2,}/g)) {
+    const word = match[0].replace(/^-+|-+$/g, "");
+    if (word.length < 3 || stop.has(word)) continue;
+    counts.set(word, (counts.get(word) || 0) + 1);
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([word]) => word);
+}
+
+function claudeScanTerms(positional, flags = {}) {
+  const chunks = [];
+  if (positional.length) chunks.push(positional.join(" "));
+  if (flags.like) {
+    const file = path.resolve(String(flags.like));
+    if (!fs.existsSync(file)) throw new Error(`--like file not found: ${flags.like}`);
+    chunks.push(fs.readFileSync(file, "utf8"));
+  }
+  return searchTermsFromText(chunks.join("\n"));
+}
+
+function occurrenceCount(text, term) {
+  if (!term) return 0;
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return (text.match(new RegExp(`\\b${escaped}\\b`, "gi")) || []).length;
+}
+
+function claudeSessionSearchScore(session, terms) {
+  if (!terms.length) return 0;
+  const text = session.messages.map((message) => message.content).join("\n");
+  return terms.reduce((total, term) => total + Math.min(occurrenceCount(text, term), 20), 0);
+}
+
+function listClaudeSessions(flags = {}, terms = []) {
+  const home = claudeHome(flags);
+  const projectDir = path.join(home, "projects");
+  const files = walkJsonlFiles(projectDir, 12)
+    .filter((file) => flags["include-subagents"] || !file.replace(/\\/g, "/").includes("/subagents/"));
+  const summaries = [];
+  for (const file of files) {
+    try {
+      const session = parseClaudeSessionFile(file);
+      if (!session.message_count) continue;
+      const score = claudeSessionSearchScore(session, terms);
+      if (terms.length && score <= 0) continue;
+      summaries.push({ ...session, score });
+    } catch {
+      // Ignore malformed JSONL and non-Claude transcript files.
+    }
+  }
+  return summaries.sort((a, b) => (b.score - a.score) || String(b.updated_at).localeCompare(String(a.updated_at)));
+}
+
+function printClaudeRows(sessions, flags = {}, terms = []) {
+  const limit = Number(flags.limit || 20);
+  const selected = sessions.slice(0, limit);
+  console.log(`Found ${sessions.length} Claude Code conversation${sessions.length === 1 ? "" : "s"}${terms.length ? ` matching: ${terms.slice(0, 12).join(", ")}` : ""}`);
+  console.log("");
+  console.log("| Score | Updated | Messages | Roles | Path | First user |");
+  console.log("| ---: | --- | ---: | --- | --- | --- |");
+  for (const session of selected) {
+    const roles = Object.entries(session.role_counts).map(([role, count]) => `${role}:${count}`).join(", ");
+    console.log(`| ${session.score || 0} | ${escapeCell(String(session.updated_at).slice(0, 19))} | ${session.message_count} | ${escapeCell(roles)} | ${escapeCell(displayPath(session.file))} | ${escapeCell(excerpt(session.first_user, 120))} |`);
+  }
+  if (sessions.length > selected.length) console.log(`\nShowing ${selected.length}. Re-run with --limit ${sessions.length} to see all.`);
+}
+
 function resolveCodexSessionRefs(refs, flags = {}) {
   if (!refs.length) throw new Error("Expected at least one Codex session id or JSONL path");
   const home = codexHome(flags);
@@ -1726,6 +1851,34 @@ function resolveCodexSessionRefs(refs, flags = {}) {
     if (matches.length > 1) throw new Error(`Ambiguous Codex session id "${ref}" matched ${matches.length} sessions; use a longer id`);
     return matches[0];
   });
+}
+
+function claudeCommand(argv) {
+  const [subcommand, ...rest] = argv;
+  const { positional, flags } = parseArgs(rest);
+  if (!subcommand || subcommand === "scan") {
+    const terms = claudeScanTerms(positional, flags);
+    printClaudeRows(listClaudeSessions(flags, terms), flags, terms);
+    return;
+  }
+  if (subcommand === "inspect") {
+    if (!positional.length) throw new Error("claude inspect requires <claude-jsonl>");
+    const file = path.resolve(positional[0]);
+    const session = parseClaudeSessionFile(file);
+    console.log(`# Claude Code Conversation ${session.id}`);
+    console.log("");
+    console.log("Provider: Claude Code");
+    console.log(`Path: ${session.file}`);
+    console.log(`CWD: ${session.cwd || "(unknown)"}`);
+    console.log(`Messages: ${session.message_count}`);
+    console.log(`Roles: ${Object.entries(session.role_counts).map(([role, count]) => `${role}:${count}`).join(", ")}`);
+    console.log(`Role quality: ${session.role_quality}`);
+    console.log("");
+    console.log(`First user: ${excerpt(session.first_user, 260) || "(none)"}`);
+    console.log(`Latest user: ${excerpt(session.last_user, 260) || "(none)"}`);
+    return;
+  }
+  throw new Error(`Unknown claude subcommand: ${subcommand}`);
 }
 
 function printSessionRows(sessions, flags = {}) {
@@ -2013,6 +2166,7 @@ function main() {
     else if (command === "create-session") createSessionCommand(rest);
     else if (command === "compress-session") compressSessionCommand(rest);
     else if (command === "sessions") sessionsCommand(rest);
+    else if (command === "claude") claudeCommand(rest);
     else if (command === "score") scoreCommand(rest);
     else if (command === "compare") compareCommand(rest);
     else if (command === "seal") sealCommand(rest);

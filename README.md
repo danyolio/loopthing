@@ -66,6 +66,16 @@ node bin/loopthing.mjs create \
 
 Claude Code imports preserve exact `user` / `assistant` roles, skip local command wrappers, and ignore tool/thinking blocks so the artifact is based on the actual conversation instead of terminal noise.
 
+LoopThing can also scan your local Claude Code history for related conversations before you opt them into a run:
+
+```bash
+node bin/loopthing.mjs claude scan "Future Allied NDIS psych students"
+node bin/loopthing.mjs claude scan --like ./chat-paste.md
+node bin/loopthing.mjs claude inspect ~/.claude/projects/<project>/<session>.jsonl
+```
+
+The scan walks `~/.claude/projects` by default, scores conversations against the query or `--like` file, and prints matching JSONL paths. It does not automatically include every match in the artifact; you still choose which paths to pass into `create`. Subagent conversations are skipped by default because they are often noisy, but can be included with `--include-subagents`.
+
 Mixed runs are supported. You can combine pasted ChatGPT text, Codex rollout JSONL, Claude Code JSONL, and project docs in one command when a decision was spread across multiple tools or dates. `source-metadata.json` records where messages came from, including `provider_counts` and `role_quality`, so a recipient can see which roles were exact and which were inferred.
 
 ## Quality Guardrails
@@ -76,6 +86,7 @@ Mixed runs are supported. You can combine pasted ChatGPT text, Codex rollout JSO
 - one-command create, score, compare, and seal
 - structured Codex session scan, inspect, normalize, compress, and create
 - Claude Code JSONL import with exact roles and tool-noise filtering
+- Claude Code local-history scanning by query or similarity to a source file
 - mixed source runs where recent structured chat beats stale source-doc summaries
 - dictated / voice-style problem statements that must be synthesized into a clean decision question
 - a full self-run on this repo

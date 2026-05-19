@@ -18,6 +18,7 @@ const codexSessionCreateRunDir = path.join(root, "tmp", "codex-session-create-ru
 const normalizedSessionFile = path.join(root, "tmp", "codex-session-normalized.jsonl");
 const normalizedSessionRunDir = path.join(root, "tmp", "codex-normalized-smoke-run");
 const fakeCodexHome = path.join(root, "tmp", "fake-codex-home");
+const fakeClaudeHome = path.join(root, "tmp", "fake-claude-home");
 const selfRunDir = path.join(root, "tmp", "self-run-smoke");
 const selfArchive = path.join(root, "tmp", "self-run-smoke.loopthing");
 
@@ -32,6 +33,7 @@ fs.rmSync(codexSessionRunDir, { recursive: true, force: true });
 fs.rmSync(codexSessionCreateRunDir, { recursive: true, force: true });
 fs.rmSync(normalizedSessionRunDir, { recursive: true, force: true });
 fs.rmSync(fakeCodexHome, { recursive: true, force: true });
+fs.rmSync(fakeClaudeHome, { recursive: true, force: true });
 fs.rmSync(selfRunDir, { recursive: true, force: true });
 fs.rmSync(archive, { force: true });
 fs.rmSync(oneCommandArchive, { force: true });
@@ -66,6 +68,16 @@ fs.copyFileSync(path.join(root, "test/fixtures/codex-rollout.jsonl"), path.join(
 fs.writeFileSync(path.join(fakeCodexHome, "session_index.jsonl"), `${JSON.stringify({ id: "11111111-2222-3333-4444-555555555555", thread_name: "Fixture Codex Session", updated_at: "2026-05-20T00:00:07.000Z" })}\n`);
 const sessionInspect = run(["sessions", "inspect", "test/fixtures/codex-rollout.jsonl"]);
 const sessionScan = run(["sessions", "scan", "--codex-home", fakeCodexHome, "--all"]);
+const fakeClaudeProjectDir = path.join(fakeClaudeHome, "projects", "fixture-project");
+fs.mkdirSync(fakeClaudeProjectDir, { recursive: true });
+fs.copyFileSync(path.join(root, "test/fixtures/claude-code.jsonl"), path.join(fakeClaudeProjectDir, "matching.jsonl"));
+fs.writeFileSync(path.join(fakeClaudeProjectDir, "unrelated.jsonl"), [
+  { type: "user", sessionId: "unrelated", timestamp: "2026-05-20T00:00:00.000Z", message: { role: "user", content: "Please draft a short note about a birthday lunch." } },
+  { type: "assistant", sessionId: "unrelated", timestamp: "2026-05-20T00:00:01.000Z", message: { role: "assistant", content: "Here is a warm and simple note." } }
+].map((row) => JSON.stringify(row)).join("\n") + "\n");
+const claudeScan = run(["claude", "scan", "NDIS", "recovery", "coach", "--claude-home", fakeClaudeHome]);
+const claudeScanLike = run(["claude", "scan", "--like", "test/fixtures/dictated-problem-chat.md", "--claude-home", fakeClaudeHome]);
+const claudeInspect = run(["claude", "inspect", path.join(fakeClaudeProjectDir, "matching.jsonl")]);
 run(["sessions", "normalize", "test/fixtures/codex-rollout.jsonl", "--out", normalizedSessionFile]);
 run(["compress-session", "test/fixtures/codex-rollout.jsonl", "--out", codexSessionRunDir, "--title", "Structured Codex Session Test"]);
 run(["compress", normalizedSessionFile, "--out", normalizedSessionRunDir, "--title", "Normalized Codex Session Test"]);
@@ -201,6 +213,15 @@ if (!sessionInspect.includes("this isn't working so great")) {
 }
 if (!sessionScan.includes("Fixture Codex Session")) {
   throw new Error("Codex session scan should use session index titles");
+}
+if (!claudeScan.includes("matching.jsonl") || claudeScan.includes("unrelated.jsonl")) {
+  throw new Error("Claude scan should find matching local Claude conversations and omit unrelated ones");
+}
+if (!claudeScanLike.includes("matching.jsonl") || !claudeScanLike.includes("psych") || claudeScanLike.includes("unrelated.jsonl")) {
+  throw new Error("Claude scan --like should use source text to find similar local Claude conversations");
+}
+if (!claudeInspect.includes("Provider: Claude Code") || !claudeInspect.includes("Role quality: exact structured roles")) {
+  throw new Error("Claude inspect should summarize structured Claude JSONL");
 }
 
 const codexSessionReasoning = fs.readFileSync(path.join(codexSessionRunDir, "reasoning.md"), "utf8");
