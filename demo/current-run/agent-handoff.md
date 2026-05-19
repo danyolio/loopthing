@@ -47,14 +47,14 @@ The strongest product direction is handoff.
 
 ## Critical Context
 
-- **LoopThing** (`README.md`): LoopThing compresses messy AI work into a handoff artifact for the next chat, agent, collaborator, or future self.
-- **Product Spine** (`docs/01_PRODUCT.md`): LoopThing compresses messy AI work into a handoff artifact for the next chat, agent, collaborator, or future self.
-- **Run LoopThing** (`docs/02_RUN_LOOPTHING.md`): Run LoopThing on the current project folder:
-- **Public Demo** (`docs/03_PUBLIC_DEMO.md`): index.html is a static public page for explaining LoopThing without asking someone to read the repo.
-- **Product Improvements** (`docs/04_PRODUCT_IMPROVEMENTS.md`): These are the next product loops worth running.
-- **Archive Map** (`docs/05_ARCHIVE_MAP.md`): Old material is preserved in archive/2026-05-08-readability-cleanup/.
-- **package.json** (`package.json`): { "name": "loopthing", "version": "0.1.0", "private": true, "type": "module", "bin": { "loopthing": "./bin/loopthing.mjs" }, "scripts": { "test:product": "node test/product-smoke.mjs", "demo:create": "node.
-- **current-project-chat.md** (`source/current-project-chat.md`): The current direction is compression-first handoff. The root should show the current product, the archive should preserve old material, and the public page should be generated from the latest run rather than stale.
+- **user · current-project-chat.md** (`source/current-project-chat.md`): Show-your-work format for recipients is weak. Recipients mostly read conclusions, not working-out. Handoff is stronger because it has a falsifiable test.
+- **user · current-project-chat.md** (`source/current-project-chat.md`): Memory but better is probably wrong. Labs will ship memory for free and with better integration. The category has to be multiplayer handoff, not single-player personalization.
+- **user · current-project-chat.md** (`source/current-project-chat.md`): If it compressed 103 messages across 89 files and scored 7/7, why is there a tonne of inconsistent information in all of the docs and presentation artefact? I might host the index.html file on the loopthing.ai domain.
+- **user · current-project-chat.md** (`source/current-project-chat.md`): Ignore the fact that it is a GitHub repo for now and completely clean up the structure so I can read through it easily.
+- **user · current-project-chat.md** (`source/current-project-chat.md`): Improve the product and run the tool, then use that output to revamp the index page.
+- **user · current-project-chat.md** (`source/current-project-chat.md`): Keep everything old in an archive. Don't delete anything.
+- **user · current-project-chat.md** (`source/current-project-chat.md`): Intent Clean up the project into something readable, improve the actual LoopThing product, run it on the cleaned folder, and use the resulting artifact as the source of truth for the public static page. ## Problem The project had too many folders and stale artifacts.
+- **assistant · current-project-chat.md** (`source/current-project-chat.md`): The current direction is compression-first handoff. The root should show the current product, the archive should preserve old material, and the public page should be generated from the latest run rather than stale screenshots or old positioning.
 
 ## Do Not Reopen These Branches
 
@@ -72,6 +72,21 @@ The strongest product direction is handoff.
 - Compression quality: The deterministic extractor may still miss nuance or promote the wrong messages without model-backed reasoning.
 - Handoff frequency: The handoff use case may be less frequent than the creator feels during active building.
 - Public-page theatre: A strong static page can make the idea feel clearer than the product currently is, so the recipient test still matters.
+
+## Outcome
+
+Committed to:
+
+- The current direction is compression-first handoff. The root should show the current product, the archive should preserve old material, and the public page should be generated from the latest run rather than stale screenshots or old.
+- Run the compression test on 20 real chats, compare LoopThing output against a generic summary, and ask recipients whether they can continue the work without reading the original transcript.
+- The project-level run ignores archive/, tmp/, runs/, nested generated loopthing/ output, generated current-run/ output, and test/ fixtures. The curated current source material lives in source/current-project-chat.md.
+
+Not committed to:
+
+- Not a memory feature.
+- Not a generic chat summary.
+- Not a beautiful archive of everything.
+- Not a dashboard that proves value through UI alone.
 
 ## Next Action
 

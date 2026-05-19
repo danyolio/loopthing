@@ -8,12 +8,14 @@ const archive = path.join(root, "tmp", "product-smoke.loopthing");
 const oneCommandArchive = path.join(root, "tmp", "one-command.loopthing");
 const qualityRunDir = path.join(root, "tmp", "quality-smoke-run");
 const codexRunDir = path.join(root, "tmp", "codex-chat-smoke-run");
+const timestampRunDir = path.join(root, "tmp", "timestamp-chat-smoke-run");
 const selfRunDir = path.join(root, "tmp", "self-run-smoke");
 const selfArchive = path.join(root, "tmp", "self-run-smoke.loopthing");
 
 fs.rmSync(runDir, { recursive: true, force: true });
 fs.rmSync(qualityRunDir, { recursive: true, force: true });
 fs.rmSync(codexRunDir, { recursive: true, force: true });
+fs.rmSync(timestampRunDir, { recursive: true, force: true });
 fs.rmSync(selfRunDir, { recursive: true, force: true });
 fs.rmSync(archive, { force: true });
 fs.rmSync(oneCommandArchive, { force: true });
@@ -36,6 +38,7 @@ run(["seal", runDir, "--out", archive]);
 run(["create", "test/fixtures/founder-chat.md", "--out", oneCommandArchive, "--title", "One Command Smoke Test"]);
 run(["compress", "test/fixtures/project-docs.md", "--out", qualityRunDir, "--title", "Project Docs Quality Test"]);
 run(["compress", "test/fixtures/codex-project-chat.md", "--out", codexRunDir, "--title", "Codex Project Chat Test"]);
+run(["compress", "test/fixtures/timestamp-chat.md", "--out", timestampRunDir, "--title", "Timestamp Chat Test"]);
 run(["create", ".", "--out", selfArchive, "--run-dir", selfRunDir, "--title", "LoopThing Clean Project Handoff"]);
 run(["create", ".", "--out", selfArchive, "--run-dir", selfRunDir, "--title", "LoopThing Clean Project Handoff"]);
 
@@ -94,6 +97,23 @@ for (const expected of [
   "real ChatGPT / Codex project"
 ]) {
   if (!codexReasoning.includes(expected)) throw new Error(`Codex chat fixture missing ${expected}`);
+}
+
+const timestampReasoning = fs.readFileSync(path.join(timestampRunDir, "reasoning.md"), "utf8");
+const timestampMetadata = JSON.parse(fs.readFileSync(path.join(timestampRunDir, "source-metadata.json"), "utf8"));
+if (timestampMetadata.message_count < 5) {
+  throw new Error("Timestamp fixture should be parsed into multiple chat messages");
+}
+for (const expected of [
+  "The strongest direction is the handoff CLI.",
+  "Do not build the dashboard first.",
+  "commit to a CLI",
+  "run the CLI on ten real timestamped chat exports"
+]) {
+  if (!timestampReasoning.includes(expected)) throw new Error(`Timestamp fixture missing ${expected}`);
+}
+if (timestampReasoning.includes("Preserve the current thesis, boundaries, killed branches, risks, and next evidence gate")) {
+  throw new Error("Timestamp fixture should not use generic outcome boilerplate");
 }
 
 const selfReasoning = fs.readFileSync(path.join(selfRunDir, "reasoning.md"), "utf8");

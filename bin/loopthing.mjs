@@ -181,6 +181,67 @@ function normalizeRole(role) {
   return lowered;
 }
 
+function looksLikeTimestampMarker(line) {
+  return /^(?:\d{1,2}\s+[A-Z][a-z]{2,8}|\d{1,2}:\d{2})$/.test(line.trim());
+}
+
+function paragraphBoundsBefore(lines, endIndex) {
+  let end = endIndex;
+  while (end >= 0 && !lines[end].trim()) end -= 1;
+  if (end < 0) return null;
+  let start = end;
+  while (start > 0 && lines[start - 1].trim()) start -= 1;
+  return { start, end };
+}
+
+function looksLikeUserContinuation(block) {
+  return /^(?:ok,?$|mission:|how:|don[’']t |i bought|•|[-*]\s|also |the biggest question|source:|original idea:|but the real question|my goal|version [abc]:)/i.test(block)
+    || (block.length < 180 && /\?$/.test(block));
+}
+
+function userStartBeforeTimestamp(lines, markerIndex, firstMarker) {
+  if (firstMarker) return 0;
+  const bounds = paragraphBoundsBefore(lines, markerIndex - 1);
+  if (!bounds) return markerIndex;
+  let { start } = bounds;
+  let capturedChars = lines.slice(bounds.start, bounds.end + 1).join("\n").length;
+  let probe = start - 1;
+  while (probe > 0 && capturedChars < 1400) {
+    const prior = paragraphBoundsBefore(lines, probe);
+    if (!prior) break;
+    const block = lines.slice(prior.start, prior.end + 1).join("\n").trim();
+    if (!looksLikeUserContinuation(block)) break;
+    start = prior.start;
+    capturedChars += block.length;
+    probe = prior.start - 1;
+  }
+  return start;
+}
+
+function parseTimestampedTranscript(raw, source, sourceKind) {
+  const lines = raw.split(/\r?\n/);
+  const markers = lines
+    .map((line, index) => (looksLikeTimestampMarker(line) ? index : -1))
+    .filter((index) => index >= 0);
+  if (markers.length < 2) return [];
+
+  const userStarts = markers.map((marker, index) => userStartBeforeTimestamp(lines, marker, index === 0));
+  const messages = [];
+  for (let index = 0; index < markers.length; index += 1) {
+    const marker = markers[index];
+    const userStart = userStarts[index];
+    const userText = lines.slice(userStart, marker).join("\n").trim();
+    if (userText) messages.push({ role: "user", content: userText, source, source_kind: sourceKind });
+
+    const assistantStart = marker + 1;
+    const nextUserStart = userStarts[index + 1] ?? lines.length;
+    const assistantText = lines.slice(assistantStart, nextUserStart).join("\n").trim();
+    if (assistantText) messages.push({ role: "assistant", content: assistantText, source, source_kind: sourceKind });
+  }
+
+  return messages.length >= 4 ? messages : [];
+}
+
 function parseTextMessages(raw, source, sourceKind = "source") {
   const lines = raw.split(/\r?\n/);
   const chunks = [];
@@ -208,7 +269,10 @@ function parseTextMessages(raw, source, sourceKind = "source") {
     }
   }
   flush();
-  return chunks.length ? chunks : [{ role: "user", content: raw.trim(), source, source_kind: sourceKind }];
+  if (chunks.length) return chunks;
+  const timestampedMessages = parseTimestampedTranscript(raw, source, sourceKind);
+  if (timestampedMessages.length) return timestampedMessages;
+  return [{ role: "user", content: raw.trim(), source, source_kind: sourceKind }];
 }
 
 function parseFile(file) {
@@ -360,7 +424,9 @@ function scoreMessage(message, index, total) {
     "feedback", "actually", "however", "but", "not", "instead", "decided",
     "kill", "killed", "discard", "rejected", "wrong", "problem", "gold",
     "wedge", "trust", "handoff", "business", "mrr", "pricing", "risk",
-    "next", "build", "ship", "commit", "plan", "strategy", "why"
+    "next", "build", "ship", "commit", "plan", "strategy", "why",
+    "takeaway", "conclusion", "strongest", "cleanest", "recommend",
+    "pricing", "regulatory", "requirements", "target", "role"
   ];
   for (const term of terms) if (text.includes(term)) score += 2;
   const directionTerms = [
@@ -384,6 +450,36 @@ function scoreMessage(message, index, total) {
   if (text.includes("?")) score += 2;
   score += index / Math.max(total, 1);
   return score;
+}
+
+function assistantConclusionScore(message, index, total) {
+  const text = message.content.toLowerCase();
+  let score = scoreMessage(message, index, total);
+  if (/\b(mcp|crustdata|crust data|npx|api token|check current location|fetched:|searched the web)\b/i.test(message.content)) score -= 12;
+  if (message.role === "assistant") score += 4;
+  if (/\b(the honest summary|what this means|what this tells you|the takeaway|the actual matrix|what i'd suggest|what i'd actually|recommend|strongest|cleanest|highest-value|next action)\b/i.test(message.content)) score += 10;
+  if (/\b(should|target|lead with|start with|pick|verify|test|call|discovery|pricing|guarantee|regulatory|role lane|qualification|worker role)\b/i.test(message.content)) score += 6;
+  score += (index / Math.max(total, 1)) * 18;
+  return score;
+}
+
+function criticalMessages(messages, count = 8) {
+  const candidates = messages.filter((message) => message.content.trim().length > 20);
+  const ranked = candidates
+    .map((message, index) => ({
+      ...message,
+      globalIndex: messages.indexOf(message),
+      score: assistantConclusionScore(message, index, candidates.length)
+    }))
+    .sort((a, b) => b.score - a.score);
+  const selected = [];
+  for (const message of ranked) {
+    const tooSimilar = selected.some((existing) => existing.role === message.role && excerpt(existing.content, 100) === excerpt(message.content, 100));
+    if (tooSimilar) continue;
+    selected.push(message);
+    if (selected.length >= count) break;
+  }
+  return selected.sort((a, b) => a.globalIndex - b.globalIndex);
 }
 
 function topMessages(messages, count = 5) {
@@ -415,6 +511,111 @@ function findSentences(messages, regexes, limit = 4) {
     }
   }
   return found;
+}
+
+function recentMessages(messages, fraction = 0.35) {
+  const start = Math.max(0, Math.floor(messages.length * (1 - fraction)));
+  return messages.slice(start);
+}
+
+function sentenceNoise(sentence) {
+  return /^(let me|good question|fair|right|on it|stop\.|wait\.|want me|can you|do you|if you want|i apologise|i'm not going to|i can't|what i can and can't|what i should have said earlier)\b/i.test(sentence)
+    || /\b(mcp|crustdata|crust data|claude settings|npx|api token|tooling|target list|linkedin data api)\b/i.test(sentence)
+    || /^Fetched:|^Searched |^Crustdata |^Check current location/i.test(sentence);
+}
+
+function sentenceCandidates(messages, regexes, limit = 6, options = {}) {
+  const found = [];
+  const recentStart = Math.max(0, Math.floor(messages.length * 0.65));
+  const pool = options.recentFirst
+    ? [...messages.slice(recentStart).reverse(), ...messages.slice(0, recentStart).reverse()]
+    : messages;
+  for (const message of pool) {
+    if (options.role && message.role !== options.role) continue;
+    for (const sentence of splitSentences(message.content)) {
+      const clean = cleanMarkdown(sentence).replace(/\s+/g, " ").trim();
+      if (clean.length < 24) continue;
+      if (!options.includeNoise && sentenceNoise(clean)) continue;
+      if (options.noQuestions && clean.endsWith("?")) continue;
+      if (regexes.some((regex) => regex.test(clean))) {
+        found.push({
+          sentence: readableExcerpt(clean, options.max || 260),
+          source: message.source,
+          role: message.role,
+          index: message.index ?? messages.indexOf(message)
+        });
+      }
+    }
+  }
+  const seen = new Set();
+  return found.filter((item) => {
+    const key = item.sentence.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, limit);
+}
+
+function lineCandidates(messages, regexes, limit = 6, options = {}) {
+  const recentStart = Math.max(0, Math.floor(messages.length * 0.65));
+  const pool = options.recentFirst
+    ? [...messages.slice(recentStart).reverse(), ...messages.slice(0, recentStart).reverse()]
+    : messages;
+  const found = [];
+  for (const message of pool) {
+    if (options.role && message.role !== options.role) continue;
+    for (const rawLine of message.content.split(/\r?\n/)) {
+      const clean = cleanMarkdown(rawLine).replace(/\s+/g, " ").trim();
+      if (clean.length < (options.min || 20)) continue;
+      if (clean.length > (options.maxLine || 360)) continue;
+      if (!options.includeNoise && sentenceNoise(clean)) continue;
+      if (options.noQuestions && clean.endsWith("?")) continue;
+      if (regexes.some((regex) => regex.test(clean))) {
+        found.push({
+          line: readableExcerpt(clean, options.max || 260),
+          source: message.source,
+          role: message.role,
+          index: message.index ?? messages.indexOf(message)
+        });
+      }
+    }
+  }
+  const seen = new Set();
+  return found.filter((item) => {
+    const key = item.line.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, limit);
+}
+
+function transcriptThesis(messages) {
+  const sections = matchingSections(messages, [/clean thesis/, /^what it is$/, /current thesis/, /one-line summary/, /pinned direction/, /product spine/]);
+  if (sections[0]) return sectionSummary(sections[0], 360);
+  const lines = lineCandidates(messages, [
+    /\b(you're running|business shape|mission framing|underlying model|bridge organisation|workforce bridge|flat placement fee|train-and-place|recruiter|placement service)\b/i
+  ], 3, { role: "assistant", recentFirst: true, max: 300, noQuestions: true });
+  if (lines.length) return lines.map((item) => item.line).join(" ");
+  const candidates = sentenceCandidates(messages, [
+    /\b(you're running|the business shape|the mission framing|the actual business|bridge organisation|workforce bridge|train-and-place|handoff cli|compressed reasoning)\b/i
+  ], 3, { role: "assistant", recentFirst: true, max: 300, noQuestions: true });
+  if (candidates.length) return candidates.map((item) => item.sentence).join(" ");
+  return "The useful work is to preserve the decisions, direction, killed branches, risks, and next action so a new person or session can continue without starting cold.";
+}
+
+function transcriptWedge(messages) {
+  const sections = matchingSections(messages, [/^wedge$/, /pinned wedge/, /pinned direction/, /current wedge/, /what survives criticism/, /narrowest claim/]);
+  if (sections[0]) return sectionSummary(sections[0], 360);
+  const lines = lineCandidates(messages, [
+    /\b(strongest economic wedge|highest-value lane|picking one lane|primary lane|lead with|best entry|cleanest entry)\b/i,
+    /\b(largest market|bottom of the funnel|niche premium lane|not a year-1 wedge)\b/i
+  ], 4, { role: "assistant", recentFirst: true, max: 280, noQuestions: true });
+  if (lines.length) return lines.map((item) => item.line).join(" ");
+  const candidates = sentenceCandidates(messages, [
+    /\b(strongest economic wedge|highest-value lane|primary lane|lead with|start with|entry point|uniquely suited|best fit|wedge)\b/i
+  ], 3, { role: "assistant", recentFirst: true, max: 300, noQuestions: true });
+  if (candidates.length) return candidates.map((item) => item.sentence).join(" ");
+  return "The strongest surviving direction is the one that remains after discarded branches and risks are made explicit.";
 }
 
 function topicTags(messages) {
@@ -480,6 +681,10 @@ function inferProblem(messages) {
     const summary = sectionSummary(section, 320);
     if (summary) return summary;
   }
+  const recentQuestion = sentenceCandidates(preferred, [
+    /\b(real question|biggest question|stuck|where .* fit|which role|what role|how many|what should|what's the gap|is .* suited)\b/i
+  ], 2, { role: "user", recentFirst: true, max: 260 }).map((item) => item.sentence);
+  if (recentQuestion.length) return recentQuestion.join(" ");
   const problem = findSentences(messages, [/problem/, /gold/, /messy/, /chaos/, /noisy/, /copy/, /handoff/, /trust/, /share/], 1)[0];
   if (problem) return `The problem surfaced in the source language: "${excerpt(problem.sentence, 260)}"`;
   return "The problem is that useful AI reasoning is buried in long sessions; the final output loses context, while the raw transcript is too noisy to hand off.";
@@ -561,7 +766,14 @@ function discardedBranches(messages) {
     .filter((item) => !/^(next loop|next action|next step)$/i.test(item.branch.trim()))
     .filter((item) => item.reason && !/^(this path was explicitly listed as discarded or not for now\.)$/i.test(item.reason));
   if (cleanedExtracted.length) return dedupeItems(cleanedExtracted, "branch").slice(0, 8);
-  const killed = findSentences(preferred, [/killed?/, /discard/, /rejected/, /wrong direction/, /doesn.?t make sense/, /not the direction/, /not .* product/, /not .* transcript/], 8);
+  const boundaryBranches = lineCandidates(preferred, [
+    /\b(not a student role|not the right role|first-year .*doesn't meet|graduate role|not your primary lane|not a high-volume|year-3 expansion|not therapy|not clinicians|insufficient qualification)\b/i
+  ], 8, { role: "assistant", recentFirst: true, max: 240, noQuestions: true })
+    .map((item) => item.line)
+    .filter(isBoundaryCandidate)
+    .map((line) => boundaryBranch(line));
+  if (boundaryBranches.length) return dedupeItems(boundaryBranches, "branch").slice(0, 8);
+  const killed = sentenceCandidates(preferred, [/killed?/, /discard/, /rejected/, /wrong direction/, /doesn.?t make sense/, /not the direction/, /not .* product/, /not .* transcript/, /not .* role/, /insufficient qualification/, /out of scope/], 8, { role: "assistant", recentFirst: true, max: 180 });
   if (killed.length) {
     return killed.map((item) => ({
       branch: excerpt(item.sentence, 160),
@@ -572,6 +784,44 @@ function discardedBranches(messages) {
     branch: "Treat the transcript as the deliverable.",
     reason: "The source material points toward compression and handoff, not raw logging."
   }];
+}
+
+function boundaryBranch(line) {
+  const quotedNotRunning = line.match(/not running an?\s+"([^"]+)"/i);
+  if (quotedNotRunning) return { branch: quotedNotRunning[1], reason: line };
+  const notPrimary = line.match(/^(.*?)(?:is|was)\s+(?:not|probably not)\s+(?:your|the)\s+primary\b/i);
+  if (notPrimary) return { branch: `${boundarySubject(notPrimary[1])} as the primary wedge`, reason: line };
+  if (/\bbottom of the funnel|lowest revenue|lower-priority\b/i.test(line)) return { branch: `${boundarySubject(line)} as the primary wedge`, reason: line };
+  const notYearOne = line.match(/^(.*?)(?:not a year-?1|not a year-?one|year-3 expansion)/i);
+  if (notYearOne) return { branch: `${boundarySubject(notYearOne[1])} as the year-one wedge`, reason: line };
+  const graduateRole = line.match(/(?:^|[.;:]\s*)([^.;:]+?)\s+is\s+a\s+graduate role/i);
+  if (graduateRole) return { branch: `${boundarySubject(graduateRole[1])} as an early-student role`, reason: line };
+  if (/\binsufficient qualification|insufficient qualification\/experience|doesn[’']?t meet|does not meet\b/i.test(line)) {
+    const branch = /\bfirst-year\b/i.test(line) ? "First-year candidates as qualified candidates" : `${boundarySubject(line)} as an early-student role`;
+    return { branch, reason: line };
+  }
+  return {
+    branch: boundarySubject(line),
+    reason: "The conversation treated this as a boundary or lower-priority path, not the current wedge."
+  };
+}
+
+function boundarySubject(raw) {
+  let text = cleanMarkdown(raw).replace(/\s+/g, " ").trim();
+  text = text.replace(/^[^A-Za-z0-9]+/, "");
+  text = text.replace(/^(?:one|two|three|four|five|six|seven|eight|nine|ten)\s+[—-]\s*/i, "");
+  text = text.replace(/^the honest read:\s*/i, "");
+  text = text.split(/[.;]/)[0].trim();
+  text = text.replace(/\s*\([^)]*\)\s*$/g, "");
+  text = text.replace(/\s+is\s+(?:a|an|the)?\s.*$/i, "");
+  text = text.replace(/\s+as\s+.*$/i, "");
+  return excerpt(text || raw, 140);
+}
+
+function isBoundaryCandidate(line) {
+  const positiveCapability = /\b(can legitimately work|will hire|eligible|fits|meets .*pathway|can pathway|can do|real role|legitimate role)\b/i.test(line);
+  const strongBoundary = /\b(not (?:your|the) primary|not a high-volume|not a year|year-3 expansion|insufficient|doesn[’']?t meet|does not meet|can't|cannot|not a student role|not the right role|graduate role|bottom of the funnel|lowest revenue|lower-priority)\b/i.test(line);
+  return !positiveCapability || strongBoundary;
 }
 
 function risks(messages) {
@@ -591,7 +841,11 @@ function risks(messages) {
     .filter((line) => !/^(custom services|low-margin services|support burden|sales-led enterprise work|enterprise procurement|always-on support)\b/i.test(line))
     .map((line) => excerpt(line, 240));
   if (cleaned.length) return [...new Set(cleaned)].slice(0, 4);
-  const found = findSentences(preferred, [/risk/, /might/, /could fail/, /weak/, /unclear/, /if .* fail/, /hard/, /not honestly/], 4);
+  const riskLines = lineCandidates(preferred, [
+    /\b(verify .*current|pricing tolerance is unknown|supervision question is critical|published .* ceiling|discovery calls .* test|changes every july|before quoting|not a guaranteed rate|supervision .* bottleneck)\b/i
+  ], 5, { role: "assistant", recentFirst: true, max: 240, noQuestions: true }).map((item) => item.line);
+  if (riskLines.length) return riskLines;
+  const found = sentenceCandidates(preferred, [/risk/, /might/, /could fail/, /weak/, /unclear/, /if .* fail/, /hard/, /not honestly/, /pricing tolerance/, /verify/, /changes every july/, /supervision .* bottleneck/, /regulatory/], 4, { role: "assistant", recentFirst: true, max: 220 });
   if (found.length) return found.map((item) => excerpt(item.sentence, 220));
   return [
     "Compression quality may not be good enough to beat a generic summary.",
@@ -620,6 +874,15 @@ function nextAction(messages) {
   const extracted = sections.flatMap((section) => meaningfulLines(section.body))
     .filter((line) => !line.startsWith("{") && !line.startsWith("[") && !/^use the new cli/i.test(line));
   if (extracted.length) return excerpt(extracted[0], 280);
+  const nextLines = lineCandidates(preferred, [
+    /^(?:one|two|three)\s+[—:-]\s+(?:verify|pick|modify|ask|run|start)\b/i,
+    /^(?:first|next)\s+5\s+calls\b/i
+  ], 3, { role: "assistant", recentFirst: true, max: 320, maxLine: 640, noQuestions: true });
+  if (nextLines.length) return nextLines.map((item) => item.line).join(" ");
+  const assistantNext = sentenceCandidates(preferred, [
+    /\b(next action|before the discovery calls|what to do with this|first 5 calls|next 5 calls|start with|pick a primary lane|verify|ask each provider|run .* calls|target)\b/i
+  ], 2, { role: "assistant", recentFirst: true, max: 280 });
+  if (assistantNext.length) return assistantNext.map((item) => item.sentence).join(" ");
   const lastUser = [...preferred].reverse().find((message) => message.role === "user" && !message.content.trim().startsWith("{"));
   return lastUser ? excerpt(lastUser.content, 260) : "Run a recipient comprehension test against this artifact.";
 }
@@ -772,6 +1035,14 @@ function keyArtifactBullets(messages, metadata, limit = 8) {
   });
 }
 
+function criticalMessageBullets(messages, limit = 8) {
+  return criticalMessages(messages, limit).map((message) => ({
+    title: `${message.role} · ${messageTitle(message)}`,
+    source: message.source,
+    summary: readableExcerpt(message.content, 300)
+  }));
+}
+
 function importantUserDirections(messages, limit = 12) {
   const chatUserMessages = messages.filter((message) => message.role === "user" && message.source_kind === "chat-transcript");
   const userMessages = chatUserMessages.length ? chatUserMessages : messages.filter((message) => message.role === "user");
@@ -792,32 +1063,79 @@ function importantUserDirections(messages, limit = 12) {
 function genericModel(title, messages, metadata) {
   const reasoningMessages = preferredReasoningMessages(messages);
   const discarded = discardedBranches(messages).slice(0, 8);
-  const critical = topMessages(reasoningMessages, 6).map((message) => ({
+  const critical = criticalMessages(reasoningMessages, 8).map((message) => ({
     title: messageTitle(message),
     source: message.source,
-    summary: readableExcerpt(message.content, 240)
+    summary: readableExcerpt(message.content, 300)
   }));
   const next = nextAction(messages);
   const riskLines = risks(messages).slice(0, 6);
   const askLines = asks(messages).slice(0, 4);
   const projectDocs = keyArtifactBullets(messages, metadata, 8);
+  const chatHeavy = (metadata.source_kind_counts?.["chat-transcript"] || 0) > (metadata.message_count * 0.5);
+  const outcome = outcomeModel(messages);
   return {
     domain: domainFor(messages, title),
     projectName: cleanProjectName(title),
     intent: sectionParagraph(messages, [/^intent$/, /underlying goal/], inferIntent(messages, topMessages(messages, 5))),
     problem: sectionParagraph(messages, [/^problem$/, /problem statement/], inferProblem(messages)),
-    thesis: sectionParagraph(messages, [/clean thesis/, /^what it is$/, /current thesis/, /one-line summary/, /pinned direction/, /product spine/], "The useful work is to preserve the decisions, direction, killed branches, risks, and next action so a new person or session can continue without starting cold."),
-    currentWedge: sectionParagraph(messages, [/^wedge$/, /pinned wedge/, /pinned direction/, /current wedge/, /what survives criticism/, /narrowest claim/], "The strongest surviving direction is the one that remains after discarded branches and risks are made explicit."),
+    thesis: transcriptThesis(messages),
+    currentWedge: transcriptWedge(messages),
     ownership: sectionBlock(messages, [/ownership/, /responsibilit/, /operating model/, /how it works/], 6),
-    notThis: negativeBoundaryBlock(messages, [/what this is not/, /what it is not/, /do not/, /non-negotiables/, /killed paths/, /killed branches/], 8),
+    notThis: boundariesFromTranscript(messages, outcome),
     framingDiffs: framingDiffs(topMessages(reasoningMessages, 5)),
     discarded,
-    survival: sectionBlock(messages, [/what survives criticism/, /outcome/, /committed to/, /narrowest claim/], 6),
+    survival: survivalClaims(messages, outcome),
     risks: riskLines,
     nextActions: next ? [readableExcerpt(next, 260)] : [],
     asks: askLines,
-    artifacts: projectDocs.length ? projectDocs : critical,
-    directions: importantUserDirections(messages, 12)
+    artifacts: chatHeavy ? criticalMessageBullets(reasoningMessages, 8) : (projectDocs.length ? projectDocs : critical),
+    directions: importantUserDirections(messages, 12),
+    outcome
+  };
+}
+
+function survivalClaims(messages, outcome) {
+  const explicit = sectionBlock(messages, [/what survives criticism/, /outcome/, /committed to/, /narrowest claim/], 6);
+  if (explicit.length) return explicit;
+  const lines = lineCandidates(messages, [
+    /\b(highest-value lane|strongest economic wedge|unit economics are the strongest|largest market|legitimate entry point|mission framing holds|wedge is genuinely real|value-add isn't just placement)\b/i
+  ], 6, { role: "assistant", recentFirst: true, max: 240, noQuestions: true }).map((item) => item.line);
+  if (lines.length) return lines;
+  const candidates = sentenceCandidates(messages, [
+    /\b(strongest|cleanest|highest-value|fits|legitimate|real role|real wedge|mission .* holds|value-add|differentiator|works|survives)\b/i
+  ], 5, { role: "assistant", recentFirst: true, max: 240 }).map((item) => item.sentence);
+  return candidates.length ? candidates : outcome.committed.slice(0, 5);
+}
+
+function boundariesFromTranscript(messages, outcome) {
+  const explicit = negativeBoundaryBlock(messages, [/what this is not/, /what it is not/, /do not/, /non-negotiables/, /killed paths/, /killed branches/], 8);
+  if (explicit.length) return explicit;
+  return outcome.notCommitted.slice(0, 6);
+}
+
+function outcomeModel(messages) {
+  const committed = lineCandidates(messages, [
+    /\b(strongest economic wedge|highest-value lane|unit economics are the strongest|if you're picking one lane|largest market|value-add isn't just placement|mission framing holds|wedge is genuinely real|pick a primary lane|business shape changes|current direction|run .* test|compression-first handoff)\b/i
+  ], 7, { recentFirst: true, max: 240, noQuestions: true }).map((item) => item.line);
+  const committedFallback = sentenceCandidates(messages, [
+    /\b(strongest economic wedge|highest-value lane|unit economics are the strongest|if you're picking one lane|value-add isn't just placement|mission .* holds|wedge .* real|current direction|run .* test|compression-first handoff)\b/i
+  ], 4, { recentFirst: true, max: 240, noQuestions: true }).map((item) => item.sentence);
+  const notCommitted = lineCandidates(messages, [
+    /\b(not a student role|not the right role|insufficient qualification|not your primary lane|not a high-volume|year-3 expansion|first-year .*doesn't meet|can't walk into|not therapy|not clinicians|not the primary lane)\b/i
+  ], 7, { role: "assistant", recentFirst: true, max: 240, noQuestions: true }).map((item) => item.line).filter(isBoundaryCandidate);
+  const notCommittedFallback = sentenceCandidates(messages, [
+    /\b(not a student role|not the right role|insufficient qualification|not your primary lane|not a high-volume|year-3 expansion|first-year .*doesn't meet|can't walk into|not therapy|not clinicians|not the primary lane)\b/i
+  ], 4, { role: "assistant", recentFirst: true, max: 240, noQuestions: true }).map((item) => item.sentence).filter(isBoundaryCandidate);
+  const explicitNotCommitted = negativeBoundaryBlock(messages, [/what this is not/, /what it is not/, /do not/, /non-negotiables/, /killed paths/, /killed branches/], 7);
+  const evidence = lineCandidates(messages, [
+    /\b(line item|worker pay|employer all-in cost|placement fee|gross spread|mandatory minimums|qualification expectations|supervision|pricing tolerance|verify .*price|award rate|all-in cost)\b/i
+  ], 6, { role: "assistant", recentFirst: true, max: 240, noQuestions: true }).map((item) => item.line);
+
+  return {
+    committed: committed.length ? committed : (committedFallback.length ? committedFallback : ["No specific commitment inferred; review Critical messages before using this handoff."]),
+    notCommitted: notCommitted.length ? notCommitted : (notCommittedFallback.length ? notCommittedFallback : (explicitNotCommitted.length ? explicitNotCommitted : ["No specific rejected commitment inferred."])),
+    evidence
   };
 }
 
@@ -916,15 +1234,15 @@ ${markdownList(model.risks)}
 
 Committed to:
 
-- Preserve the current thesis, boundaries, killed branches, risks, and next evidence gate.
-- Treat discarded branches as useful evidence, not trash.
-- Produce a readable handoff that a new AI session or collaborator can use quickly.
+${markdownList(model.outcome.committed)}
 
 Not committed to:
 
-- Treating raw transcript storage as the product.
-- Treating visual polish as proof of reasoning quality.
-- Hiding uncertainty, risk, or inferred structure.
+${markdownList(model.outcome.notCommitted)}
+
+Evidence to check:
+
+${markdownList(model.outcome.evidence, "- No specific evidence bullets inferred.")}
 
 ## Next action
 
@@ -1081,6 +1399,16 @@ ${discardedList(model.discarded.slice(0, 6))}
 
 ${markdownList(model.risks.slice(0, 6))}
 
+## Outcome
+
+Committed to:
+
+${markdownList(model.outcome.committed.slice(0, 5))}
+
+Not committed to:
+
+${markdownList(model.outcome.notCommitted.slice(0, 5))}
+
 ## Next Action
 
 ${markdownList(model.nextActions)}
@@ -1144,6 +1472,7 @@ function scoreRun(runDir) {
   const metadata = fs.existsSync(metadataFile) ? JSON.parse(fs.readFileSync(metadataFile, "utf8")) : null;
   const noMangledMarkdown = !/(^|\n)-?\s*# .+## |(^|\n)-\s*### /.test(reasoning + "\n" + handoff);
   const noGenericProductSpine = !/## Product Spine[\s\S]{0,500}LoopThing compresses decisions/i.test(handoff);
+  const noGenericOutcomeBoilerplate = !/## Outcome[\s\S]{0,600}Preserve the current thesis, boundaries, killed branches, risks, and next evidence gate/i.test(reasoning + "\n" + handoff);
   const score = [
     ["Required sections", sectionCount(reasoning) >= 12],
     ["Current thesis present", /## Current thesis[\s\S]+\S/.test(reasoning)],
@@ -1154,7 +1483,7 @@ function scoreRun(runDir) {
     ["Risks present", /## Where the explanation might be wrong[\s\S]*- /.test(reasoning)],
     ["Next action present", /## Next action[\s\S]*- /.test(reasoning)],
     ["No mangled markdown snippets", noMangledMarkdown],
-    ["No generic product-spine boilerplate in handoff", noGenericProductSpine],
+    ["No generic handoff boilerplate", noGenericProductSpine && noGenericOutcomeBoilerplate],
     ["Start file present", fs.existsSync(path.join(runDir, "START_HERE.md"))],
     ["Agent handoff present", Boolean(handoff)],
     ["Metadata present", Boolean(metadata)]
