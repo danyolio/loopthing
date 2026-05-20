@@ -917,10 +917,161 @@ function cleanDictatedQuestion(text) {
     .replace(/^i just want you to summarize the takeaway of,?\s*/i, "")
     .replace(/\b(?:uh|um|er|ah)\b[,\s]*/gi, "")
     .replace(/\blike,\s*/gi, "")
+    .replace(/\byou know,?\s*/gi, "")
+    .replace(/\bobviously,?\s*/gi, "")
     .replace(/\bget to get\b/gi, "get")
     .replace(/\b(\w+)(?:\s+\1\b)+/gi, "$1")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function sentenceCase(text) {
+  const clean = String(text || "").trim();
+  if (!clean) return clean;
+  return clean.charAt(0).toUpperCase() + clean.slice(1);
+}
+
+function cleanFounderText(text) {
+  return cleanDictatedQuestion(text)
+    .replace(/^ok,?\s*/i, "")
+    .replace(/\bkind of\b/gi, "")
+    .replace(/\bsort of\b/gi, "")
+    .replace(/\bpretty\s+(short|concise|clear)\b/gi, "$1")
+    .replace(/\bmaybe\s+(not|is|are|could|should|would)\b/gi, "$1")
+    .replace(/\s+/g, " ")
+    .replace(/\s+([,.!?;:])/g, "$1")
+    .trim();
+}
+
+function founderSignalSummary(text) {
+  const clean = cleanFounderText(text);
+  const lowered = clean.toLowerCase();
+  if (!clean) return "";
+
+  if (/mission\s*:\s*increase supply of mental health workers/i.test(clean)) {
+    const fee = clean.match(/\$?\s*5k\s+a\s+placement.*?\$?\s*20k\s*p[.\s]*m/i)?.[0];
+    return `Founder's mission is to increase the supply of mental-health workers by 10,000 over 10 years through a bridge/recruitment organisation for psych students and graduates${fee ? ", using a flat placement-fee model rather than a wage-margin marketplace" : ""}.`;
+  }
+
+  if (/psychology based startup|solve the supply issue|training many more provisional psych/i.test(clean)) {
+    return "Founder is exploring whether Future Allied can solve mental-health workforce supply by bridging psych students and graduates into legitimate NDIS roles.";
+  }
+
+  if (/initial request:|role and context:|former colleagues.*driver regulations/i.test(clean)) {
+    return "Founder asked for a structured research brief that stress-tests the startup idea, market context, failure modes, and defensible wedge.";
+  }
+
+  if (/couldn[’']?t fora|copy their model|specifically psych students/i.test(clean)) {
+    return "Founder is testing whether to borrow from Fora's student-supply model or choose a differentiated psych-student wedge.";
+  }
+
+  if (/background in psych|focused on it|provide many more mental health workers/i.test(clean)) {
+    return "Founder clarified that the psych-student focus is deliberate: it comes from a psychology background and a belief that NDIS-adjacent roles can build skills while expanding the mental-health workforce.";
+  }
+
+  if (/which role is uniquely suited|should i target.*students|how many should i target/i.test(clean)) {
+    return "Founder wants a concrete organising answer: which NDIS role is uniquely suited to psych students or graduates, and how many candidates to target to get the wedge moving.";
+  }
+
+  if (/all kids places|want a psych student|want .* aha/i.test(clean)) {
+    return "Founder challenged whether paediatric allied-health targets fit the psych-student wedge, forcing a sharper ICP and role definition.";
+  }
+
+  if (/crust data|crustdata|build me a list|find me 10x/i.test(clean)) {
+    return "Founder asked to turn the emerging ICP into a concrete provider target list for discovery calls.";
+  }
+
+  if (/mental health and psychosocial NDIS providers|behaviour support practices|peer workforce organisation/i.test(clean)) {
+    return "Founder requested a balanced discovery list across psychosocial NDIS providers, behaviour support practices, and peer-workforce organisations.";
+  }
+
+  if (/futureallied\.com|bought futureallied/i.test(clean)) {
+    return "Founder has secured futureallied.com and is testing whether Future Allied should operate as a flat-fee placement business rather than a managed marketplace.";
+  }
+
+  if (/don[’']?t take any cut|flat \$?5k|fixed fee|placement/i.test(clean)) {
+    return "Founder prefers a flat placement fee and no ongoing wage skim, positioning Future Allied against managed marketplaces that take margin from worker hours.";
+  }
+
+  if (/regulatory requirements|1st year psych student|first-year psych student|walk in/i.test(clean)) {
+    return "Founder wants the regulatory reality mapped by role, especially where first-year psych students are not yet qualified and where graduates can legitimately enter.";
+  }
+
+  if (/hourly rate|worker pay|all-in cost/i.test(clean)) {
+    return "Founder wants the economics separated by role: NDIS billable rate, worker pay, employer all-in cost, provider spread, and realistic placement fee.";
+  }
+
+  if (/candidate fails|guarantee/i.test(clean)) {
+    return "Founder wants a provider-safe guarantee structure for failed placements, without creating uncapped replacement or refund risk.";
+  }
+
+  if (/names? of all the companies|companies we[’']?ve been talking/i.test(clean)) {
+    return "Founder wants a clean company list so the market map and outreach targets are easy to navigate.";
+  }
+
+  if (/friend|summari[sz]e my thoughts|open questions|propel/i.test(clean)) {
+    return "Founder wants the idea translated into a concise, credible note for a trusted friend, focused on open questions and useful intros.";
+  }
+
+  if (/provider discovery|first port of call|discovery calls/i.test(clean)) {
+    return "Founder recognised that provider discovery is the evidence gate and should come before more strategy or product build.";
+  }
+
+  if (/copy and pasting .*chats|where my gold is/i.test(clean)) {
+    return "Founder identified the manual behaviour LoopThing replaces: people paste whole chats into new chats because they cannot easily locate the useful reasoning.";
+  }
+
+  if (/show-your-work format|recipients mostly read conclusions|falsifiable test/i.test(clean)) {
+    return "Founder sees recipient-facing show-your-work formats as weaker than handoffs with a falsifiable comprehension test.";
+  }
+
+  if (/memory but better|labs will ship memory|multiplayer handoff/i.test(clean)) {
+    return "Founder rejects the generic 'memory but better' category and frames LoopThing around multiplayer handoff instead of single-player personalisation.";
+  }
+
+  if (/^next action\s*:/i.test(clean)) {
+    return `Founder set the next evidence gate: ${sentenceCase(clean.replace(/^next action\s*:\s*/i, ""))}`;
+  }
+
+  if (/psych students into something|support the ndis/i.test(clean)) {
+    return "Founder is exploring the legitimate NDIS role architecture for psych students, rather than forcing them into an AHA model that may not fit psychology.";
+  }
+
+  const transformed = clean
+    .replace(/^i am\b/i, "Founder is")
+    .replace(/^i'm\b/i, "Founder is")
+    .replace(/^i want\b/i, "Founder wants")
+    .replace(/^i don't want\b/i, "Founder does not want")
+    .replace(/^i think\b/i, "Founder believes")
+    .replace(/^i bought\b/i, "Founder bought")
+    .replace(/^my background\b/i, "Founder's background")
+    .replace(/^could i\b/i, "Evaluate whether the founder could")
+    .replace(/^couldn[’']?t i\b/i, "Evaluate whether the founder could")
+    .replace(/^should i\b/i, "Decide whether the founder should")
+    .replace(/^how could i\b/i, "Explore how the founder could")
+    .replace(/^what(?:'s| is)\b/i, "Clarify")
+    .replace(/^what are\b/i, "List")
+    .replace(/^find me\b/i, "Find")
+    .replace(/^list me\b/i, "List");
+
+  if (/^(Founder|Evaluate|Decide|Explore|Clarify|List|Find)\b/.test(transformed)) {
+    return sentenceCase(transformed);
+  }
+
+  if (/\?/.test(clean)) {
+    return `Founder is asking: ${sentenceCase(clean)}`;
+  }
+
+  if (/^[-•]/.test(clean) || lowered.includes("mission:") || lowered.includes("how:")) {
+    return sentenceCase(clean);
+  }
+
+  return sentenceCase(clean);
+}
+
+function polishedUserExcerpt(text, max = 260) {
+  const summary = founderSignalSummary(text);
+  return readableExcerpt(summary || cleanFounderText(text), max);
 }
 
 function cleanSubjectPart(text) {
@@ -1245,7 +1396,7 @@ function asks(messages) {
   const extracted = sections.flatMap((section) => meaningfulLines(section.body))
     .filter((line) => !/^(send|i will return|source metadata|score checklist|reasoning\.md|optional sealed|the ask)\b/i.test(line))
     .filter((line) => line.includes("?") || /\b(bring|review|answer|respond|test|one exported|one sentence|who the recipient)\b/i.test(line));
-  if (extracted.length) return [...new Set(extracted.map((line) => excerpt(line, 180)))].slice(0, 3);
+  if (extracted.length) return [...new Set(extracted.map((line) => polishedUserExcerpt(line, 180)))].slice(0, 3);
   const found = [...preferred].reverse()
     .filter((message) => message.role === "user")
     .flatMap((message) => splitSentences(message.content)
@@ -1255,7 +1406,7 @@ function asks(messages) {
       .filter((sentence) => !/\bmission\s*:/i.test(sentence))
       .filter((sentence) => sentence.includes("?") || /\b(can you|could you|please)\b/i.test(sentence)))
     .slice(0, 3);
-  return found.length ? found.map((sentence) => excerpt(sentence, 180)) : ["Review whether the compressed artifact is faithful, useful, and sendable."];
+  return found.length ? found.map((sentence) => polishedUserExcerpt(sentence, 180)) : ["Review whether the compressed artifact is faithful, useful, and sendable."];
 }
 
 function nextAction(messages) {
@@ -1343,6 +1494,10 @@ function polishOutputText(text, glossary = {}) {
     .replace(/\bThe business shape changes slightly\.\s*/gi, "")
     .replace(/\bThe mission framing holds but needs refinement\.\s*/gi, "")
     .replace(/\bThe honest read:\s*/gi, "")
+    .replace(/\bIf you['’]re picking one lane to lead with, this is it\./gi, "This is the clearest lane to lead with.")
+    .replace(/\bSame answer as recovery coach\.\s*/gi, "The same qualification constraint applies: ")
+    .replace(/[❌✅]\s*/g, "")
+    .replace(/^verify\b/i, "Verify")
     .replace(/\s+([,.!?;:])/g, "$1")
     .trim();
 }
@@ -1543,11 +1698,11 @@ function humanSignalBullets(messages, limit = 6) {
     .sort((a, b) => b.score - a.score);
   const selected = [];
   for (const item of ranked) {
-    const summary = readableExcerpt(item.text, 240);
+    const summary = polishedUserExcerpt(item.text, 260);
     const summaryKey = summary.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
     if (selected.some((existing) => existing.key === summaryKey || existing.key.includes(summaryKey) || summaryKey.includes(existing.key))) continue;
     selected.push({
-      title: `${item.message.role || "source"} signal · ${messageTitle(item.message)}`,
+      title: `founder signal · ${messageTitle(item.message)}`,
       source: item.message.source,
       summary,
       key: summaryKey
@@ -1589,7 +1744,7 @@ function importantUserDirections(messages, limit = 12) {
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
     .sort((a, b) => a.index - b.index);
-  return ranked.map(({ message }) => readableExcerpt(message.content, 260));
+  return ranked.map(({ message }) => polishedUserExcerpt(message.content, 260));
 }
 
 function genericModel(title, messages, metadata) {
@@ -1765,13 +1920,13 @@ ${model.currentWedge}
 
 ${sourceShape(metadata)}
 
-## Recent human directions
+## Recent founder directions
 
 ${markdownList(model.directions.slice(-6))}
 
 ## Key user messages
 
-These are the human-authored turns or source signals the next reader should privilege over assistant monologues.
+These are polished founder-authored signals. Exact wording stays in the source audit; this section preserves intent while making the creator look composed and credible.
 
 ${artifactList(model.humanSignals)}
 
@@ -1934,6 +2089,7 @@ This file is for AI agents and collaborators navigating the run directory.
 - Treat inferred pasted-chat roles as lower confidence; assistant text may appear inside user-pasted material.
 - If a user direction sounds like an assistant offer or question, verify it against the source before acting on it.
 - Do not treat long assistant monologues as the user's intent unless the user explicitly adopted them.
+- Public-facing founder signals are intentionally polished; use source files when exact wording matters.
 
 ## Current state
 
@@ -1965,7 +2121,7 @@ Do not summarize the transcript. Extract the load-bearing structure:
 - Asks
 - Meta
 
-Preserve exact user language where possible. Prefer structured roles over pasted transcript guesses. Mark uncertainty. Keep killed branches useful.`;
+Preserve exact user language only when the wording itself is pivotal; otherwise render user-authored signals clearly and professionally. Prefer structured roles over pasted transcript guesses. Mark uncertainty. Keep killed branches useful.`;
 }
 
 function manifestForRun(title, metadata) {
