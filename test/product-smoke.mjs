@@ -139,8 +139,12 @@ for (const expected of ["Agent Handoff", "Do Not Reopen These Branches", "Operat
 }
 
 const startHere = fs.readFileSync(path.join(runDir, "START_HERE.md"), "utf8");
-for (const expected of ["START HERE", "Read In This Order", "brief.md", "agent-guide.md", "agent-handoff.md", "source-audit.md"]) {
+for (const expected of ["START HERE", "Read In This Order", "brief.md", "agent-guide.md", "agent-handoff.md", "source-audit.md", "Token Estimate"]) {
   if (!startHere.includes(expected)) throw new Error(`Missing start content ${expected}`);
+}
+const metadata = JSON.parse(fs.readFileSync(path.join(runDir, "source-metadata.json"), "utf8"));
+if (!metadata.token_counts?.input_estimate || !metadata.token_counts?.output_estimate) {
+  throw new Error("Metadata should include input and output token estimates");
 }
 
 const qualityReasoning = fs.readFileSync(path.join(qualityRunDir, "reasoning.md"), "utf8");

@@ -124,4 +124,4 @@ Evidence to check:
 
 ## Meta
 
-Compressed from 17 messages. Topic tags: handoff, compression, brand, business, product, life-design, format, discarded-ideas. Caveat: this compression is deterministic and local; review it before sending.
+Compressed from 17 messages. Token estimate: 5,348 input tokens, 5,157 output tokens. Topic tags: handoff, compression, brand, business, product, life-design, format, discarded-ideas. Caveat: this compression is deterministic and local; review it before sending.

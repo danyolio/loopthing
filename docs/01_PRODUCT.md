@@ -4,6 +4,8 @@ LoopThing turns local Codex and Claude Code history into a handoff artifact for 
 
 It is a local CLI and portable file format. The CLI reads structured Codex rollout JSONL, Claude Code project JSONL, Markdown, text, and JSON sources, extracts the project thesis, key user messages, decision shifts, killed branches, risks, next actions, and important source files, then seals the result into a `.loopthing` zip container.
 
+Each run also records local input and output token estimates so the recipient can see roughly how much context was compressed and how large the generated handoff became.
+
 ## Wedge
 
 The strongest product direction is handoff.

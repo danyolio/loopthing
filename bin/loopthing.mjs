@@ -811,6 +811,34 @@ function topicTags(messages) {
   return topics.filter(([, regex]) => regex.test(text)).map(([topic]) => topic);
 }
 
+function estimateTokens(text) {
+  const value = String(text || "");
+  if (!value.trim()) return 0;
+  const chunks = value.match(/[A-Za-z0-9_]+|[^\sA-Za-z0-9_]/g) || [];
+  return Math.max(1, Math.ceil((chunks.length + Math.ceil(value.length / 4)) / 2));
+}
+
+function tokenCountForMessages(messages) {
+  return messages.reduce((total, message) => total + estimateTokens(message.content), 0);
+}
+
+function tokenCountForOutputs(outputs) {
+  return Object.values(outputs).reduce((total, content) => total + estimateTokens(content), 0);
+}
+
+function formatNumber(value) {
+  return Number(value || 0).toLocaleString("en-US");
+}
+
+function tokenSummary(metadata) {
+  const counts = metadata.token_counts || {};
+  const input = counts.input_estimate || 0;
+  const output = counts.output_estimate || 0;
+  const total = input + output;
+  if (!input && !output) return "No token estimate available.";
+  return `- Input estimate: ${formatNumber(input)} tokens\n- Output estimate: ${formatNumber(output)} tokens\n- Total estimate: ${formatNumber(total)} tokens\n- Method: ${counts.method || "local approximation"}`;
+}
+
 function sourceMetadata(messages, files) {
   const roleCounts = messages.reduce((acc, message) => {
     acc[message.role] = (acc[message.role] || 0) + 1;
@@ -835,6 +863,11 @@ function sourceMetadata(messages, files) {
     format: "loopthing/source-metadata-v0.1",
     created: new Date().toISOString(),
     message_count: messages.length,
+    token_counts: {
+      input_estimate: tokenCountForMessages(messages),
+      output_estimate: 0,
+      method: "local approximate tokenizer; no API tokenizer dependency"
+    },
     role_counts: roleCounts,
     source_kind_counts: sourceKindCounts,
     provider_counts: providerCounts,
@@ -1044,6 +1077,10 @@ function renderSourceAudit({ title, metadata }) {
 LoopThing parsed ${metadata.message_count} messages from ${files.length} source file${files.length === 1 ? "" : "s"}.
 
 This is the receipt for the run. If the handoff feels wrong, check this before debating the summary: these are the exact files that were included after directory expansion and ignored-directory filtering.
+
+## Token Estimate
+
+${tokenSummary(metadata)}
 
 ## Source Shape
 
@@ -1792,7 +1829,7 @@ ${markdownList(model.asks)}
 
 ## Meta
 
-Compressed from ${metadata.message_count} messages. Topic tags: ${metadata.topic_tags.length ? metadata.topic_tags.join(", ") : "none detected"}. Caveat: this compression is deterministic and local; review it before sending.
+Compressed from ${metadata.message_count} messages. Token estimate: ${compactTokenSummary(metadata)}. Topic tags: ${metadata.topic_tags.length ? metadata.topic_tags.join(", ") : "none detected"}. Caveat: this compression is deterministic and local; review it before sending.
 `;
 }
 
@@ -1805,7 +1842,7 @@ function genericSummary(messages, metadata) {
   const model = buildHandoffModel(title, messages, metadata);
   return `# Generic Summary
 
-This transcript contains ${metadata.message_count} messages across ${metadata.source_files.length} source file${metadata.source_files.length === 1 ? "" : "s"}.
+This transcript contains ${metadata.message_count} messages across ${metadata.source_files.length} source file${metadata.source_files.length === 1 ? "" : "s"}. Token estimate: ${compactTokenSummary(metadata)}.
 
 Main visible topics: ${metadata.topic_tags.join(", ") || "none detected"}.
 
@@ -1832,6 +1869,14 @@ function sourceQualityNote(metadata) {
   if (inferred) parts.push(`${inferred} inferred-role message${inferred === 1 ? "" : "s"}`);
   if (source) parts.push(`${source} source document message${source === 1 ? "" : "s"}`);
   return parts.length ? parts.join(", ") : "role quality unavailable";
+}
+
+function compactTokenSummary(metadata) {
+  const counts = metadata.token_counts || {};
+  const input = counts.input_estimate || 0;
+  const output = counts.output_estimate || 0;
+  if (!input && !output) return "token estimate unavailable";
+  return `${formatNumber(input)} input tokens, ${formatNumber(output)} output tokens`;
 }
 
 function renderBrief({ title, messages, metadata }) {
@@ -1864,7 +1909,7 @@ ${markdownList(model.nextActions)}
 
 ## Source confidence
 
-${sourceQualityNote(metadata)} across ${metadata.source_files.length} source file${metadata.source_files.length === 1 ? "" : "s"}.
+${sourceQualityNote(metadata)} across ${metadata.source_files.length} source file${metadata.source_files.length === 1 ? "" : "s"}; ${compactTokenSummary(metadata)}.
 `;
 }
 
@@ -1880,7 +1925,7 @@ This file is for AI agents and collaborators navigating the run directory.
 2. \`reasoning.md\` — deeper audit trail with key user messages, decision shifts, boundaries, and risks.
 3. \`agent-handoff.md\` — paste-ready state for a fresh AI session.
 4. \`source-audit.md\` — exact file receipt for the run.
-5. \`source-metadata.json\` — provider counts, role confidence, source hashes.
+5. \`source-metadata.json\` — token estimates, provider counts, role confidence, source hashes.
 6. \`compression-score.md\` — structural smoke test, not semantic truth.
 
 ## Source handling
@@ -1948,7 +1993,7 @@ function renderStartHere({ title, metadata }) {
 
 This is the front door for the LoopThing run.
 
-LoopThing compressed ${metadata.message_count} messages across ${metadata.source_files.length} source file${metadata.source_files.length === 1 ? "" : "s"} into a handoff artifact for the next chat, agent, collaborator, or future self.
+LoopThing compressed ${metadata.message_count} messages across ${metadata.source_files.length} source file${metadata.source_files.length === 1 ? "" : "s"} into a handoff artifact for the next chat, agent, collaborator, or future self. Token estimate: ${compactTokenSummary(metadata)}.
 
 ## Read In This Order
 
@@ -1957,12 +2002,16 @@ LoopThing compressed ${metadata.message_count} messages across ${metadata.source
 3. \`agent-handoff.md\` — paste-ready context for a new AI session.
 4. \`reasoning.md\` — the fuller reasoning artifact: intent, problem, key user messages, decision shifts, discarded branches, risks, outcome, next action, asks.
 5. \`source-audit.md\` — human-readable receipt of every file included in this run.
-6. \`source-metadata.json\` — machine-readable message counts, source shape, topic tags, file hashes.
+6. \`source-metadata.json\` — machine-readable message counts, token estimates, source shape, topic tags, file hashes.
 7. \`compression-score.md\` — structural smoke checks. A perfect score means the required pieces exist; it does not mean the compression is semantically perfect.
 
 ## Source Shape
 
 ${sourceShape(metadata)}
+
+## Token Estimate
+
+${tokenSummary(metadata)}
 
 ## Topic Tags
 
@@ -2415,30 +2464,55 @@ function createSessionCommand(argv) {
   console.log(`Done. Open ${outFile} or inspect ${path.relative(process.cwd(), compression.outDir)}`);
 }
 
+function renderRunOutputs(title, messages, metadata) {
+  return {
+    brief: renderBrief({ title, messages, metadata }),
+    reasoning: renderReasoning({ title, messages, metadata }),
+    agentGuide: renderAgentGuide({ title, messages, metadata }),
+    handoff: renderAgentHandoff({ title, messages, metadata }),
+    sourceAudit: renderSourceAudit({ title, metadata }),
+    startHere: renderStartHere({ title, metadata }),
+    prompt: compressionPrompt(),
+    generic: genericSummary(messages, metadata),
+    manifest: manifestForRun(title, metadata)
+  };
+}
+
+function withOutputTokenEstimate(metadata, outputEstimate) {
+  return {
+    ...metadata,
+    token_counts: {
+      ...(metadata.token_counts || {}),
+      output_estimate: outputEstimate
+    }
+  };
+}
+
 function writeCompressionRun({ messages, files, flags, sourceLabel }) {
   const outDir = path.resolve(flags.out);
   const title = flags.title || titleFromInputs(files);
-  const metadata = sourceMetadata(messages, files);
-  const brief = renderBrief({ title, messages, metadata });
-  const reasoning = renderReasoning({ title, messages, metadata });
-  const agentGuide = renderAgentGuide({ title, messages, metadata });
-  const handoff = renderAgentHandoff({ title, messages, metadata });
-  const sourceAudit = renderSourceAudit({ title, metadata });
-  const startHere = renderStartHere({ title, metadata });
+  let metadata = sourceMetadata(messages, files);
+  let outputs = renderRunOutputs(title, messages, metadata);
+  for (let i = 0; i < 3; i += 1) {
+    const nextOutputEstimate = tokenCountForOutputs(outputs);
+    if (nextOutputEstimate === metadata.token_counts?.output_estimate) break;
+    metadata = withOutputTokenEstimate(metadata, nextOutputEstimate);
+    outputs = renderRunOutputs(title, messages, metadata);
+  }
 
   resetRunDir(outDir);
   ensureDir(outDir);
-  write(path.join(outDir, "START_HERE.md"), startHere);
-  write(path.join(outDir, "brief.md"), brief);
-  write(path.join(outDir, "reasoning.md"), reasoning);
-  write(path.join(outDir, "agent-guide.md"), agentGuide);
-  write(path.join(outDir, "agent-handoff.md"), handoff);
-  write(path.join(outDir, "source-audit.md"), sourceAudit);
+  write(path.join(outDir, "START_HERE.md"), outputs.startHere);
+  write(path.join(outDir, "brief.md"), outputs.brief);
+  write(path.join(outDir, "reasoning.md"), outputs.reasoning);
+  write(path.join(outDir, "agent-guide.md"), outputs.agentGuide);
+  write(path.join(outDir, "agent-handoff.md"), outputs.handoff);
+  write(path.join(outDir, "source-audit.md"), outputs.sourceAudit);
   write(path.join(outDir, "source-metadata.json"), `${JSON.stringify(metadata, null, 2)}\n`);
-  write(path.join(outDir, "prompts", "compression-prompt.md"), compressionPrompt());
-  write(path.join(outDir, "variants", "generic.md"), genericSummary(messages, metadata));
-  write(path.join(outDir, "manifest.loop"), manifestForRun(title, metadata));
-  console.log(`Compressed ${metadata.message_count} messages from ${sourceLabel || `${files.length} file${files.length === 1 ? "" : "s"}`} into ${path.relative(process.cwd(), outDir)}`);
+  write(path.join(outDir, "prompts", "compression-prompt.md"), outputs.prompt);
+  write(path.join(outDir, "variants", "generic.md"), outputs.generic);
+  write(path.join(outDir, "manifest.loop"), outputs.manifest);
+  console.log(`Compressed ${metadata.message_count} messages (${formatNumber(metadata.token_counts.input_estimate)} input tokens -> ${formatNumber(metadata.token_counts.output_estimate)} output tokens est.) from ${sourceLabel || `${files.length} file${files.length === 1 ? "" : "s"}`} into ${path.relative(process.cwd(), outDir)}`);
   return { outDir, title, metadata };
 }
 

@@ -101,3 +101,11 @@ node bin/loopthing.mjs create \
 - metadata
 
 A perfect score does not mean the reasoning is perfect. It means the run produced the expected artifact shape and avoided the worst rendering failures.
+
+## Token Estimates
+
+LoopThing records approximate local token counts in `source-metadata.json` and surfaces them in `START_HERE.md`, `brief.md`, `reasoning.md`, and `source-audit.md`.
+
+- Input tokens estimate the parsed source messages.
+- Output tokens estimate the generated handoff files.
+- The estimator is local and dependency-free, so treat it as a sizing signal rather than an exact model bill.

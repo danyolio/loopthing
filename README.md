@@ -40,7 +40,7 @@ That command creates:
 - `demo/current-run/agent-handoff.md`: paste-ready context for a new AI session.
 - `demo/current-run/reasoning.md`: the full compressed reasoning artifact.
 - `demo/current-run/source-audit.md`: a human-readable receipt of every source file included.
-- `demo/current-run/source-metadata.json`: message counts, source shape, topic tags, and file hashes.
+- `demo/current-run/source-metadata.json`: message counts, input/output token estimates, source shape, topic tags, and file hashes.
 - `demo/current-run/compression-score.md`: structural and readability smoke checks.
 - `demo/loopthing-clean.loopthing`: a sealed portable container with MIME marker `application/vnd.loopthing+zip`.
 
@@ -84,7 +84,7 @@ node bin/loopthing.mjs claude inspect ~/.claude/projects/<project>/<session>.jso
 
 The scan walks `~/.claude/projects` by default, scores conversations against the query or `--like` file, and prints matching JSONL paths. It does not automatically include every match in the artifact; you still choose which paths to pass into `create`. Subagent conversations are skipped by default because they are often noisy, but can be included with `--include-subagents`.
 
-Mixed runs are supported. You can combine pasted ChatGPT text, Codex rollout JSONL, Claude Code JSONL, and project docs in one command when a decision was spread across multiple tools or dates. `source-audit.md` gives a readable receipt of the files included, while `source-metadata.json` records where messages came from, including `provider_counts` and `role_quality`, so a recipient can see which roles were exact and which were inferred. `agent-guide.md` tells future AI agents to trust exact-role Codex / Claude Code logs before inferred pasted transcript text, and to avoid treating assistant offers inside a paste as user intent.
+Mixed runs are supported. You can combine pasted ChatGPT text, Codex rollout JSONL, Claude Code JSONL, and project docs in one command when a decision was spread across multiple tools or dates. `source-audit.md` gives a readable receipt of the files included, while `source-metadata.json` records where messages came from, including `provider_counts`, `role_quality`, and local input/output token estimates. A recipient can see which roles were exact, which were inferred, and how much context was compressed. `agent-guide.md` tells future AI agents to trust exact-role Codex / Claude Code logs before inferred pasted transcript text, and to avoid treating assistant offers inside a paste as user intent.
 
 ## Quality Guardrails
 

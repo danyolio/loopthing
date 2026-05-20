@@ -34,4 +34,4 @@ The strongest product direction is handoff.
 
 ## Source confidence
 
-9 inferred-role messages, 8 source document messages across 9 source files.
+9 inferred-role messages, 8 source document messages across 9 source files; 5,348 input tokens, 5,157 output tokens.

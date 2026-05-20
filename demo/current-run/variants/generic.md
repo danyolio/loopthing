@@ -1,6 +1,6 @@
 # Generic Summary
 
-This transcript contains 17 messages across 9 source files.
+This transcript contains 17 messages across 9 source files. Token estimate: 5,348 input tokens, 5,157 output tokens.
 
 Main visible topics: handoff, compression, brand, business, product, life-design, format, discarded-ideas.
 
