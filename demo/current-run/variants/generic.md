@@ -2,7 +2,7 @@
 
 This transcript contains 17 messages across 9 source files.
 
-Main visible topics: handoff, compression, brand, product, life-design, format, discarded-ideas.
+Main visible topics: handoff, compression, brand, business, product, life-design, format, discarded-ideas.
 
 Current thesis:
 

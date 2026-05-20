@@ -29,7 +29,7 @@ node bin/loopthing.mjs create . \
   --title "LoopThing Clean Project Handoff"
 
 node bin/loopthing.mjs sessions scan
-node bin/loopthing.mjs claude scan "Future Allied NDIS psych students"
+node bin/loopthing.mjs claude scan "pricing decision customer research"
 ```
 
 That command creates:
@@ -76,7 +76,7 @@ Claude Code imports preserve exact `user` / `assistant` roles, skip local comman
 LoopThing can also scan your local Claude Code history for related conversations before you opt them into a run:
 
 ```bash
-node bin/loopthing.mjs claude scan "Future Allied NDIS psych students"
+node bin/loopthing.mjs claude scan "pricing decision customer research"
 node bin/loopthing.mjs claude scan --like ./chat-paste.md
 node bin/loopthing.mjs claude inspect ~/.claude/projects/<project>/<session>.jsonl
 ```

@@ -173,9 +173,9 @@ if (claudeMetadata.provider_counts["claude-code"] !== 3 || claudeMetadata.role_q
   throw new Error("Claude Code import should mark structured roles as exact");
 }
 for (const expected of [
-  "Psychosocial Recovery Coach",
-  "legitimate NDIS mental-health roles",
-  "not psych students doing therapy"
+  "recovery coaching",
+  "graduate-level NDIS mental health roles",
+  "not first-year students doing therapy"
 ]) {
   if (!claudeReasoning.includes(expected)) throw new Error(`Claude Code fixture missing ${expected}`);
 }
@@ -183,7 +183,7 @@ if (claudeReasoning.includes("private chain of thought should be ignored") || cl
   throw new Error("Claude Code fixture should omit thinking/tool/local-command noise");
 }
 if (/handoff|someone else|rereading the whole strategy thread/i.test(claudeIntent)) {
-  throw new Error("Subject intent should not leak LoopThing's handoff purpose into Future Allied output");
+  throw new Error("Subject intent should not leak LoopThing's handoff purpose into project output");
 }
 
 const staleThesisReasoning = fs.readFileSync(path.join(staleThesisRunDir, "reasoning.md"), "utf8");
@@ -199,7 +199,7 @@ if (staleThesisMatch[1].includes("automated claims processing")) {
 const dictatedProblemReasoning = fs.readFileSync(path.join(dictatedProblemRunDir, "reasoning.md"), "utf8");
 const dictatedProblemMatch = dictatedProblemReasoning.match(/## Problem\n\n([\s\S]*?)\n\n## Current thesis/);
 if (!dictatedProblemMatch) throw new Error("Dictated problem fixture should include problem section");
-if (!dictatedProblemMatch[1].includes("Decide where psych students and psychology graduates legitimately fit in NDIS work")) {
+if (!dictatedProblemMatch[1].includes("Decide the legitimate fit for psych students and psychology graduates within NDIS roles")) {
   throw new Error("Dictated problem should synthesize the decision rather than paste the voice transcript");
 }
 if (/to to to|like, which role|thirty of your students/i.test(dictatedProblemMatch[1])) {
@@ -213,7 +213,7 @@ if (timestampMetadata.message_count < 5) {
 }
 for (const expected of [
   "The strongest direction is the handoff CLI.",
-  "Do not build the dashboard first.",
+  "Do not build the dashboard first",
   "commit to a CLI",
   "run the CLI on ten real timestamped chat exports"
 ]) {
@@ -251,7 +251,6 @@ if (codexSessionMetadata.role_quality.exact !== 4) {
   throw new Error("Codex session import should mark roles as exact");
 }
 for (const expected of [
-  "structured session importer",
   "separate finding conversations from compressing conversations",
   "exact session matching"
 ]) {

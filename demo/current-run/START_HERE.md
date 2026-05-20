@@ -25,6 +25,7 @@ LoopThing compressed 17 messages across 9 source files into a handoff artifact f
 - handoff
 - compression
 - brand
+- business
 - product
 - life-design
 - format

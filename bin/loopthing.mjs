@@ -43,7 +43,7 @@ Examples:
   loopthing create ./transcripts --out pricing-decision.loopthing --title "Pricing decision"
   loopthing sessions scan
   loopthing sessions inspect 019e3fbd
-  loopthing claude scan "Future Allied NDIS psych students"
+  loopthing claude scan "pricing decision customer research"
   loopthing claude scan --like ./chat-paste.md
   loopthing create-session 019e3fbd --out repo-decision.loopthing
   loopthing compress ./transcripts --out ./runs/run-001 --title "Pricing decision"
@@ -611,43 +611,12 @@ function assistantConclusionScore(message, index, total) {
   return score;
 }
 
-function corpusText(messages, title = "") {
-  return `${title}\n${messages.map((message) => message.content).join("\n")}`.toLowerCase();
-}
-
-function isFutureAlliedLike(messages, title = "") {
-  if (/\bloopthing\b/i.test(title) && !/\bfuture allied\b/i.test(title)) return false;
-  const text = corpusText(messages, title);
-  const futureScore = countMatches(text, [
-    /\bndis\b/g,
-    /\bfuture allied\b/g,
-    /\bpsych(?:ology)?\s+(?:students?|graduates?)\b/g,
-    /\bpsychosocial\b/g,
-    /\brecovery coach(?:es)?\b/g,
-    /\bbehaviour support\b/g,
-    /\bmental health support worker\b/g,
-    /\bndis commission\b/g,
-    /\bflat placement fee\b/g
-  ]);
-  const loopThingScore = countMatches(text, [
-    /\bloopthing\b/g,
-    /\.loopthing\b/g,
-    /\breasoning handoff\b/g,
-    /\bhandoff artifact\b/g,
-    /\bcompressed reasoning\b/g,
-    /\bchat transcript\b/g,
-    /\bclaude code\b/g,
-    /\bcodex\b/g
-  ]);
-  if (loopThingScore >= 5 && (futureScore < 12 || loopThingScore > futureScore * 3)) return false;
-  return futureScore >= 3 && /\bndis\b/.test(text);
-}
-
 function isLikelyAssistantAuthoredText(text) {
   const clean = cleanMarkdown(text).replace(/\s+/g, " ").trim();
   if (!clean) return false;
   return /^(?:good question|let me|here'?s|the honest|right\b|yes\b|no\b|on it\b|i assume|what i'?d|what i should|that'?s the|this is the|a few|the key issue|the takeaway|the short answer|want me|would you like)\b/i.test(clean)
     || /^want it (?:shorter|longer|tighter|to lean)\b/i.test(clean)
+    || /^which segment do you actually mean\b/i.test(clean)
     || /\bwant me to (?:redraw|shorten|lean|change|build|write)\b/i.test(clean)
     || /\bi (?:can|could|would) (?:give|build|write|draft|model|redraw)\b/i.test(clean);
 }
@@ -778,35 +747,44 @@ function lineCandidates(messages, regexes, limit = 6, options = {}) {
   }).slice(0, limit);
 }
 
-function transcriptThesis(messages) {
-  if (isFutureAlliedLike(messages)) {
-    return "Future Allied is a graduate-to-NDIS-workforce bridge: find, screen, train, and place final-year psychology students and psychology graduates into legitimate NDIS mental-health roles. It is not psych students doing therapy, and not a marketplace taking a cut of worker wages.";
+function compactThesis(text) {
+  const clean = cleanMarkdown(text).replace(/\s+/g, " ").trim();
+  const running = clean.match(/\bYou(?:'re| are) running\s+([^:]{20,220})(?::|\.|$)/i);
+  if (running) {
+    let thesis = `You're running ${running[1].trim().replace(/\s+with\s+$/, "")}.`;
+    const mission = clean.match(/"([^"]{10,180})"\s+stands/i);
+    if (mission) thesis += ` Mission: ${mission[1].trim()}.`;
+    return thesis;
   }
+  return clean;
+}
+
+function transcriptThesis(messages) {
   const preferred = preferredReasoningMessages(messages);
   const lines = lineCandidates(preferred, [
     /\b(you're running|business shape|mission framing|underlying model|bridge organisation|workforce bridge|flat placement fee|train-and-place|recruiter|placement service)\b/i
   ], 3, { role: "assistant", recentFirst: true, max: 300, noQuestions: true });
-  if (lines.length) return lines.map((item) => item.line).join(" ");
+  if (lines.length) return compactThesis(lines.slice(0, 2).map((item) => item.line).join(" "));
   const candidates = sentenceCandidates(preferred, [
     /\b(you're running|the business shape|the mission framing|the actual business|bridge organisation|workforce bridge|train-and-place|handoff cli|compressed reasoning)\b/i
   ], 3, { role: "assistant", recentFirst: true, max: 300, noQuestions: true });
-  if (candidates.length) return candidates.map((item) => item.sentence).join(" ");
+  if (candidates.length) return compactThesis(candidates.map((item) => item.sentence).join(" "));
   const sections = matchingSections(preferred, [/clean thesis/, /^what it is$/, /current thesis/, /one-line summary/, /pinned direction/, /product spine/]).reverse();
   const fallbackSections = sections.length ? sections : matchingSections(messages, [/clean thesis/, /^what it is$/, /current thesis/, /one-line summary/, /pinned direction/, /product spine/]).reverse();
-  if (fallbackSections[0]) return sectionSummary(fallbackSections[0], 360);
+  if (fallbackSections[0]) return compactThesis(sectionSummary(fallbackSections[0], 360));
   return "The useful work is to preserve the decisions, direction, killed branches, risks, and next action so a new person or session can continue without starting cold.";
 }
 
 function transcriptWedge(messages) {
-  if (isFutureAlliedLike(messages)) {
-    return "Lead with Core Behaviour Support Practitioner (Core BSP) placements because the provider economics and training gap are strongest. Treat Psychosocial Recovery Coach as the broader volume lane. First-year psychology students are more likely Mental Health Support Worker candidates, so they should not be the first wedge.";
-  }
   const preferred = preferredReasoningMessages(messages);
   const lines = lineCandidates(preferred, [
     /\b(strongest economic wedge|highest-value lane|picking one lane|primary lane|lead with|best entry|cleanest entry)\b/i,
     /\b(largest market|bottom of the funnel|niche premium lane|not a year-1 wedge)\b/i
   ], 4, { role: "assistant", recentFirst: true, max: 280, noQuestions: true });
-  if (lines.length) return lines.map((item) => item.line).join(" ");
+  if (lines.length) {
+    const decisive = lines.find((item) => /\b(strongest economic wedge|cleanest wedge|if you're picking one lane|lead with|best entry)\b/i.test(item.line));
+    return decisive ? decisive.line : lines.slice(0, 2).map((item) => item.line).join(" ");
+  }
   const candidates = sentenceCandidates(preferred, [
     /\b(strongest economic wedge|highest-value lane|primary lane|lead with|start with|entry point|uniquely suited|best fit|wedge)\b/i
   ], 3, { role: "assistant", recentFirst: true, max: 300, noQuestions: true });
@@ -870,48 +848,103 @@ function sourceMetadata(messages, files) {
   };
 }
 
-function inferIntent(messages, critical) {
-  if (isFutureAlliedLike(messages)) {
-    return "Clarify whether Future Allied should be a bridge/recruiter for psychology students and graduates entering legitimate NDIS mental-health roles, and define the lawful role lane, candidate cohort, and first provider segment to test.";
-  }
+function inferIntent(messages, title = "") {
   const preferred = preferredReasoningMessages(messages);
   const section = matchingSections(preferred, [/^intent$/, /underlying goal/])[0]
     || matchingSections(messages, [/^intent$/, /underlying goal/])[0];
   if (section) {
-    const summary = sectionSummary(section, 320);
-    if (summary) return summary;
+      const summary = sectionSummary(section, 320);
+      if (summary) return summary;
+  }
+  if (/\bloopthing\b/i.test(`${title}\n${messages.map((message) => message.content).join("\n")}`) && domainFor(messages, title) === "loopthing") {
+    return "Compress messy local AI work history into a useful handoff artifact for the next chat, agent, collaborator, or future self.";
+  }
+  const recentQuestion = sentenceCandidates(preferred, [
+    /\b(mission|goal|trying to|want to|i want|biggest question|real question|where .* fit|which role|what role|how many|what should|should i target|wedge|first provider|candidate cohort|customer segment)\b/i
+  ], 2, { role: "user", recentFirst: true, max: 260 }).map((item) => item.sentence);
+  if (recentQuestion.length) {
+    return synthesizedProblemFromQuestion(recentQuestion.join(" "), recentMessages(preferred, 0.2).map((message) => message.content).join("\n"));
   }
   const firstUser = messages.find((message) => message.role === "user");
   const lastUser = [...messages].reverse().find((message) => message.role === "user");
-  if (!firstUser && !lastUser) return "Compress the reasoning path from source material into a usable handoff.";
-  return "Compress the reasoning arc into a usable handoff so a recipient can continue from the current decision rather than rereading the transcript.";
+  if (!firstUser && !lastUser) return "Clarify the current project decision, boundary, and next evidence gate from the source material.";
+  return "Clarify the current project decision, boundary, and next evidence gate from the conversation.";
 }
 
 function cleanDictatedQuestion(text) {
   return String(text)
+    .replace(/^so i haven[’']?t thoroughly read your messages\.?\s*/i, "")
+    .replace(/^i just want you to summarize the takeaway of,?\s*/i, "")
     .replace(/\b(?:uh|um|er|ah)\b[,\s]*/gi, "")
     .replace(/\blike,\s*/gi, "")
+    .replace(/\bget to get\b/gi, "get")
     .replace(/\b(\w+)(?:\s+\1\b)+/gi, "$1")
     .replace(/\s+/g, " ")
     .trim();
 }
 
+function cleanSubjectPart(text) {
+  return cleanMarkdown(text)
+    .replace(/\s+/g, " ")
+    .replace(/\b(?:got it|right|good question|depends on|let me|the honest read|the takeaway)\b.*$/i, "")
+    .replace(/^(?:the|a|an)\s+/i, "")
+    .replace(/\b(?:actually|legitimately|really|just)\b/gi, "")
+    .replace(/\s+/g, " ")
+    .replace(/[,:;.!?]+$/g, "")
+    .trim();
+}
+
+function extractFitFrame(text) {
+  const source = cleanDictatedQuestion(text);
+  const patterns = [
+    /\bwhere\s+(?:do|does|can|could|should)?\s*([^?.,;]{3,120}?)\s+(?:can|could|should|do|does)?\s*(?:legitimately\s+)?fit(?:s)?\s+(?:into|in|within)\s+([^?.,;]{3,120})/i,
+    /\bhow\/where\s+([^?.,;]{3,120}?)\s+fit(?:s)?\s+(?:into|in|within)\s+([^?.,;]{3,120})/i
+  ];
+  for (const pattern of patterns) {
+    const match = source.match(pattern);
+    if (!match) continue;
+    const subject = cleanSubjectPart(match[1]);
+    const context = cleanSubjectPart(match[2]);
+    if (subject && context) return { subject, context };
+  }
+  return null;
+}
+
+function extractStatedObjective(text) {
+  const source = cleanDictatedQuestion(text);
+  const patterns = [
+    /\bmission\s*:\s*([^?!.]{8,180})/i,
+    /\b(?:my\s+)?goal\s+(?:is|:)\s*([^?!.]{8,180})/i,
+    /\bi\s+want\s+(?:to\s+)?([^?!.]{8,180})/i,
+    /\btrying\s+to\s+([^?!.]{8,180})/i
+  ];
+  for (const pattern of patterns) {
+    const match = source.match(pattern);
+    if (!match) continue;
+    const objective = cleanSubjectPart(match[1]);
+    if (objective) return objective;
+  }
+  return "";
+}
+
 function synthesizedProblemFromQuestion(text, context = "") {
   const clean = cleanDictatedQuestion(text);
-  const lowered = `${clean}\n${context}`.toLowerCase();
-  if (/\bpsych(?:ology)? students?\b/.test(lowered) && /\bndis\b/.test(lowered)) {
-    return "Decide where psych students and psychology graduates legitimately fit in NDIS work, which role lane is the strongest initial wedge, and what candidate cohort to target first.";
+  const combined = `${clean}\n${context}`;
+  const fitFrame = extractFitFrame(combined);
+  if (fitFrame) {
+    return `Decide the legitimate fit for ${fitFrame.subject} within ${fitFrame.context}, which role or segment is the strongest initial wedge, and what first target is concrete enough to organize the next loop.`;
+  }
+  const objective = extractStatedObjective(combined);
+  if (objective && /\bwedge\b/i.test(clean)) {
+    return `Decide the strongest initial wedge for ${objective}.`;
   }
   if (/\bwhich role\b|\bwhat role\b|\bwhere .* fit\b|\bhow many\b|\bwhat should\b/i.test(clean)) {
-    return "Decide which role, segment, or candidate cohort is the strongest initial wedge, and what first target is concrete enough to organize the next loop.";
+    return "Decide which role, segment, or cohort is the strongest initial wedge, and what first target is concrete enough to organize the next loop.";
   }
   return clean;
 }
 
 function inferProblem(messages) {
-  if (isFutureAlliedLike(messages)) {
-    return "Decide where psych students and psychology graduates legitimately fit in NDIS work, which role lane is the strongest initial wedge, and which candidate cohort to organise first.";
-  }
   const preferred = preferredReasoningMessages(messages);
   const section = matchingSections(preferred, [/^problem$/, /problem statement/])[0]
     || matchingSections(messages, [/^problem$/, /problem statement/])[0];
@@ -947,27 +980,15 @@ function framingDiffs(critical) {
 }
 
 function decisionShifts(messages, critical) {
-  if (isFutureAlliedLike(messages)) {
-    return [
-      {
-        from: "Psych students as quasi-therapists",
-        to: "Psychology candidates only in legitimate NDIS role lanes",
-        trigger: "Therapy is regulated and cannot be quietly delegated to students.",
-        why: "The bridge has to create lawful, supervisable workers rather than dress unpaid clinical ambition as workforce supply."
-      },
-      {
-        from: "Allied Health Assistant logic for psychology",
-        to: "Psychology-to-NDIS workforce bridge",
-        trigger: "Psychology does not decompose into assistant tasks the way OT, speech, or physio can.",
-        why: "This keeps the idea from copying the wrong operating model."
-      },
-      {
-        from: "First-year psychology students as the main supply",
-        to: "Final-year students and graduates first",
-        trigger: "Recovery Coach and Core Behaviour Support Practitioner roles expect qualifications, experience, or supervised capability.",
-        why: "The first cohort should be close enough to employability that training makes them role-ready, not merely interested."
-      }
-    ];
+  const discarded = discardedBranches(messages).slice(0, 4);
+  const wedge = transcriptWedge(messages);
+  if (discarded.length && !/^The strongest surviving direction/.test(wedge)) {
+    return discarded.map((item) => ({
+      from: item.branch,
+      to: readableExcerpt(wedge, 120),
+      trigger: item.reason,
+      why: "This keeps the next reader from reopening a branch the conversation already narrowed away from."
+    }));
   }
   return framingDiffs(critical);
 }
@@ -987,22 +1008,6 @@ function recentUserDirections(messages, limit = 5) {
 }
 
 function discardedBranches(messages) {
-  if (isFutureAlliedLike(messages)) {
-    return [
-      {
-        branch: "Psych students doing therapy",
-        reason: "The role has to be lawful and supervised; Future Allied should not create pseudo-clinical work."
-      },
-      {
-        branch: "First-year students as the first wedge",
-        reason: "The higher-value NDIS mental-health roles are closer to final-year students, graduates, or experienced workers."
-      },
-      {
-        branch: "Allied Health Assistant model for psychology",
-        reason: "Psychology does not break into delegated assistant tasks as cleanly as OT, speech, physio, or exercise physiology."
-      }
-    ];
-  }
   const preferred = preferredReasoningMessages(messages);
   const sections = matchingSections(preferred, [/discarded/, /killed? paths?/, /killed? branches?/, /what not to build/, /^not yet$/, /^killed paths$/]);
   const extracted = [];
@@ -1050,15 +1055,16 @@ function discardedBranches(messages) {
     .filter((item) => item.reason && !/^(this path was explicitly listed as discarded or not for now\.)$/i.test(item.reason));
   if (cleanedExtracted.length) return dedupeItems(cleanedExtracted, "branch").slice(0, 8);
   const boundaryBranches = lineCandidates(preferred, [
-    /\b(not a student role|not the right role|first-year .*doesn't meet|graduate role|not your primary lane|not a high-volume|year-3 expansion|not therapy|not clinicians|insufficient qualification)\b/i
+    /\b(do not build|not a student role|not the right role|not first-year|first-year .*doesn't meet|graduate role|not your primary lane|not a high-volume|year-3 expansion|not .*therapy|not .*marketplace|not clinicians|insufficient qualification)\b/i
   ], 8, { role: "assistant", recentFirst: true, max: 240, noQuestions: true })
     .map((item) => item.line)
     .filter(isBoundaryCandidate)
     .map((line) => boundaryBranch(line));
   if (boundaryBranches.length) return dedupeItems(boundaryBranches, "branch").slice(0, 8);
-  const killed = sentenceCandidates(preferred, [/killed?/, /discard/, /rejected/, /wrong direction/, /doesn.?t make sense/, /not the direction/, /not .* product/, /not .* transcript/, /not .* role/, /insufficient qualification/, /out of scope/], 8, { role: "assistant", recentFirst: true, max: 180 });
+  const killed = sentenceCandidates(preferred, [/killed?/, /discard/, /rejected/, /wrong direction/, /doesn.?t make sense/, /do not build/, /not the direction/, /not .* product/, /not .* transcript/, /not .* role/, /not .*therapy/, /not .*marketplace/, /not first-year/, /insufficient qualification/, /out of scope/], 8, { role: "assistant", recentFirst: true, max: 180 });
   if (killed.length) {
-    return killed.map((item) => ({
+    const filteredKilled = killed.filter((item) => !/^outcome:/i.test(item.sentence) && hasStrongBoundary(item.sentence));
+    if (filteredKilled.length) return filteredKilled.map((item) => ({
       branch: excerpt(item.sentence, 160),
       reason: "The conversation explicitly moved away from this branch; preserve it so the recipient does not re-propose it."
     }));
@@ -1072,6 +1078,9 @@ function discardedBranches(messages) {
 function boundaryBranch(line) {
   const quotedNotRunning = line.match(/not running an?\s+"([^"]+)"/i);
   if (quotedNotRunning) return { branch: quotedNotRunning[1], reason: line };
+  const notMarketplace = line.match(/not\s+a?\s*([^.;]*marketplace[^.;]*)/i);
+  if (notMarketplace) return { branch: boundarySubject(notMarketplace[1]), reason: line };
+  if (/\bnot first-year\b/i.test(line)) return { branch: "First-year candidates as the main wedge", reason: line };
   const notPrimary = line.match(/^(.*?)(?:is|was)\s+(?:not|probably not)\s+(?:your|the)\s+primary\b/i);
   if (notPrimary) return { branch: `${boundarySubject(notPrimary[1])} as the primary wedge`, reason: line };
   if (/\bbottom of the funnel|lowest revenue|lower-priority\b/i.test(line)) return { branch: `${boundarySubject(line)} as the primary wedge`, reason: line };
@@ -1103,18 +1112,14 @@ function boundarySubject(raw) {
 
 function isBoundaryCandidate(line) {
   const positiveCapability = /\b(can legitimately work|will hire|eligible|fits|meets .*pathway|can pathway|can do|real role|legitimate role)\b/i.test(line);
-  const strongBoundary = /\b(not (?:your|the) primary|not a high-volume|not a year|year-3 expansion|insufficient|doesn[’']?t meet|does not meet|can't|cannot|not a student role|not the right role|graduate role|bottom of the funnel|lowest revenue|lower-priority)\b/i.test(line);
-  return !positiveCapability || strongBoundary;
+  return !positiveCapability || hasStrongBoundary(line);
+}
+
+function hasStrongBoundary(line) {
+  return /\b(do not build|not (?:your|the) primary|not a high-volume|not a year|not first-year|not .*therapy|not .*marketplace|year-3 expansion|insufficient|doesn[’']?t meet|does not meet|can't|cannot|not a student role|not the right role|graduate role|bottom of the funnel|lowest revenue|lower-priority)\b/i.test(line);
 }
 
 function risks(messages) {
-  if (isFutureAlliedLike(messages)) {
-    return [
-      "Role requirements change and must be verified against current NDIS Commission guidance before selling.",
-      "A first-year psychology student may not be employable in the higher-value roles, so the candidate cohort matters.",
-      "Supervision may be the real bottleneck; recruitment alone may not solve provider pain."
-    ];
-  }
   const preferred = preferredReasoningMessages(messages);
   const sections = matchingSections(preferred, [/risk/, /where .*wrong/, /open questions?/, /current limits?/, /known limits?/, /kill criteria/, /core risk/]);
   const extracted = [];
@@ -1145,13 +1150,6 @@ function risks(messages) {
 }
 
 function asks(messages) {
-  if (isFutureAlliedLike(messages)) {
-    return [
-      "Which role lane has the most acute hiring pain?",
-      "What training would make a psychology graduate role-ready?",
-      "Would supervision matching materially increase provider willingness to pay?"
-    ];
-  }
   const preferred = preferredReasoningMessages(messages);
   const sections = matchingSections(preferred, [/^asks?$/, /recipient test/, /the ask/]);
   const extracted = sections.flatMap((section) => meaningfulLines(section.body))
@@ -1160,15 +1158,17 @@ function asks(messages) {
   if (extracted.length) return [...new Set(extracted.map((line) => excerpt(line, 180)))].slice(0, 3);
   const found = [...preferred].reverse()
     .filter((message) => message.role === "user")
-    .flatMap((message) => splitSentences(message.content).filter((sentence) => sentence.includes("?") || /\b(can you|could you|please|want to|i want)\b/i.test(sentence)))
+    .flatMap((message) => splitSentences(message.content)
+      .map((sentence) => cleanDictatedQuestion(sentence))
+      .filter((sentence) => sentence.length > 20)
+      .filter((sentence) => !isLikelyAssistantAuthoredText(sentence))
+      .filter((sentence) => !/\bmission\s*:/i.test(sentence))
+      .filter((sentence) => sentence.includes("?") || /\b(can you|could you|please)\b/i.test(sentence)))
     .slice(0, 3);
   return found.length ? found.map((sentence) => excerpt(sentence, 180)) : ["Review whether the compressed artifact is faithful, useful, and sendable."];
 }
 
 function nextAction(messages) {
-  if (isFutureAlliedLike(messages)) {
-    return "Verify current NDIS Commission requirements for Core Behaviour Support Practitioner and Psychosocial Recovery Coach roles, then run 5-10 discovery calls with behaviour support and psychosocial NDIS providers to test recruitment pain, training gaps, supervision requirements, and willingness to pay a flat placement fee.";
-  }
   const preferred = preferredReasoningMessages(messages);
   const sections = matchingSections(preferred, [/^next action$/, /^next loop$/, /^next moves?$/, /^next proof$/, /current ralph queue/]);
   const extracted = sections.flatMap((section) => meaningfulLines(section.body))
@@ -1183,6 +1183,10 @@ function nextAction(messages) {
     /\b(next action|before the discovery calls|what to do with this|first 5 calls|next 5 calls|start with|pick a primary lane|verify|ask each provider|run .* calls|target)\b/i
   ], 2, { role: "assistant", recentFirst: true, max: 280 });
   if (assistantNext.length) return assistantNext.map((item) => item.sentence).join(" ");
+  const wedge = transcriptWedge(messages);
+  if (wedge && !/^The strongest surviving direction/.test(wedge)) {
+    return `Test the current wedge with the target users or customers: ${readableExcerpt(wedge, 220)}`;
+  }
   const lastUser = [...preferred].reverse().find((message) => message.role === "user" && !message.content.trim().startsWith("{"));
   return lastUser ? excerpt(lastUser.content, 260) : "Run a recipient comprehension test against this artifact.";
 }
@@ -1195,6 +1199,71 @@ function dedupeItems(items, key) {
     seen.add(value);
     return true;
   });
+}
+
+function inferAcronymGlossary(messages) {
+  const text = messages.map((message) => message.content).join("\n");
+  const ignored = new Set(["ACT", "AI", "API", "CLI", "CSS", "HTML", "HTTP", "JSON", "JSONL", "MCP", "MRR", "NDIS", "NSW", "NT", "QLD", "SA", "TAS", "URL", "USD", "VIC", "WA"]);
+  const acronyms = new Set();
+  for (const match of text.matchAll(/\b[A-Z]{2,6}s?\b/g)) {
+    const acronym = match[0].replace(/s$/, "");
+    if (acronym.length >= 3 && !ignored.has(acronym)) acronyms.add(acronym);
+  }
+  if (!acronyms.size) return {};
+
+  const candidates = new Map();
+  for (const match of text.matchAll(/\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,5})s?\b/g)) {
+    const words = match[1].split(/\s+/).filter((word) => word.length > 2);
+    for (let start = 0; start < words.length; start += 1) {
+      for (let end = start + 2; end <= Math.min(words.length, start + 5); end += 1) {
+        const phraseWords = words.slice(start, end);
+        const acronym = phraseWords.map((word) => word[0]).join("").toUpperCase();
+        if (!acronyms.has(acronym)) continue;
+        const phrase = phraseWords.join(" ");
+        const pluralPenalty = /s$/i.test(phraseWords[phraseWords.length - 1]) ? 3 : 0;
+        const roleBonus = /\b(assistant|coach|coordinator|developer|lead|manager|practitioner|specialist|worker)\b/i.test(phrase) ? 2 : 0;
+        const score = (phraseWords.length === acronym.length ? 5 : 0) + roleBonus - pluralPenalty - phrase.length / 100;
+        const existing = candidates.get(acronym);
+        if (!existing || score > existing.score) candidates.set(acronym, { phrase, score });
+      }
+    }
+  }
+
+  return Object.fromEntries([...candidates.entries()].map(([acronym, candidate]) => [acronym, candidate.phrase]));
+}
+
+function expandAcronyms(text, glossary = {}) {
+  let output = String(text);
+  for (const [acronym, phrase] of Object.entries(glossary).sort((a, b) => b[0].length - a[0].length)) {
+    const regex = new RegExp(`\\b${acronym}s?\\b`, "g");
+    output = output.replace(regex, (match, offset, full) => {
+      const before = full.slice(Math.max(0, offset - phrase.length - 24), offset).toLowerCase();
+      if (before.includes(phrase.toLowerCase())) return match;
+      const pluralPhrase = match.endsWith("s") && !phrase.endsWith("s") ? `${phrase}s` : phrase;
+      return `${pluralPhrase} (${match})`;
+    });
+  }
+  return output;
+}
+
+function polishOutputText(text, glossary = {}) {
+  return expandAcronyms(String(text), glossary)
+    .replace(/\s+/g, " ")
+    .replace(/^(?:one|two|three|four|five|six|seven|eight|nine|ten)\s+[—-]\s+/i, "")
+    .replace(/\bThe business shape changes slightly\.\s*/gi, "")
+    .replace(/\bThe mission framing holds but needs refinement\.\s*/gi, "")
+    .replace(/\bThe honest read:\s*/gi, "")
+    .replace(/\s+([,.!?;:])/g, "$1")
+    .trim();
+}
+
+function polishModel(value, glossary = {}) {
+  if (typeof value === "string") return polishOutputText(value, glossary);
+  if (Array.isArray(value)) return value.map((item) => polishModel(item, glossary));
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, polishModel(item, glossary)]));
+  }
+  return value;
 }
 
 function readableExcerpt(text, max = 260) {
@@ -1343,59 +1412,7 @@ function criticalMessageBullets(messages, limit = 8) {
   }));
 }
 
-function findUserSignal(messages, regexes) {
-  return messages.find((message) =>
-    (message.role === "user" || message.role === "human")
-    && !isLikelyAssistantAuthoredText(message.content)
-    && regexes.some((regex) => regex.test(message.content))
-  );
-}
-
-function futureAlliedHumanSignals(messages) {
-  const specs = [
-    {
-      label: "Mission",
-      regexes: [/increase supply of mental health workers/i, /10,000 over 10 years/i],
-      summary: "The mission is workforce supply: increase the number of legitimate NDIS mental-health workers over a decade."
-    },
-    {
-      label: "Founder edge",
-      regexes: [/background in psych/i, /focused on it/i],
-      summary: "The psych-student angle matters because the founder has a psychology background and cares about that supply pool."
-    },
-    {
-      label: "Economic preference",
-      regexes: [/don.?t take any cut of their wages/i, /flat \$?5k/i, /placement/i],
-      summary: "The preferred model is flat-fee recruitment or headhunting, not taking an ongoing cut of worker wages."
-    },
-    {
-      label: "Regulatory constraint",
-      regexes: [/1st year psych student/i, /first-year psych student/i, /won.?t just be able to walk in/i],
-      summary: "A first-year psychology student probably cannot walk into the higher-value NDIS roles; candidate seniority matters."
-    },
-    {
-      label: "Core question",
-      regexes: [/which role is uniquely suited/i, /should i target/i, /graduate students/i, /get stuff organized/i],
-      summary: "The organising question is which role lane and candidate cohort to target first."
-    },
-    {
-      label: "Customer target",
-      regexes: [/psychosocial ndis providers/i, /behaviour support practices/i, /peer workforce organisation/i],
-      summary: "The first customer calls should be behaviour support and psychosocial NDIS providers, not paediatric allied-health clinics."
-    }
-  ];
-  return specs.map((spec) => {
-    const message = findUserSignal(messages, spec.regexes);
-    return {
-      title: `user signal · ${spec.label}`,
-      source: message?.source || "synthesized from Future Allied sources",
-      summary: spec.summary
-    };
-  });
-}
-
 function humanSignalBullets(messages, limit = 6) {
-  if (isFutureAlliedLike(messages)) return futureAlliedHumanSignals(messages).slice(0, limit);
   const exactOrChat = messages.filter((message) =>
     (message.role === "user" || message.role === "human")
     && message.content.trim().length > 20
@@ -1403,70 +1420,63 @@ function humanSignalBullets(messages, limit = 6) {
     && !/^<environment_context>|^# In app browser:/i.test(message.content.trim())
   );
   const candidates = exactOrChat.length ? exactOrChat : messages.filter((message) => message.content.trim().length > 40);
-  const ranked = candidates
-    .map((message, index) => ({
-      ...message,
-      globalIndex: messages.indexOf(message),
-      score: scoreMessage(message, index, candidates.length)
-        + (/\b(i want|i don't|my goal|biggest question|background|mission|focus|we want|not working|weird)\b/i.test(message.content) ? 8 : 0)
-        + ((message.role === "user" || message.role === "human") ? 8 : 0)
+  const snippets = [];
+  for (const message of candidates) {
+    const parts = [
+      ...message.content.split(/\r?\n/),
+      ...splitSentences(message.content)
+    ];
+    for (const part of parts) {
+      const clean = cleanDictatedQuestion(cleanMarkdown(part).replace(/\s+/g, " ").trim());
+      if (clean.length < 18 || clean.length > 320) continue;
+      if (/^(summary|context|user|assistant|this session is being continued|here is a comprehensive summary)\b/i.test(clean)) continue;
+      if (isLikelyAssistantAuthoredText(clean)) continue;
+      snippets.push({
+        message,
+        text: clean,
+        index: message.index ?? messages.indexOf(message)
+      });
+    }
+  }
+  const ranked = snippets
+    .map((item) => ({
+      ...item,
+      score: (/\b(mission|goal|my background|background in|focused|biggest question|real question|should i target|which role|what role|where .* fit|don't take|flat fee|provider|customer|call|wedge|not working|weird|strange|unclear|too long|send|friend)\b/i.test(item.text) ? 12 : 0)
+        + (/\b(mission|my background|background in|focused|don't take|flat fee|which role|what role|first-year|1st year|walk in)\b/i.test(item.text) ? 8 : 0)
+        + (/\b(i want|i don't|i think|should|could)\b/i.test(item.text) ? 3 : 0)
+        + (/\?/.test(item.text) ? 3 : 0)
+        + (item.index / Math.max(messages.length, 1))
     }))
     .sort((a, b) => b.score - a.score);
   const selected = [];
-  for (const message of ranked) {
-    const summary = readableExcerpt(message.content, 240);
-    if (selected.some((existing) => existing.summary === summary)) continue;
+  for (const item of ranked) {
+    const summary = readableExcerpt(item.text, 240);
+    const summaryKey = summary.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    if (selected.some((existing) => existing.key === summaryKey || existing.key.includes(summaryKey) || summaryKey.includes(existing.key))) continue;
     selected.push({
-      title: `${message.role || "source"} · ${messageTitle(message)}`,
-      source: message.source,
-      summary
+      title: `${item.message.role || "source"} signal · ${messageTitle(item.message)}`,
+      source: item.message.source,
+      summary,
+      key: summaryKey
     });
     if (selected.length >= limit) break;
   }
-  return selected;
+  return selected.map(({ key, ...item }) => item);
 }
 
 function supportingConclusionBullets(messages, limit = 5) {
-  if (isFutureAlliedLike(messages)) {
-    return [
-      {
-        title: "supporting conclusion · Role fit",
-        source: "synthesized from Future Allied sources",
-        summary: "Psychology does not map cleanly to the Allied Health Assistant model; the product should map candidates into NDIS roles with real scope and supervision."
-      },
-      {
-        title: "supporting conclusion · First wedge",
-        source: "synthesized from Future Allied sources",
-        summary: "Core Behaviour Support Practitioner looks like the highest-value first wedge because training, supervision, and provider economics all matter."
-      },
-      {
-        title: "supporting conclusion · Adjacent lane",
-        source: "synthesized from Future Allied sources",
-        summary: "Psychosocial Recovery Coach may be the larger volume lane, but likely needs completed qualifications, experience, or stronger provider-side supervision."
-      }
-    ].slice(0, limit);
-  }
-  const conclusions = criticalMessages(messages, limit + 3)
-    .filter((message) => message.role === "assistant" || message.role === "source")
-    .map((message) => ({
-      title: `${message.role} · ${messageTitle(message)}`,
-      source: message.source,
-      summary: readableExcerpt(message.content, 260)
-    }));
+  const conclusionSentences = sentenceCandidates(messages, [
+    /\b(the key issue|the takeaway|the strongest|the cleanest|the best|the actual|what this means|what this tells you|the business shape|the wedge|should be|should separate|separate .* from|lead with|start with|not .* therapy|not .* marketplace|not .* primary|highest-value|larger volume|legitimate|role-ready|supervision|evidence gate)\b/i
+  ], limit + 4, { role: "assistant", recentFirst: true, max: 260, noQuestions: true });
+  const conclusions = conclusionSentences.map((item) => ({
+    title: `assistant conclusion · ${path.basename(item.source || "source")}`,
+    source: item.source,
+    summary: item.sentence
+  }));
   return conclusions.slice(0, limit);
 }
 
 function importantUserDirections(messages, limit = 12) {
-  if (isFutureAlliedLike(messages)) {
-    return [
-      "Make the output short enough to send to a friend, not a long reasoning dump.",
-      "Focus on psych students and psychology graduates because that is the founder's background and interest.",
-      "Do not frame this as students doing therapy; map them into legitimate NDIS roles.",
-      "Prefer a flat placement fee model over taking a cut of worker wages.",
-      "Clarify which role lane and candidate cohort should be organised first.",
-      "Use provider discovery calls to test the wedge instead of more abstract strategy."
-    ].slice(0, limit);
-  }
   const chatUserMessages = messages.filter((message) =>
     message.role === "user"
     && message.source_kind === "chat-transcript"
@@ -1491,6 +1501,7 @@ function importantUserDirections(messages, limit = 12) {
 
 function genericModel(title, messages, metadata) {
   const reasoningMessages = preferredReasoningMessages(messages);
+  const glossary = inferAcronymGlossary(reasoningMessages);
   const discarded = discardedBranches(messages).slice(0, 8);
   const critical = criticalMessages(reasoningMessages, 8).map((message) => ({
     title: messageTitle(message),
@@ -1503,10 +1514,10 @@ function genericModel(title, messages, metadata) {
   const projectDocs = keyArtifactBullets(messages, metadata, 8);
   const chatHeavy = (metadata.source_kind_counts?.["chat-transcript"] || 0) > (metadata.message_count * 0.5);
   const outcome = outcomeModel(messages);
-  return {
+  const model = {
     domain: domainFor(messages, title),
     projectName: cleanProjectName(title),
-    intent: sectionParagraph(messages, [/^intent$/, /underlying goal/], inferIntent(messages, topMessages(messages, 5))),
+    intent: sectionParagraph(messages, [/^intent$/, /underlying goal/], inferIntent(messages, title)),
     problem: sectionParagraph(messages, [/^problem$/, /problem statement/], inferProblem(messages)),
     thesis: transcriptThesis(messages),
     currentWedge: transcriptWedge(messages),
@@ -1524,16 +1535,10 @@ function genericModel(title, messages, metadata) {
     directions: importantUserDirections(messages, 12),
     outcome
   };
+  return polishModel(model, glossary);
 }
 
 function survivalClaims(messages, outcome) {
-  if (isFutureAlliedLike(messages)) {
-    return [
-      "The mission is stronger when framed as increasing legitimate mental-health workforce supply, not inventing pseudo-clinical work for students.",
-      "A flat placement fee keeps the worker's wage intact and differentiates Future Allied from managed marketplaces.",
-      "The first wedge should target roles where training, supervision, and provider economics all matter."
-    ];
-  }
   const explicit = sectionBlock(messages, [/what survives criticism/, /outcome/, /committed to/, /narrowest claim/], 6);
   if (explicit.length) return explicit;
   const lines = lineCandidates(messages, [
@@ -1547,29 +1552,12 @@ function survivalClaims(messages, outcome) {
 }
 
 function boundariesFromTranscript(messages, outcome) {
-  if (isFutureAlliedLike(messages)) return outcome.notCommitted.slice(0, 6);
   const explicit = negativeBoundaryBlock(messages, [/what this is not/, /what it is not/, /do not/, /non-negotiables/, /killed paths/, /killed branches/], 8);
   if (explicit.length) return explicit;
   return outcome.notCommitted.slice(0, 6);
 }
 
 function outcomeModel(messages) {
-  if (isFutureAlliedLike(messages)) {
-    return {
-      committed: [
-        "Future Allied is being tested as a flat-fee recruitment and bridge organisation, not a managed marketplace taking a cut of wages.",
-        "The first serious wedge is Core Behaviour Support Practitioner placements for final-year psychology students and graduates."
-      ],
-      notCommitted: [
-        "Do not pitch first-year psychology students as recovery coaches, behaviour support practitioners, or therapists.",
-        "Do not imply psych students can deliver psychology services without the right registration, supervision, and role scope."
-      ],
-      evidence: [
-        "Verify current NDIS Commission guidance for behaviour support capability and psychosocial recovery coach expectations.",
-        "Ask providers which role is hardest to fill, what training gap psych graduates have, and whether supervision matching changes willingness to pay."
-      ]
-    };
-  }
   const committed = lineCandidates(messages, [
     /\b(strongest economic wedge|highest-value lane|unit economics are the strongest|if you're picking one lane|largest market|value-add isn't just placement|mission framing holds|wedge is genuinely real|pick a primary lane|business shape changes|current direction|run .* test|compression-first handoff)\b/i
   ], 7, { recentFirst: true, max: 240, noQuestions: true }).map((item) => item.line);
@@ -1577,10 +1565,10 @@ function outcomeModel(messages) {
     /\b(strongest economic wedge|highest-value lane|unit economics are the strongest|if you're picking one lane|value-add isn't just placement|mission .* holds|wedge .* real|current direction|run .* test|compression-first handoff)\b/i
   ], 4, { recentFirst: true, max: 240, noQuestions: true }).map((item) => item.sentence);
   const notCommitted = lineCandidates(messages, [
-    /\b(not a student role|not the right role|insufficient qualification|not your primary lane|not a high-volume|year-3 expansion|first-year .*doesn't meet|can't walk into|not therapy|not clinicians|not the primary lane)\b/i
+    /\b(not a student role|not the right role|insufficient qualification|not your primary lane|not a high-volume|year-3 expansion|first-year .*doesn't meet|can't walk into|not .*therapy|not .*marketplace|not clinicians|not the primary lane)\b/i
   ], 7, { role: "assistant", recentFirst: true, max: 240, noQuestions: true }).map((item) => item.line).filter(isBoundaryCandidate);
   const notCommittedFallback = sentenceCandidates(messages, [
-    /\b(not a student role|not the right role|insufficient qualification|not your primary lane|not a high-volume|year-3 expansion|first-year .*doesn't meet|can't walk into|not therapy|not clinicians|not the primary lane)\b/i
+    /\b(not a student role|not the right role|insufficient qualification|not your primary lane|not a high-volume|year-3 expansion|first-year .*doesn't meet|can't walk into|not .*therapy|not .*marketplace|not clinicians|not the primary lane)\b/i
   ], 4, { role: "assistant", recentFirst: true, max: 240, noQuestions: true }).map((item) => item.sentence).filter(isBoundaryCandidate);
   const explicitNotCommitted = negativeBoundaryBlock(messages, [/what this is not/, /what it is not/, /do not/, /non-negotiables/, /killed paths/, /killed branches/], 7);
   const evidence = lineCandidates(messages, [
@@ -1623,6 +1611,20 @@ function decisionShiftTable(rows) {
   return `| Old framing | Sharper framing | Trigger | Why it matters |
 | --- | --- | --- | --- |
 ${rows.map((row) => `| ${escapeCell(row.from)} | ${escapeCell(row.to)} | ${escapeCell(row.trigger)} | ${escapeCell(row.why)} |`).join("\n")}`;
+}
+
+function briefDecisionBullets(rows) {
+  if (!rows?.length) return "- No clear framing change detected.";
+  return rows.slice(0, 4)
+    .map((row) => `- ${readableExcerpt(row.from, 95)} was downgraded or bounded. Trigger: ${readableExcerpt(row.trigger, 150)}`)
+    .join("\n");
+}
+
+function briefDiscardedList(items) {
+  if (!items?.length) return "- None identified.";
+  return items.slice(0, 4)
+    .map((item) => `- ${readableExcerpt(item.branch, 95)}: ${readableExcerpt(item.reason, 150)}`)
+    .join("\n");
 }
 
 function renderReasoning({ title, messages, metadata }) {
@@ -1757,74 +1759,29 @@ function sourceQualityNote(metadata) {
   return parts.length ? parts.join(", ") : "role quality unavailable";
 }
 
-function futureAlliedRoleLanes() {
-  return [
-    "Core Behaviour Support Practitioner (Core BSP): strongest first wedge if providers confirm they need role-ready psych graduates and can supervise them.",
-    "Psychosocial Recovery Coach: likely larger volume lane, but more dependent on experience or completed qualification requirements.",
-    "Mental Health Support Worker: plausible for earlier-year psychology students, but lower-margin and less differentiated.",
-    "Provisional psychologist: valuable but narrower and supervision-heavy; not the first broad supply play."
-  ];
-}
-
 function renderBrief({ title, messages, metadata }) {
   const model = buildHandoffModel(title, messages, metadata);
-  const futureAllied = isFutureAlliedLike(messages, title);
-  if (futureAllied) {
-    return `# ${model.projectName} Brief
-
-## One-line read
-
-Future Allied should be tested as a flat-fee bridge from psychology study into legitimate NDIS mental-health work, not as psych students doing therapy and not as a marketplace that takes a cut of wages.
-
-## Sharp takeaway
-
-The best first wedge is probably **Core Behaviour Support Practitioner** placements for final-year psychology students and graduates, because the training gap and provider economics look strongest. Psychosocial Recovery Coach is the adjacent volume lane. First-year students are probably too early for those roles and fit better, if anywhere, as Mental Health Support Workers.
-
-## Role lanes
-
-${markdownList(futureAlliedRoleLanes())}
-
-## What not to say
-
-- Do not pitch this as students delivering psychology.
-- Do not imply a first-year psychology student can walk into regulated NDIS mental-health roles.
-- Do not make "BSP" shorthand carry the argument; spell out the role and requirements.
-- Do not reopen the allied-health-assistant logic unless the target is OT, speech, physio, or exercise physiology.
-
-## Open questions for a friend
-
-- Which NDIS mental-health role do providers most struggle to hire for: behaviour support, recovery coaching, or support work?
-- What training would make a psychology graduate genuinely role-ready rather than merely interested?
-- Would supervision matching be the real product, not just recruitment?
-- Would a provider pay a flat placement fee around $5k-$8k for a screened, trained, role-ready candidate?
-
-## Next move
-
-${markdownList(model.nextActions)}
-
-## Source confidence
-
-${sourceQualityNote(metadata)} across ${metadata.source_files.length} source file${metadata.source_files.length === 1 ? "" : "s"}. Prefer exact local Codex / Claude Code logs over pasted transcript text when reviewing the source.
-`;
-  }
-
   return `# ${model.projectName} Brief
 
 ## One-line read
 
-${model.thesis}
+${readableExcerpt(model.thesis, 360)}
 
 ## Sharp takeaway
 
-${model.currentWedge}
+${readableExcerpt(model.currentWedge, 300)}
 
 ## What changed
 
-${decisionShiftTable(model.decisionShifts)}
+${briefDecisionBullets(model.decisionShifts)}
 
 ## What not to reopen
 
-${discardedList(model.discarded.slice(0, 4))}
+${briefDiscardedList(model.discarded)}
+
+## Open questions
+
+${markdownList(model.asks.slice(0, 4))}
 
 ## Next move
 

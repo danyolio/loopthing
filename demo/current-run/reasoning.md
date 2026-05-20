@@ -37,27 +37,27 @@ The strongest product direction is handoff.
 
 These are the human-authored turns or source signals the next reader should privilege over assistant monologues.
 
-- **user · current-project-chat.md** (`source/current-project-chat.md`): Intent Clean up the project into something readable, improve the actual LoopThing product, run it on the cleaned folder, and use the resulting artifact as the source of truth for the public static page.
-- **user · current-project-chat.md** (`source/current-project-chat.md`): Show-your-work format for recipients is weak. Recipients mostly read conclusions, not working-out. Handoff is stronger because it has a falsifiable test.
-- **user · current-project-chat.md** (`source/current-project-chat.md`): Memory but better is probably wrong. Labs will ship memory for free and with better integration. The category has to be multiplayer handoff, not single-player personalization.
-- **user · current-project-chat.md** (`source/current-project-chat.md`): Copy and pasting some chats into new chats is the manual version of the product. They grab everything. That's the problem. I don't know where my gold is.
-- **user · current-project-chat.md** (`source/current-project-chat.md`): If it compressed 103 messages across 89 files and scored 7/7, why is there a tonne of inconsistent information in all of the docs and presentation artefact? I might host the index.html file on the loopthing.ai domain.
-- **user · current-project-chat.md** (`source/current-project-chat.md`): Ignore the fact that it is a GitHub repo for now and completely clean up the structure so I can read through it easily.
+- **user signal · current-project-chat.md** (`source/current-project-chat.md`): Show-your-work format for recipients is weak. Recipients mostly read conclusions, not working-out. Handoff is stronger because it has a falsifiable test.
+- **user signal · current-project-chat.md** (`source/current-project-chat.md`): Does the handoff artifact let a new person continue the work?
+- **user signal · current-project-chat.md** (`source/current-project-chat.md`): Which discarded branch would a recipient still accidentally reopen?
+- **user signal · current-project-chat.md** (`source/current-project-chat.md`): Is the public page explaining the product or flattering a weak artifact?
+- **user signal · current-project-chat.md** (`source/current-project-chat.md`): If it compressed 103 messages across 89 files and scored 7/7, why is there a tonne of inconsistent information in all of the docs and presentation artefact? I might host the index.html file on the loopthing.ai domain.
+- **user signal · current-project-chat.md** (`source/current-project-chat.md`): Copy and pasting some chats into new chats is the manual version of the product. They grab everything. That's the problem. I don't know where my gold is.
 
 ## Supporting conclusions
 
 Use these as conclusions to verify, not as a substitute for the human signals.
 
-- **assistant · current-project-chat.md** (`source/current-project-chat.md`): The current direction is compression-first handoff. The root should show the current product, the archive should preserve old material, and the public page should be generated from the latest run rather than stale screenshots or old positioning.
+- **assistant conclusion · current-project-chat.md** (`source/current-project-chat.md`): The root should show the current product, the archive should preserve old material, and the public page should be generated from the latest run rather than stale screenshots or old positioning.
 
 ## Decision shifts
 
 | Old framing | Sharper framing | Trigger | Why it matters |
 | --- | --- | --- | --- |
-| Copy and pasting some chats into new chats is the manual version of the... | Show-your-work format for recipients is weak. Recipients mostly read co... | Show-your-work format for recipients is weak. Recipients mostly read conclusions, not wor... | This changed the shape of the work and should keep future readers from replaying the older framing. |
-| Show-your-work format for recipients is weak. Recipients mostly read co... | Memory but better is probably wrong. Labs will ship memory for free and... | Memory but better is probably wrong. Labs will ship memory for free and with better integ... | This changed the shape of the work and should keep future readers from replaying the older framing. |
-| Memory but better is probably wrong. Labs will ship memory for free and... | If it compressed 103 messages across 89 files and scored 7/7, why is th... | If it compressed 103 messages across 89 files and scored 7/7, why is there a tonne of inc... | This changed the shape of the work and should keep future readers from replaying the older framing. |
-| If it compressed 103 messages across 89 files and scored 7/7, why is th... | ## Intent Clean up the project into something readable, improve the act... | ## Intent Clean up the project into something readable, improve the actual LoopThing prod... | This changed the shape of the work and should keep future readers from replaying the older framing. |
+| Raw archive as product | The strongest product direction is handoff. | storing everything preserves the mess instead of compressing it. | This keeps the next reader from reopening a branch the conversation already narrowed away from. |
+| Viewer-first polish | The strongest product direction is handoff. | a beautiful page can hide weak compression. The artifact has to be useful before the viewer earns trust. | This keeps the next reader from reopening a branch the conversation already narrowed away from. |
+| Test fixtures as current source | The strongest product direction is handoff. | fixtures are validation material, not the living project context. Including them made old Ralph-loop planning appear in the fresh output. | This keeps the next reader from reopening a branch the conversation already narrowed away from. |
+| GitHub repo framing | The strongest product direction is handoff. | the current task is readability and product direction, not repository presentation or commit history. | This keeps the next reader from reopening a branch the conversation already narrowed away from. |
 
 ## Discarded branches
 
@@ -124,4 +124,4 @@ Evidence to check:
 
 ## Meta
 
-Compressed from 17 messages. Topic tags: handoff, compression, brand, product, life-design, format, discarded-ideas. Caveat: this compression is deterministic and local; review it before sending.
+Compressed from 17 messages. Topic tags: handoff, compression, brand, business, product, life-design, format, discarded-ideas. Caveat: this compression is deterministic and local; review it before sending.
