@@ -9,7 +9,7 @@ This folder has been cleaned into two tracks:
 
 LoopThing is a compression tool for local AI work history.
 
-It scans local Codex sessions and Claude Code project history, takes messy chats, project docs, prompts, and notes, then produces a handoff artifact that shows the decisions, direction, discarded branches, risks, and next action.
+It scans local Codex sessions and Claude Code project history, takes messy chats, project docs, prompts, and notes, then produces a handoff artifact that shows the human signals, decisions, direction, discarded branches, risks, and next action.
 
 The point is not to store everything. The point is to find the gold and make it easy to hand into a new chat, agent session, collaborator, or future self.
 
@@ -19,6 +19,8 @@ The point is not to store everything. The point is to find the gold and make it 
 - `docs/01_PRODUCT.md`: the product spine.
 - `docs/02_RUN_LOOPTHING.md`: exact commands.
 - `demo/current-run/START_HERE.md`: the latest output from running LoopThing on this cleaned folder.
+- `demo/current-run/brief.md`: the concise sendable version.
+- `demo/current-run/agent-guide.md`: the helper for AI agents navigating source quality and role ambiguity.
 - `index.html`: the static public page built from that latest output.
 
 ## Run It

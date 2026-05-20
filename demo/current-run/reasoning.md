@@ -24,10 +24,8 @@ The strongest product direction is handoff.
 - source: 2
 - orientation: 1
 
-## Recent user directions
+## Recent human directions
 
-- Copy and pasting some chats into new chats is the manual version of the product. They grab everything. That's the problem. I don't know where my gold is.
-- Show-your-work format for recipients is weak. Recipients mostly read conclusions, not working-out. Handoff is stronger because it has a falsifiable test.
 - Memory but better is probably wrong. Labs will ship memory for free and with better integration. The category has to be multiplayer handoff, not single-player personalization.
 - If it compressed 103 messages across 89 files and scored 7/7, why is there a tonne of inconsistent information in all of the docs and presentation artefact? I might host the index.html file on the loopthing.ai domain.
 - Ignore the fact that it is a GitHub repo for now and completely clean up the structure so I can read through it easily.
@@ -35,22 +33,26 @@ The strongest product direction is handoff.
 - Keep everything old in an archive. Don't delete anything.
 - Intent Clean up the project into something readable, improve the actual LoopThing product, run it on the cleaned folder, and use the resulting artifact as the source of truth for the public static page.
 
-## Critical messages
+## Human signals
 
-These are the load-bearing files, messages, or artifacts the next reader should use first.
+These are the human-authored turns or source signals the next reader should privilege over assistant monologues.
 
+- **user · current-project-chat.md** (`source/current-project-chat.md`): Intent Clean up the project into something readable, improve the actual LoopThing product, run it on the cleaned folder, and use the resulting artifact as the source of truth for the public static page.
 - **user · current-project-chat.md** (`source/current-project-chat.md`): Show-your-work format for recipients is weak. Recipients mostly read conclusions, not working-out. Handoff is stronger because it has a falsifiable test.
 - **user · current-project-chat.md** (`source/current-project-chat.md`): Memory but better is probably wrong. Labs will ship memory for free and with better integration. The category has to be multiplayer handoff, not single-player personalization.
+- **user · current-project-chat.md** (`source/current-project-chat.md`): Copy and pasting some chats into new chats is the manual version of the product. They grab everything. That's the problem. I don't know where my gold is.
 - **user · current-project-chat.md** (`source/current-project-chat.md`): If it compressed 103 messages across 89 files and scored 7/7, why is there a tonne of inconsistent information in all of the docs and presentation artefact? I might host the index.html file on the loopthing.ai domain.
 - **user · current-project-chat.md** (`source/current-project-chat.md`): Ignore the fact that it is a GitHub repo for now and completely clean up the structure so I can read through it easily.
-- **user · current-project-chat.md** (`source/current-project-chat.md`): Improve the product and run the tool, then use that output to revamp the index page.
-- **user · current-project-chat.md** (`source/current-project-chat.md`): Keep everything old in an archive. Don't delete anything.
-- **user · current-project-chat.md** (`source/current-project-chat.md`): Intent Clean up the project into something readable, improve the actual LoopThing product, run it on the cleaned folder, and use the resulting artifact as the source of truth for the public static page. ## Problem The project had too many folders and stale artifacts.
+
+## Supporting conclusions
+
+Use these as conclusions to verify, not as a substitute for the human signals.
+
 - **assistant · current-project-chat.md** (`source/current-project-chat.md`): The current direction is compression-first handoff. The root should show the current product, the archive should preserve old material, and the public page should be generated from the latest run rather than stale screenshots or old positioning.
 
-## Framing diffs
+## Decision shifts
 
-| From | To | Trigger | Why it mattered |
+| Old framing | Sharper framing | Trigger | Why it matters |
 | --- | --- | --- | --- |
 | Copy and pasting some chats into new chats is the manual version of the... | Show-your-work format for recipients is weak. Recipients mostly read co... | Show-your-work format for recipients is weak. Recipients mostly read conclusions, not wor... | This changed the shape of the work and should keep future readers from replaying the older framing. |
 | Show-your-work format for recipients is weak. Recipients mostly read co... | Memory but better is probably wrong. Labs will ship memory for free and... | Memory but better is probably wrong. Labs will ship memory for free and with better integ... | This changed the shape of the work and should keep future readers from replaying the older framing. |

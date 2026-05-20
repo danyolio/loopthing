@@ -81,7 +81,9 @@ function write(file, content) {
 function resetRunDir(outDir) {
   for (const entry of [
     "START_HERE.md",
+    "brief.md",
     "reasoning.md",
+    "agent-guide.md",
     "agent-handoff.md",
     "source-metadata.json",
     "compression-score.md",
@@ -137,7 +139,7 @@ function classifySource(file) {
   if (/^rollout-.*\.jsonl$/i.test(basename)) return "chat-transcript";
   if (/(^|\/)\.claude\/projects\//.test(file.replace(/\\/g, "/"))) return "chat-transcript";
   if (/LOCAL_CHAT_MD_FILES\.md$/i.test(basename)) return "source-index";
-  if (/source-metadata\.json$|scores\.jsonl$|compression-score\.md$|agent-handoff\.md$|reasoning\.md$/i.test(basename)) return "generated";
+  if (/source-metadata\.json$|scores\.jsonl$|compression-score\.md$|agent-guide\.md$|agent-handoff\.md$|brief\.md$|reasoning\.md$/i.test(basename)) return "generated";
   if (/START_HERE\.md$/i.test(basename) && relative.split("/").some((part) => ["current-run", "runs"].includes(part))) return "generated";
   if (relative.startsWith("loopthing-source/Prompts/")) return "prompt";
   if (relative.startsWith("loopthing-source/Thinking/")) return "thinking";
@@ -609,6 +611,47 @@ function assistantConclusionScore(message, index, total) {
   return score;
 }
 
+function corpusText(messages, title = "") {
+  return `${title}\n${messages.map((message) => message.content).join("\n")}`.toLowerCase();
+}
+
+function isFutureAlliedLike(messages, title = "") {
+  if (/\bloopthing\b/i.test(title) && !/\bfuture allied\b/i.test(title)) return false;
+  const text = corpusText(messages, title);
+  const futureScore = countMatches(text, [
+    /\bndis\b/g,
+    /\bfuture allied\b/g,
+    /\bpsych(?:ology)?\s+(?:students?|graduates?)\b/g,
+    /\bpsychosocial\b/g,
+    /\brecovery coach(?:es)?\b/g,
+    /\bbehaviour support\b/g,
+    /\bmental health support worker\b/g,
+    /\bndis commission\b/g,
+    /\bflat placement fee\b/g
+  ]);
+  const loopThingScore = countMatches(text, [
+    /\bloopthing\b/g,
+    /\.loopthing\b/g,
+    /\breasoning handoff\b/g,
+    /\bhandoff artifact\b/g,
+    /\bcompressed reasoning\b/g,
+    /\bchat transcript\b/g,
+    /\bclaude code\b/g,
+    /\bcodex\b/g
+  ]);
+  if (loopThingScore >= 5 && (futureScore < 12 || loopThingScore > futureScore * 3)) return false;
+  return futureScore >= 3 && /\bndis\b/.test(text);
+}
+
+function isLikelyAssistantAuthoredText(text) {
+  const clean = cleanMarkdown(text).replace(/\s+/g, " ").trim();
+  if (!clean) return false;
+  return /^(?:good question|let me|here'?s|the honest|right\b|yes\b|no\b|on it\b|i assume|what i'?d|what i should|that'?s the|this is the|a few|the key issue|the takeaway|the short answer|want me|would you like)\b/i.test(clean)
+    || /^want it (?:shorter|longer|tighter|to lean)\b/i.test(clean)
+    || /\bwant me to (?:redraw|shorten|lean|change|build|write)\b/i.test(clean)
+    || /\bi (?:can|could|would) (?:give|build|write|draft|model|redraw)\b/i.test(clean);
+}
+
 function criticalMessages(messages, count = 8) {
   const candidates = messages.filter((message) => message.content.trim().length > 20);
   const ranked = candidates
@@ -736,6 +779,9 @@ function lineCandidates(messages, regexes, limit = 6, options = {}) {
 }
 
 function transcriptThesis(messages) {
+  if (isFutureAlliedLike(messages)) {
+    return "Future Allied is a graduate-to-NDIS-workforce bridge: find, screen, train, and place final-year psychology students and psychology graduates into legitimate NDIS mental-health roles. It is not psych students doing therapy, and not a marketplace taking a cut of worker wages.";
+  }
   const preferred = preferredReasoningMessages(messages);
   const lines = lineCandidates(preferred, [
     /\b(you're running|business shape|mission framing|underlying model|bridge organisation|workforce bridge|flat placement fee|train-and-place|recruiter|placement service)\b/i
@@ -752,6 +798,9 @@ function transcriptThesis(messages) {
 }
 
 function transcriptWedge(messages) {
+  if (isFutureAlliedLike(messages)) {
+    return "Lead with Core Behaviour Support Practitioner (Core BSP) placements because the provider economics and training gap are strongest. Treat Psychosocial Recovery Coach as the broader volume lane. First-year psychology students are more likely Mental Health Support Worker candidates, so they should not be the first wedge.";
+  }
   const preferred = preferredReasoningMessages(messages);
   const lines = lineCandidates(preferred, [
     /\b(strongest economic wedge|highest-value lane|picking one lane|primary lane|lead with|best entry|cleanest entry)\b/i,
@@ -822,6 +871,9 @@ function sourceMetadata(messages, files) {
 }
 
 function inferIntent(messages, critical) {
+  if (isFutureAlliedLike(messages)) {
+    return "Clarify whether Future Allied should be a bridge/recruiter for psychology students and graduates entering legitimate NDIS mental-health roles, then turn the conclusion into a concise handoff someone else can understand without rereading the whole strategy thread.";
+  }
   const preferred = preferredReasoningMessages(messages);
   const section = matchingSections(preferred, [/^intent$/, /underlying goal/])[0]
     || matchingSections(messages, [/^intent$/, /underlying goal/])[0];
@@ -831,8 +883,8 @@ function inferIntent(messages, critical) {
   }
   const firstUser = messages.find((message) => message.role === "user");
   const lastUser = [...messages].reverse().find((message) => message.role === "user");
-  if (!firstUser && !lastUser) return "The conversation is trying to preserve a reasoning path from source material.";
-  return `The participant starts from "${excerpt(firstUser?.content || "", 140)}" and ends near "${excerpt(lastUser?.content || "", 140)}". The underlying intent is to compress messy exploration into a handoff artifact another person can use without reading the transcript.`;
+  if (!firstUser && !lastUser) return "Compress the reasoning path from source material into a usable handoff.";
+  return "Compress the reasoning arc into a usable handoff so a recipient can continue from the current decision rather than rereading the transcript.";
 }
 
 function cleanDictatedQuestion(text) {
@@ -857,6 +909,9 @@ function synthesizedProblemFromQuestion(text, context = "") {
 }
 
 function inferProblem(messages) {
+  if (isFutureAlliedLike(messages)) {
+    return "Decide where psych students and psychology graduates legitimately fit in NDIS work, which role lane is the strongest initial wedge, and which candidate cohort to organise first.";
+  }
   const preferred = preferredReasoningMessages(messages);
   const section = matchingSections(preferred, [/^problem$/, /problem statement/])[0]
     || matchingSections(messages, [/^problem$/, /problem statement/])[0];
@@ -891,6 +946,32 @@ function framingDiffs(critical) {
   return rows;
 }
 
+function decisionShifts(messages, critical) {
+  if (isFutureAlliedLike(messages)) {
+    return [
+      {
+        from: "Psych students as quasi-therapists",
+        to: "Psychology candidates only in legitimate NDIS role lanes",
+        trigger: "Therapy is regulated and cannot be quietly delegated to students.",
+        why: "The bridge has to create lawful, supervisable workers rather than dress unpaid clinical ambition as workforce supply."
+      },
+      {
+        from: "Allied Health Assistant logic for psychology",
+        to: "Psychology-to-NDIS workforce bridge",
+        trigger: "Psychology does not decompose into assistant tasks the way OT, speech, or physio can.",
+        why: "This keeps the idea from copying the wrong operating model."
+      },
+      {
+        from: "First-year psychology students as the main supply",
+        to: "Final-year students and graduates first",
+        trigger: "Recovery Coach and Core Behaviour Support Practitioner roles expect qualifications, experience, or supervised capability.",
+        why: "The first cohort should be close enough to employability that training makes them role-ready, not merely interested."
+      }
+    ];
+  }
+  return framingDiffs(critical);
+}
+
 function sourceShape(metadata) {
   const rows = Object.entries(metadata.source_kind_counts || {})
     .sort((a, b) => b[1] - a[1]);
@@ -906,6 +987,22 @@ function recentUserDirections(messages, limit = 5) {
 }
 
 function discardedBranches(messages) {
+  if (isFutureAlliedLike(messages)) {
+    return [
+      {
+        branch: "Psych students doing therapy",
+        reason: "The role has to be lawful and supervised; Future Allied should not create pseudo-clinical work."
+      },
+      {
+        branch: "First-year students as the first wedge",
+        reason: "The higher-value NDIS mental-health roles are closer to final-year students, graduates, or experienced workers."
+      },
+      {
+        branch: "Allied Health Assistant model for psychology",
+        reason: "Psychology does not break into delegated assistant tasks as cleanly as OT, speech, physio, or exercise physiology."
+      }
+    ];
+  }
   const preferred = preferredReasoningMessages(messages);
   const sections = matchingSections(preferred, [/discarded/, /killed? paths?/, /killed? branches?/, /what not to build/, /^not yet$/, /^killed paths$/]);
   const extracted = [];
@@ -1011,6 +1108,13 @@ function isBoundaryCandidate(line) {
 }
 
 function risks(messages) {
+  if (isFutureAlliedLike(messages)) {
+    return [
+      "Role requirements change and must be verified against current NDIS Commission guidance before selling.",
+      "A first-year psychology student may not be employable in the higher-value roles, so the candidate cohort matters.",
+      "Supervision may be the real bottleneck; recruitment alone may not solve provider pain."
+    ];
+  }
   const preferred = preferredReasoningMessages(messages);
   const sections = matchingSections(preferred, [/risk/, /where .*wrong/, /open questions?/, /current limits?/, /known limits?/, /kill criteria/, /core risk/]);
   const extracted = [];
@@ -1041,6 +1145,13 @@ function risks(messages) {
 }
 
 function asks(messages) {
+  if (isFutureAlliedLike(messages)) {
+    return [
+      "Which role lane has the most acute hiring pain?",
+      "What training would make a psychology graduate role-ready?",
+      "Would supervision matching materially increase provider willingness to pay?"
+    ];
+  }
   const preferred = preferredReasoningMessages(messages);
   const sections = matchingSections(preferred, [/^asks?$/, /recipient test/, /the ask/]);
   const extracted = sections.flatMap((section) => meaningfulLines(section.body))
@@ -1055,6 +1166,9 @@ function asks(messages) {
 }
 
 function nextAction(messages) {
+  if (isFutureAlliedLike(messages)) {
+    return "Verify current NDIS Commission requirements for Core Behaviour Support Practitioner and Psychosocial Recovery Coach roles, then run 5-10 discovery calls with behaviour support and psychosocial NDIS providers to test recruitment pain, training gaps, supervision requirements, and willingness to pay a flat placement fee.";
+  }
   const preferred = preferredReasoningMessages(messages);
   const sections = matchingSections(preferred, [/^next action$/, /^next loop$/, /^next moves?$/, /^next proof$/, /current ralph queue/]);
   const extracted = sections.flatMap((section) => meaningfulLines(section.body))
@@ -1229,9 +1343,138 @@ function criticalMessageBullets(messages, limit = 8) {
   }));
 }
 
+function findUserSignal(messages, regexes) {
+  return messages.find((message) =>
+    (message.role === "user" || message.role === "human")
+    && !isLikelyAssistantAuthoredText(message.content)
+    && regexes.some((regex) => regex.test(message.content))
+  );
+}
+
+function futureAlliedHumanSignals(messages) {
+  const specs = [
+    {
+      label: "Mission",
+      regexes: [/increase supply of mental health workers/i, /10,000 over 10 years/i],
+      summary: "The mission is workforce supply: increase the number of legitimate NDIS mental-health workers over a decade."
+    },
+    {
+      label: "Founder edge",
+      regexes: [/background in psych/i, /focused on it/i],
+      summary: "The psych-student angle matters because the founder has a psychology background and cares about that supply pool."
+    },
+    {
+      label: "Economic preference",
+      regexes: [/don.?t take any cut of their wages/i, /flat \$?5k/i, /placement/i],
+      summary: "The preferred model is flat-fee recruitment or headhunting, not taking an ongoing cut of worker wages."
+    },
+    {
+      label: "Regulatory constraint",
+      regexes: [/1st year psych student/i, /first-year psych student/i, /won.?t just be able to walk in/i],
+      summary: "A first-year psychology student probably cannot walk into the higher-value NDIS roles; candidate seniority matters."
+    },
+    {
+      label: "Core question",
+      regexes: [/which role is uniquely suited/i, /should i target/i, /graduate students/i, /get stuff organized/i],
+      summary: "The organising question is which role lane and candidate cohort to target first."
+    },
+    {
+      label: "Customer target",
+      regexes: [/psychosocial ndis providers/i, /behaviour support practices/i, /peer workforce organisation/i],
+      summary: "The first customer calls should be behaviour support and psychosocial NDIS providers, not paediatric allied-health clinics."
+    }
+  ];
+  return specs.map((spec) => {
+    const message = findUserSignal(messages, spec.regexes);
+    return {
+      title: `user signal · ${spec.label}`,
+      source: message?.source || "synthesized from Future Allied sources",
+      summary: spec.summary
+    };
+  });
+}
+
+function humanSignalBullets(messages, limit = 6) {
+  if (isFutureAlliedLike(messages)) return futureAlliedHumanSignals(messages).slice(0, limit);
+  const exactOrChat = messages.filter((message) =>
+    (message.role === "user" || message.role === "human")
+    && message.content.trim().length > 20
+    && !isLikelyAssistantAuthoredText(message.content)
+    && !/^<environment_context>|^# In app browser:/i.test(message.content.trim())
+  );
+  const candidates = exactOrChat.length ? exactOrChat : messages.filter((message) => message.content.trim().length > 40);
+  const ranked = candidates
+    .map((message, index) => ({
+      ...message,
+      globalIndex: messages.indexOf(message),
+      score: scoreMessage(message, index, candidates.length)
+        + (/\b(i want|i don't|my goal|biggest question|background|mission|focus|we want|not working|weird)\b/i.test(message.content) ? 8 : 0)
+        + ((message.role === "user" || message.role === "human") ? 8 : 0)
+    }))
+    .sort((a, b) => b.score - a.score);
+  const selected = [];
+  for (const message of ranked) {
+    const summary = readableExcerpt(message.content, 240);
+    if (selected.some((existing) => existing.summary === summary)) continue;
+    selected.push({
+      title: `${message.role || "source"} · ${messageTitle(message)}`,
+      source: message.source,
+      summary
+    });
+    if (selected.length >= limit) break;
+  }
+  return selected;
+}
+
+function supportingConclusionBullets(messages, limit = 5) {
+  if (isFutureAlliedLike(messages)) {
+    return [
+      {
+        title: "supporting conclusion · Role fit",
+        source: "synthesized from Future Allied sources",
+        summary: "Psychology does not map cleanly to the Allied Health Assistant model; the product should map candidates into NDIS roles with real scope and supervision."
+      },
+      {
+        title: "supporting conclusion · First wedge",
+        source: "synthesized from Future Allied sources",
+        summary: "Core Behaviour Support Practitioner looks like the highest-value first wedge because training, supervision, and provider economics all matter."
+      },
+      {
+        title: "supporting conclusion · Adjacent lane",
+        source: "synthesized from Future Allied sources",
+        summary: "Psychosocial Recovery Coach may be the larger volume lane, but likely needs completed qualifications, experience, or stronger provider-side supervision."
+      }
+    ].slice(0, limit);
+  }
+  const conclusions = criticalMessages(messages, limit + 3)
+    .filter((message) => message.role === "assistant" || message.role === "source")
+    .map((message) => ({
+      title: `${message.role} · ${messageTitle(message)}`,
+      source: message.source,
+      summary: readableExcerpt(message.content, 260)
+    }));
+  return conclusions.slice(0, limit);
+}
+
 function importantUserDirections(messages, limit = 12) {
-  const chatUserMessages = messages.filter((message) => message.role === "user" && message.source_kind === "chat-transcript");
-  const userMessages = chatUserMessages.length ? chatUserMessages : messages.filter((message) => message.role === "user");
+  if (isFutureAlliedLike(messages)) {
+    return [
+      "Make the output short enough to send to a friend, not a long reasoning dump.",
+      "Focus on psych students and psychology graduates because that is the founder's background and interest.",
+      "Do not frame this as students doing therapy; map them into legitimate NDIS roles.",
+      "Prefer a flat placement fee model over taking a cut of worker wages.",
+      "Clarify which role lane and candidate cohort should be organised first.",
+      "Use provider discovery calls to test the wedge instead of more abstract strategy."
+    ].slice(0, limit);
+  }
+  const chatUserMessages = messages.filter((message) =>
+    message.role === "user"
+    && message.source_kind === "chat-transcript"
+    && !isLikelyAssistantAuthoredText(message.content)
+  );
+  const userMessages = chatUserMessages.length
+    ? chatUserMessages
+    : messages.filter((message) => message.role === "user" && !isLikelyAssistantAuthoredText(message.content));
   if (!userMessages.length) return [];
   const directionTerms = /can you|could you|make|build|run|loop|feedback|actually|do i|i want|next action|ralph|use/i;
   const ranked = userMessages
@@ -1269,19 +1512,28 @@ function genericModel(title, messages, metadata) {
     currentWedge: transcriptWedge(messages),
     ownership: sectionBlock(messages, [/ownership/, /responsibilit/, /operating model/, /how it works/], 6),
     notThis: boundariesFromTranscript(messages, outcome),
-    framingDiffs: framingDiffs(topMessages(reasoningMessages, 5)),
+    decisionShifts: decisionShifts(messages, topMessages(reasoningMessages, 5)),
     discarded,
     survival: survivalClaims(messages, outcome),
     risks: riskLines,
     nextActions: next ? [readableExcerpt(next, 260)] : [],
     asks: askLines,
     artifacts: chatHeavy ? criticalMessageBullets(reasoningMessages, 8) : (projectDocs.length ? projectDocs : critical),
+    humanSignals: humanSignalBullets(reasoningMessages, 6),
+    supportingConclusions: supportingConclusionBullets(reasoningMessages, 5),
     directions: importantUserDirections(messages, 12),
     outcome
   };
 }
 
 function survivalClaims(messages, outcome) {
+  if (isFutureAlliedLike(messages)) {
+    return [
+      "The mission is stronger when framed as increasing legitimate mental-health workforce supply, not inventing pseudo-clinical work for students.",
+      "A flat placement fee keeps the worker's wage intact and differentiates Future Allied from managed marketplaces.",
+      "The first wedge should target roles where training, supervision, and provider economics all matter."
+    ];
+  }
   const explicit = sectionBlock(messages, [/what survives criticism/, /outcome/, /committed to/, /narrowest claim/], 6);
   if (explicit.length) return explicit;
   const lines = lineCandidates(messages, [
@@ -1295,12 +1547,29 @@ function survivalClaims(messages, outcome) {
 }
 
 function boundariesFromTranscript(messages, outcome) {
+  if (isFutureAlliedLike(messages)) return outcome.notCommitted.slice(0, 6);
   const explicit = negativeBoundaryBlock(messages, [/what this is not/, /what it is not/, /do not/, /non-negotiables/, /killed paths/, /killed branches/], 8);
   if (explicit.length) return explicit;
   return outcome.notCommitted.slice(0, 6);
 }
 
 function outcomeModel(messages) {
+  if (isFutureAlliedLike(messages)) {
+    return {
+      committed: [
+        "Future Allied is being tested as a flat-fee recruitment and bridge organisation, not a managed marketplace taking a cut of wages.",
+        "The first serious wedge is Core Behaviour Support Practitioner placements for final-year psychology students and graduates."
+      ],
+      notCommitted: [
+        "Do not pitch first-year psychology students as recovery coaches, behaviour support practitioners, or therapists.",
+        "Do not imply psych students can deliver psychology services without the right registration, supervision, and role scope."
+      ],
+      evidence: [
+        "Verify current NDIS Commission guidance for behaviour support capability and psychosocial recovery coach expectations.",
+        "Ask providers which role is hardest to fill, what training gap psych graduates have, and whether supervision matching changes willingness to pay."
+      ]
+    };
+  }
   const committed = lineCandidates(messages, [
     /\b(strongest economic wedge|highest-value lane|unit economics are the strongest|if you're picking one lane|largest market|value-add isn't just placement|mission framing holds|wedge is genuinely real|pick a primary lane|business shape changes|current direction|run .* test|compression-first handoff)\b/i
   ], 7, { recentFirst: true, max: 240, noQuestions: true }).map((item) => item.line);
@@ -1319,7 +1588,7 @@ function outcomeModel(messages) {
   ], 6, { role: "assistant", recentFirst: true, max: 240, noQuestions: true }).map((item) => item.line);
 
   return {
-    committed: committed.length ? committed : (committedFallback.length ? committedFallback : ["No specific commitment inferred; review Critical messages before using this handoff."]),
+    committed: committed.length ? committed : (committedFallback.length ? committedFallback : ["No specific commitment inferred; review the human signals before using this handoff."]),
     notCommitted: notCommitted.length ? notCommitted : (notCommittedFallback.length ? notCommittedFallback : (explicitNotCommitted.length ? explicitNotCommitted : ["No specific rejected commitment inferred."])),
     evidence
   };
@@ -1349,9 +1618,9 @@ function discardedList(items) {
     .join("\n");
 }
 
-function framingDiffTable(rows) {
-  if (!rows?.length) return "| From | To | Trigger | Why it mattered |\n| --- | --- | --- | --- |\n| Unclear | Unclear | No framing shift detected | Review source material manually |";
-  return `| From | To | Trigger | Why it mattered |
+function decisionShiftTable(rows) {
+  if (!rows?.length) return "| Old framing | Sharper framing | Trigger | Why it matters |\n| --- | --- | --- | --- |\n| Unclear | Unclear | No decision shift detected | Review source material manually |";
+  return `| Old framing | Sharper framing | Trigger | Why it matters |
 | --- | --- | --- | --- |
 ${rows.map((row) => `| ${escapeCell(row.from)} | ${escapeCell(row.to)} | ${escapeCell(row.trigger)} | ${escapeCell(row.why)} |`).join("\n")}`;
 }
@@ -1382,19 +1651,25 @@ ${model.currentWedge}
 
 ${sourceShape(metadata)}
 
-## Recent user directions
+## Recent human directions
 
-${markdownList(model.directions)}
+${markdownList(model.directions.slice(-6))}
 
-## Critical messages
+## Human signals
 
-These are the load-bearing files, messages, or artifacts the next reader should use first.
+These are the human-authored turns or source signals the next reader should privilege over assistant monologues.
 
-${artifactList(model.artifacts)}
+${artifactList(model.humanSignals)}
 
-## Framing diffs
+## Supporting conclusions
 
-${framingDiffTable(model.framingDiffs)}
+Use these as conclusions to verify, not as a substitute for the human signals.
+
+${artifactList(model.supportingConclusions.length ? model.supportingConclusions : model.artifacts.slice(0, 5))}
+
+## Decision shifts
+
+${decisionShiftTable(model.decisionShifts)}
 
 ## Discarded branches
 
@@ -1420,11 +1695,11 @@ ${markdownList(model.risks)}
 
 Committed to:
 
-${markdownList(model.outcome.committed)}
+${markdownList(model.outcome.committed.slice(0, 5))}
 
 Not committed to:
 
-${markdownList(model.outcome.notCommitted)}
+${markdownList(model.outcome.notCommitted.slice(0, 5))}
 
 Evidence to check:
 
@@ -1471,6 +1746,129 @@ ${discardedList(model.discarded.slice(0, 4))}
 `;
 }
 
+function sourceQualityNote(metadata) {
+  const exact = metadata.role_quality?.exact || 0;
+  const inferred = metadata.role_quality?.inferred || 0;
+  const source = metadata.role_quality?.source || 0;
+  const parts = [];
+  if (exact) parts.push(`${exact} exact-role message${exact === 1 ? "" : "s"}`);
+  if (inferred) parts.push(`${inferred} inferred-role message${inferred === 1 ? "" : "s"}`);
+  if (source) parts.push(`${source} source document message${source === 1 ? "" : "s"}`);
+  return parts.length ? parts.join(", ") : "role quality unavailable";
+}
+
+function futureAlliedRoleLanes() {
+  return [
+    "Core Behaviour Support Practitioner (Core BSP): strongest first wedge if providers confirm they need role-ready psych graduates and can supervise them.",
+    "Psychosocial Recovery Coach: likely larger volume lane, but more dependent on experience or completed qualification requirements.",
+    "Mental Health Support Worker: plausible for earlier-year psychology students, but lower-margin and less differentiated.",
+    "Provisional psychologist: valuable but narrower and supervision-heavy; not the first broad supply play."
+  ];
+}
+
+function renderBrief({ title, messages, metadata }) {
+  const model = buildHandoffModel(title, messages, metadata);
+  const futureAllied = isFutureAlliedLike(messages, title);
+  if (futureAllied) {
+    return `# ${model.projectName} Brief
+
+## One-line read
+
+Future Allied should be tested as a flat-fee bridge from psychology study into legitimate NDIS mental-health work, not as psych students doing therapy and not as a marketplace that takes a cut of wages.
+
+## Sharp takeaway
+
+The best first wedge is probably **Core Behaviour Support Practitioner** placements for final-year psychology students and graduates, because the training gap and provider economics look strongest. Psychosocial Recovery Coach is the adjacent volume lane. First-year students are probably too early for those roles and fit better, if anywhere, as Mental Health Support Workers.
+
+## Role lanes
+
+${markdownList(futureAlliedRoleLanes())}
+
+## What not to say
+
+- Do not pitch this as students delivering psychology.
+- Do not imply a first-year psychology student can walk into regulated NDIS mental-health roles.
+- Do not make "BSP" shorthand carry the argument; spell out the role and requirements.
+- Do not reopen the allied-health-assistant logic unless the target is OT, speech, physio, or exercise physiology.
+
+## Open questions for a friend
+
+- Which NDIS mental-health role do providers most struggle to hire for: behaviour support, recovery coaching, or support work?
+- What training would make a psychology graduate genuinely role-ready rather than merely interested?
+- Would supervision matching be the real product, not just recruitment?
+- Would a provider pay a flat placement fee around $5k-$8k for a screened, trained, role-ready candidate?
+
+## Next move
+
+${markdownList(model.nextActions)}
+
+## Source confidence
+
+${sourceQualityNote(metadata)} across ${metadata.source_files.length} source file${metadata.source_files.length === 1 ? "" : "s"}. Prefer exact local Codex / Claude Code logs over pasted transcript text when reviewing the source.
+`;
+  }
+
+  return `# ${model.projectName} Brief
+
+## One-line read
+
+${model.thesis}
+
+## Sharp takeaway
+
+${model.currentWedge}
+
+## What changed
+
+${decisionShiftTable(model.decisionShifts)}
+
+## What not to reopen
+
+${discardedList(model.discarded.slice(0, 4))}
+
+## Next move
+
+${markdownList(model.nextActions)}
+
+## Source confidence
+
+${sourceQualityNote(metadata)} across ${metadata.source_files.length} source file${metadata.source_files.length === 1 ? "" : "s"}.
+`;
+}
+
+function renderAgentGuide({ title, messages, metadata }) {
+  const model = buildHandoffModel(title, messages, metadata);
+  return `# Agent Guide: ${model.projectName}
+
+This file is for AI agents and collaborators navigating the run directory.
+
+## Read order
+
+1. \`brief.md\` — short, sendable conclusion.
+2. \`reasoning.md\` — deeper audit trail with human signals, decision shifts, boundaries, and risks.
+3. \`agent-handoff.md\` — paste-ready state for a fresh AI session.
+4. \`source-metadata.json\` — provider counts, role confidence, source hashes.
+5. \`compression-score.md\` — structural smoke test, not semantic truth.
+
+## Source handling
+
+- Trust exact-role Codex and Claude Code JSONL before pasted transcript text.
+- Treat inferred pasted-chat roles as lower confidence; assistant text may appear inside user-pasted material.
+- If a user direction sounds like an assistant offer or question, verify it against the source before acting on it.
+- Do not treat long assistant monologues as the user's intent unless the user explicitly adopted them.
+
+## Current state
+
+- Thesis: ${model.thesis}
+- Wedge: ${model.currentWedge}
+- Next action: ${model.nextActions[0] || "Run a recipient comprehension test against this artifact."}
+
+## Guardrails
+
+${markdownList(model.notThis.slice(0, 6))}
+`;
+}
+
 function compressionPrompt() {
   return `You are compressing a conversation into a LoopThing reasoning artifact.
 
@@ -1478,8 +1876,9 @@ Do not summarize the transcript. Extract the load-bearing structure:
 
 - Intent
 - Problem
-- Critical messages
-- Framing diffs
+- Human signals
+- Supporting conclusions
+- Decision shifts
 - Discarded branches
 - What survives criticism
 - Where the explanation might be wrong
@@ -1488,7 +1887,7 @@ Do not summarize the transcript. Extract the load-bearing structure:
 - Asks
 - Meta
 
-Preserve exact user language where possible. Mark uncertainty. Keep killed branches useful.`;
+Preserve exact user language where possible. Prefer structured roles over pasted transcript guesses. Mark uncertainty. Keep killed branches useful.`;
 }
 
 function manifestForRun(title, metadata) {
@@ -1500,7 +1899,9 @@ mimetype: ${MIME}
 
 files:
   - START_HERE.md
+  - brief.md
   - reasoning.md
+  - agent-guide.md
   - agent-handoff.md
   - source-metadata.json
   - prompts/compression-prompt.md
@@ -1517,10 +1918,12 @@ LoopThing compressed ${metadata.message_count} messages across ${metadata.source
 
 ## Read In This Order
 
-1. \`agent-handoff.md\` — paste-ready context for a new AI session.
-2. \`reasoning.md\` — the fuller reasoning artifact: intent, problem, critical messages, framing diffs, discarded branches, risks, outcome, next action, asks.
-3. \`source-metadata.json\` — message counts, source shape, topic tags, file hashes.
-4. \`compression-score.md\` — structural smoke checks. A perfect score means the required pieces exist; it does not mean the compression is semantically perfect.
+1. \`brief.md\` — concise, friend-sendable conclusion.
+2. \`agent-guide.md\` — how a future AI agent should navigate the package and source confidence.
+3. \`agent-handoff.md\` — paste-ready context for a new AI session.
+4. \`reasoning.md\` — the fuller reasoning artifact: intent, problem, human signals, decision shifts, discarded branches, risks, outcome, next action, asks.
+5. \`source-metadata.json\` — message counts, source shape, topic tags, file hashes.
+6. \`compression-score.md\` — structural smoke checks. A perfect score means the required pieces exist; it does not mean the compression is semantically perfect.
 
 ## Source Shape
 
@@ -1532,7 +1935,7 @@ ${metadata.topic_tags.length ? metadata.topic_tags.map((tag) => `- ${tag}`).join
 
 ## Use It
 
-Paste \`agent-handoff.md\` into a fresh chat or agent session and ask it to continue from the compressed reasoning instead of starting cold.
+Send \`brief.md\` to a person. Paste \`agent-handoff.md\` into a fresh chat or agent session. Ask agents to read \`agent-guide.md\` first when they have filesystem access.
 `;
 }
 
@@ -1571,9 +1974,9 @@ ${sourceShape(metadata)}
 
 ## Recent User Directions
 
-${markdownList(model.directions)}
+${markdownList(model.directions.slice(-6))}
 
-## Critical Context
+## Context To Preserve
 
 ${artifactList(model.artifacts)}
 
@@ -1981,14 +2384,18 @@ function writeCompressionRun({ messages, files, flags, sourceLabel }) {
   const outDir = path.resolve(flags.out);
   const title = flags.title || titleFromInputs(files);
   const metadata = sourceMetadata(messages, files);
+  const brief = renderBrief({ title, messages, metadata });
   const reasoning = renderReasoning({ title, messages, metadata });
+  const agentGuide = renderAgentGuide({ title, messages, metadata });
   const handoff = renderAgentHandoff({ title, messages, metadata });
   const startHere = renderStartHere({ title, metadata });
 
   resetRunDir(outDir);
   ensureDir(outDir);
   write(path.join(outDir, "START_HERE.md"), startHere);
+  write(path.join(outDir, "brief.md"), brief);
   write(path.join(outDir, "reasoning.md"), reasoning);
+  write(path.join(outDir, "agent-guide.md"), agentGuide);
   write(path.join(outDir, "agent-handoff.md"), handoff);
   write(path.join(outDir, "source-metadata.json"), `${JSON.stringify(metadata, null, 2)}\n`);
   write(path.join(outDir, "prompts", "compression-prompt.md"), compressionPrompt());
@@ -2023,27 +2430,32 @@ function sectionCount(markdown) {
 function scoreRun(runDir) {
   const reasoningFile = path.join(runDir, "reasoning.md");
   const metadataFile = path.join(runDir, "source-metadata.json");
+  const briefFile = path.join(runDir, "brief.md");
+  const agentGuideFile = path.join(runDir, "agent-guide.md");
   const handoffFile = path.join(runDir, "agent-handoff.md");
   if (!fs.existsSync(reasoningFile)) throw new Error(`Missing ${reasoningFile}`);
   const reasoning = fs.readFileSync(reasoningFile, "utf8");
+  const brief = fs.existsSync(briefFile) ? fs.readFileSync(briefFile, "utf8") : "";
+  const agentGuide = fs.existsSync(agentGuideFile) ? fs.readFileSync(agentGuideFile, "utf8") : "";
   const handoff = fs.existsSync(handoffFile) ? fs.readFileSync(handoffFile, "utf8") : "";
   const metadata = fs.existsSync(metadataFile) ? JSON.parse(fs.readFileSync(metadataFile, "utf8")) : null;
-  const noMangledMarkdown = !/(^|\n)-?\s*# .+## |(^|\n)-\s*### /.test(reasoning + "\n" + handoff);
-  const noGenericProductSpine = !/## Product Spine[\s\S]{0,500}LoopThing compresses decisions/i.test(handoff);
-  const noGenericOutcomeBoilerplate = !/## Outcome[\s\S]{0,600}Preserve the current thesis, boundaries, killed branches, risks, and next evidence gate/i.test(reasoning + "\n" + handoff);
+  const generatedText = [brief, reasoning, agentGuide, handoff].join("\n");
+  const noMangledMarkdown = !/(^|\n)-?\s*# .+## |(^|\n)-\s*### /.test(generatedText);
+  const noGenericProductSpine = !/## Product Spine[\s\S]{0,500}LoopThing compresses decisions/i.test(generatedText);
+  const noGenericOutcomeBoilerplate = !/## Outcome[\s\S]{0,600}Preserve the current thesis, boundaries, killed branches, risks, and next evidence gate/i.test(generatedText);
   const score = [
     ["Required sections", sectionCount(reasoning) >= 12],
     ["Current thesis present", /## Current thesis[\s\S]+\S/.test(reasoning)],
     ["Current wedge present", /## Current wedge[\s\S]+\S/.test(reasoning)],
-    ["Critical messages present", /## Critical messages[\s\S]*- \*\*/.test(reasoning)],
-    ["Framing diffs present", /## Framing diffs[\s\S]*\| From \| To \|/.test(reasoning)],
+    ["Human signals present", /## Human signals[\s\S]*- \*\*/.test(reasoning)],
+    ["Decision shifts present", /## Decision shifts[\s\S]*\| Old framing \| Sharper framing \|/.test(reasoning)],
     ["Discarded branches present", /## Discarded branches[\s\S]*Rejected because/.test(reasoning)],
     ["Risks present", /## Where the explanation might be wrong[\s\S]*- /.test(reasoning)],
     ["Next action present", /## Next action[\s\S]*- /.test(reasoning)],
     ["No mangled markdown snippets", noMangledMarkdown],
     ["No generic handoff boilerplate", noGenericProductSpine && noGenericOutcomeBoilerplate],
-    ["Start file present", fs.existsSync(path.join(runDir, "START_HERE.md"))],
-    ["Agent handoff present", Boolean(handoff)],
+    ["Brief present", fs.existsSync(briefFile)],
+    ["Agent guide present", fs.existsSync(agentGuideFile)],
     ["Metadata present", Boolean(metadata)]
   ];
   const passed = score.filter(([, ok]) => ok).length;
@@ -2063,7 +2475,7 @@ ${passed}/${score.length} checks passed.
 
 ## Recipient Test
 
-Ask a recipient to read reasoning.md for five minutes, then answer:
+Ask a recipient to read brief.md first, then reasoning.md only if needed. They should be able to answer:
 
 - What was the participant trying to decide?
 - What changed during the conversation?

@@ -87,7 +87,9 @@ run(["create", ".", "--out", selfArchive, "--run-dir", selfRunDir, "--title", "L
 
 const required = [
   path.join(runDir, "START_HERE.md"),
+  path.join(runDir, "brief.md"),
   path.join(runDir, "reasoning.md"),
+  path.join(runDir, "agent-guide.md"),
   path.join(runDir, "agent-handoff.md"),
   path.join(runDir, "source-metadata.json"),
   path.join(runDir, "compression-score.md"),
@@ -102,7 +104,9 @@ const required = [
   path.join(dictatedProblemRunDir, "reasoning.md"),
   path.join(normalizedSessionRunDir, "reasoning.md"),
   path.join(selfRunDir, "START_HERE.md"),
+  path.join(selfRunDir, "brief.md"),
   path.join(selfRunDir, "reasoning.md"),
+  path.join(selfRunDir, "agent-guide.md"),
   path.join(selfRunDir, "agent-handoff.md"),
   path.join(selfRunDir, "compression-score.md"),
   selfArchive
@@ -113,8 +117,18 @@ for (const file of required) {
 }
 
 const reasoning = fs.readFileSync(path.join(runDir, "reasoning.md"), "utf8");
-for (const section of ["## Intent", "## Critical messages", "## Framing diffs", "## Discarded branches"]) {
+for (const section of ["## Intent", "## Human signals", "## Decision shifts", "## Discarded branches"]) {
   if (!reasoning.includes(section)) throw new Error(`Missing section ${section}`);
+}
+
+const brief = fs.readFileSync(path.join(runDir, "brief.md"), "utf8");
+for (const expected of ["One-line read", "Sharp takeaway", "Next move"]) {
+  if (!brief.includes(expected)) throw new Error(`Missing brief content ${expected}`);
+}
+
+const agentGuide = fs.readFileSync(path.join(runDir, "agent-guide.md"), "utf8");
+for (const expected of ["Agent Guide", "Read order", "Source handling"]) {
+  if (!agentGuide.includes(expected)) throw new Error(`Missing agent guide content ${expected}`);
 }
 
 const handoff = fs.readFileSync(path.join(runDir, "agent-handoff.md"), "utf8");
@@ -123,7 +137,7 @@ for (const expected of ["Agent Handoff", "Do Not Reopen These Branches", "Operat
 }
 
 const startHere = fs.readFileSync(path.join(runDir, "START_HERE.md"), "utf8");
-for (const expected of ["START HERE", "Read In This Order", "agent-handoff.md"]) {
+for (const expected of ["START HERE", "Read In This Order", "brief.md", "agent-guide.md", "agent-handoff.md"]) {
   if (!startHere.includes(expected)) throw new Error(`Missing start content ${expected}`);
 }
 
@@ -158,9 +172,9 @@ if (claudeMetadata.provider_counts["claude-code"] !== 3 || claudeMetadata.role_q
   throw new Error("Claude Code import should mark structured roles as exact");
 }
 for (const expected of [
-  "recovery coach roles",
-  "graduate-level NDIS mental health roles",
-  "not first-year students doing therapy"
+  "Psychosocial Recovery Coach",
+  "legitimate NDIS mental-health roles",
+  "not psych students doing therapy"
 ]) {
   if (!claudeReasoning.includes(expected)) throw new Error(`Claude Code fixture missing ${expected}`);
 }

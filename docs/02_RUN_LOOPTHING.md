@@ -19,6 +19,8 @@ The project-level run ignores `archive/`, `tmp/`, `runs/`, nested generated `loo
 demo/
   current-run/
     START_HERE.md
+    brief.md
+    agent-guide.md
     agent-handoff.md
     reasoning.md
     source-metadata.json
@@ -33,6 +35,10 @@ demo/
 ## How To Use The Output
 
 Read `demo/current-run/START_HERE.md` first.
+
+Send `demo/current-run/brief.md` to a friend, collaborator, or future self when they need the clean takeaway without the audit trail.
+
+Ask an AI agent with filesystem access to read `demo/current-run/agent-guide.md` first. It explains source confidence, exact Codex / Claude Code roles, and what not to treat as user intent.
 
 Paste `demo/current-run/agent-handoff.md` into a fresh chat or agent session when you want the next session to inherit the work.
 
@@ -79,15 +85,15 @@ node bin/loopthing.mjs create \
 - required sections
 - current thesis
 - current wedge
-- critical messages or artifacts
-- framing diffs
+- human signals
+- decision shifts
 - discarded branches
 - risks
 - next action
 - mangled Markdown snippets
 - generic boilerplate in the handoff
-- start file
-- agent handoff
+- brief
+- agent guide
 - metadata
 
 A perfect score does not mean the reasoning is perfect. It means the run produced the expected artifact shape and avoided the worst rendering failures.

@@ -36,8 +36,6 @@ The strongest product direction is handoff.
 
 ## Recent User Directions
 
-- Copy and pasting some chats into new chats is the manual version of the product. They grab everything. That's the problem. I don't know where my gold is.
-- Show-your-work format for recipients is weak. Recipients mostly read conclusions, not working-out. Handoff is stronger because it has a falsifiable test.
 - Memory but better is probably wrong. Labs will ship memory for free and with better integration. The category has to be multiplayer handoff, not single-player personalization.
 - If it compressed 103 messages across 89 files and scored 7/7, why is there a tonne of inconsistent information in all of the docs and presentation artefact? I might host the index.html file on the loopthing.ai domain.
 - Ignore the fact that it is a GitHub repo for now and completely clean up the structure so I can read through it easily.
@@ -45,7 +43,7 @@ The strongest product direction is handoff.
 - Keep everything old in an archive. Don't delete anything.
 - Intent Clean up the project into something readable, improve the actual LoopThing product, run it on the cleaned folder, and use the resulting artifact as the source of truth for the public static page.
 
-## Critical Context
+## Context To Preserve
 
 - **user · current-project-chat.md** (`source/current-project-chat.md`): Show-your-work format for recipients is weak. Recipients mostly read conclusions, not working-out. Handoff is stronger because it has a falsifiable test.
 - **user · current-project-chat.md** (`source/current-project-chat.md`): Memory but better is probably wrong. Labs will ship memory for free and with better integration. The category has to be multiplayer handoff, not single-player personalization.

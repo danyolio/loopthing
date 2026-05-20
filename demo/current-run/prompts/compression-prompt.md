@@ -4,8 +4,9 @@ Do not summarize the transcript. Extract the load-bearing structure:
 
 - Intent
 - Problem
-- Critical messages
-- Framing diffs
+- Human signals
+- Supporting conclusions
+- Decision shifts
 - Discarded branches
 - What survives criticism
 - Where the explanation might be wrong
@@ -14,4 +15,4 @@ Do not summarize the transcript. Extract the load-bearing structure:
 - Asks
 - Meta
 
-Preserve exact user language where possible. Mark uncertainty. Keep killed branches useful.
+Preserve exact user language where possible. Prefer structured roles over pasted transcript guesses. Mark uncertainty. Keep killed branches useful.
