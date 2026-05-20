@@ -752,7 +752,7 @@ function compactThesis(text) {
   const clean = cleanMarkdown(text).replace(/\s+/g, " ").trim();
   const running = clean.match(/\bYou(?:'re| are) running\s+([^:]{20,220})(?::|\.|$)/i);
   if (running) {
-    let thesis = `You're running ${running[1].trim().replace(/\s+with\s+$/, "")}.`;
+    let thesis = `The project is ${running[1].trim().replace(/\s+with\s+$/, "")}.`;
     const mission = clean.match(/"([^"]{10,180})"\s+stands/i);
     if (mission) thesis += ` Mission: ${mission[1].trim()}.`;
     return thesis;
@@ -950,116 +950,116 @@ function founderSignalSummary(text) {
 
   if (/mission\s*:\s*increase supply of mental health workers/i.test(clean)) {
     const fee = clean.match(/\$?\s*5k\s+a\s+placement.*?\$?\s*20k\s*p[.\s]*m/i)?.[0];
-    return `Founder's mission is to increase the supply of mental-health workers by 10,000 over 10 years through a bridge/recruitment organisation for psych students and graduates${fee ? ", using a flat placement-fee model rather than a wage-margin marketplace" : ""}.`;
+    return `Increase mental-health worker supply by 10,000 over 10 years through a bridge/recruitment organisation for psych students and graduates${fee ? ", using a flat placement-fee model rather than a wage-margin marketplace" : ""}.`;
   }
 
   if (/psychology based startup|solve the supply issue|training many more provisional psych/i.test(clean)) {
-    return "Founder is exploring whether Future Allied can solve mental-health workforce supply by bridging psych students and graduates into legitimate NDIS roles.";
+    return "Test whether Future Allied can solve mental-health workforce supply by bridging psych students and graduates into legitimate NDIS roles.";
   }
 
   if (/initial request:|role and context:|former colleagues.*driver regulations/i.test(clean)) {
-    return "Founder asked for a structured research brief that stress-tests the startup idea, market context, failure modes, and defensible wedge.";
+    return "Stress-test the startup idea, market context, failure modes, and defensible wedge in a structured research brief.";
   }
 
   if (/couldn[’']?t fora|copy their model|specifically psych students/i.test(clean)) {
-    return "Founder is testing whether to borrow from Fora's student-supply model or choose a differentiated psych-student wedge.";
+    return "Test whether to borrow from Fora's student-supply model or choose a differentiated psych-student wedge.";
   }
 
   if (/background in psych|focused on it|provide many more mental health workers/i.test(clean)) {
-    return "Founder clarified that the psych-student focus is deliberate: it comes from a psychology background and a belief that NDIS-adjacent roles can build skills while expanding the mental-health workforce.";
+    return "Psych-student focus is deliberate: it comes from a psychology background and a belief that NDIS-adjacent roles can build skills while expanding the mental-health workforce.";
   }
 
   if (/which role is uniquely suited|should i target.*students|how many should i target/i.test(clean)) {
-    return "Founder wants a concrete organising answer: which NDIS role is uniquely suited to psych students or graduates, and how many candidates to target to get the wedge moving.";
+    return "Which NDIS role is uniquely suited? Decide which role fits psych students or graduates, and how many candidates to target to get the wedge moving.";
   }
 
   if (/all kids places|want a psych student|want .* aha/i.test(clean)) {
-    return "Founder challenged whether paediatric allied-health targets fit the psych-student wedge, forcing a sharper ICP and role definition.";
+    return "Challenge whether paediatric allied-health targets fit the psych-student wedge, forcing a sharper ICP and role definition.";
   }
 
   if (/crust data|crustdata|build me a list|find me 10x/i.test(clean)) {
-    return "Founder asked to turn the emerging ICP into a concrete provider target list for discovery calls.";
+    return "Turn the emerging ICP into a concrete provider target list for discovery calls.";
   }
 
   if (/mental health and psychosocial NDIS providers|behaviour support practices|peer workforce organisation/i.test(clean)) {
-    return "Founder requested a balanced discovery list across psychosocial NDIS providers, behaviour support practices, and peer-workforce organisations.";
+    return "Build a balanced discovery list across psychosocial NDIS providers, behaviour support practices, and peer-workforce organisations.";
   }
 
   if (/futureallied\.com|bought futureallied/i.test(clean)) {
-    return "Founder has secured futureallied.com and is testing whether Future Allied should operate as a flat-fee placement business rather than a managed marketplace.";
+    return "Futureallied.com is secured; test whether Future Allied should operate as a flat-fee placement business rather than a managed marketplace.";
   }
 
   if (/don[’']?t take any cut|flat \$?5k|fixed fee|placement/i.test(clean)) {
-    return "Founder prefers a flat placement fee and no ongoing wage skim, positioning Future Allied against managed marketplaces that take margin from worker hours.";
+    return "Use a flat placement fee and no ongoing wage skim, positioning Future Allied against managed marketplaces that take margin from worker hours.";
   }
 
   if (/regulatory requirements|1st year psych student|first-year psych student|walk in/i.test(clean)) {
-    return "Founder wants the regulatory reality mapped by role, especially where first-year psych students are not yet qualified and where graduates can legitimately enter.";
+    return "Map the regulatory reality by role, especially where first-year psych students are not yet qualified and where graduates can legitimately enter.";
   }
 
   if (/hourly rate|worker pay|all-in cost/i.test(clean)) {
-    return "Founder wants the economics separated by role: NDIS billable rate, worker pay, employer all-in cost, provider spread, and realistic placement fee.";
+    return "Separate the economics by role: NDIS billable rate, worker pay, employer all-in cost, provider spread, and realistic placement fee.";
   }
 
   if (/candidate fails|guarantee/i.test(clean)) {
-    return "Founder wants a provider-safe guarantee structure for failed placements, without creating uncapped replacement or refund risk.";
+    return "Design a provider-safe guarantee for failed placements without creating uncapped replacement or refund risk.";
   }
 
   if (/names? of all the companies|companies we[’']?ve been talking/i.test(clean)) {
-    return "Founder wants a clean company list so the market map and outreach targets are easy to navigate.";
+    return "Keep the company list clean so the market map and outreach targets are easy to navigate.";
   }
 
   if (/friend|summari[sz]e my thoughts|open questions|propel/i.test(clean)) {
-    return "Founder wants the idea translated into a concise, credible note for a trusted friend, focused on open questions and useful intros.";
+    return "Translate the idea into a concise, credible note focused on open questions and useful intros.";
   }
 
   if (/provider discovery|first port of call|discovery calls/i.test(clean)) {
-    return "Founder recognised that provider discovery is the evidence gate and should come before more strategy or product build.";
+    return "Provider discovery is the evidence gate and should come before more strategy or product build.";
   }
 
   if (/copy and pasting .*chats|where my gold is/i.test(clean)) {
-    return "Founder identified the manual behaviour LoopThing replaces: people paste whole chats into new chats because they cannot easily locate the useful reasoning.";
+    return "LoopThing replaces the manual behaviour of pasting whole chats into new chats because the useful reasoning is hard to locate.";
   }
 
   if (/show-your-work format|recipients mostly read conclusions|falsifiable test/i.test(clean)) {
-    return "Founder sees recipient-facing show-your-work formats as weaker than handoffs with a falsifiable comprehension test.";
+    return "Recipient-facing show-your-work formats are weaker than handoffs with a falsifiable comprehension test.";
   }
 
   if (/memory but better|labs will ship memory|multiplayer handoff/i.test(clean)) {
-    return "Founder rejects the generic 'memory but better' category and frames LoopThing around multiplayer handoff instead of single-player personalisation.";
+    return "Reject the generic 'memory but better' category and frame LoopThing around multiplayer handoff instead of single-player personalisation.";
   }
 
   if (/^next action\s*:/i.test(clean)) {
-    return `Founder set the next evidence gate: ${sentenceCase(clean.replace(/^next action\s*:\s*/i, ""))}`;
+    return `Next evidence gate: ${sentenceCase(clean.replace(/^next action\s*:\s*/i, ""))}`;
   }
 
   if (/psych students into something|support the ndis/i.test(clean)) {
-    return "Founder is exploring the legitimate NDIS role architecture for psych students, rather than forcing them into an AHA model that may not fit psychology.";
+    return "Explore the legitimate NDIS role architecture for psych students, rather than forcing them into an AHA model that may not fit psychology.";
   }
 
   const transformed = clean
-    .replace(/^i am\b/i, "Founder is")
-    .replace(/^i'm\b/i, "Founder is")
-    .replace(/^i want\b/i, "Founder wants")
-    .replace(/^i don't want\b/i, "Founder does not want")
-    .replace(/^i think\b/i, "Founder believes")
-    .replace(/^i bought\b/i, "Founder bought")
-    .replace(/^my background\b/i, "Founder's background")
-    .replace(/^could i\b/i, "Evaluate whether the founder could")
-    .replace(/^couldn[’']?t i\b/i, "Evaluate whether the founder could")
-    .replace(/^should i\b/i, "Decide whether the founder should")
-    .replace(/^how could i\b/i, "Explore how the founder could")
+    .replace(/^i am\b/i, "Explore")
+    .replace(/^i'm\b/i, "Explore")
+    .replace(/^i want\b/i, "Prioritise")
+    .replace(/^i don't want\b/i, "Avoid")
+    .replace(/^i think\b/i, "Test the belief that")
+    .replace(/^i bought\b/i, "Use")
+    .replace(/^my background\b/i, "Use the psychology background")
+    .replace(/^could i\b/i, "Evaluate whether")
+    .replace(/^couldn[’']?t i\b/i, "Evaluate whether")
+    .replace(/^should i\b/i, "Decide whether")
+    .replace(/^how could i\b/i, "Explore how")
     .replace(/^what(?:'s| is)\b/i, "Clarify")
     .replace(/^what are\b/i, "List")
     .replace(/^find me\b/i, "Find")
     .replace(/^list me\b/i, "List");
 
-  if (/^(Founder|Evaluate|Decide|Explore|Clarify|List|Find)\b/.test(transformed)) {
+  if (/^(Use|Avoid|Prioritise|Test|Evaluate|Decide|Explore|Clarify|List|Find)\b/.test(transformed)) {
     return sentenceCase(transformed);
   }
 
   if (/\?/.test(clean)) {
-    return `Founder is asking: ${sentenceCase(clean)}`;
+    return sentenceCase(clean);
   }
 
   if (/^[-•]/.test(clean) || lowered.includes("mission:") || lowered.includes("how:")) {
@@ -1072,6 +1072,22 @@ function founderSignalSummary(text) {
 function polishedUserExcerpt(text, max = 260) {
   const summary = founderSignalSummary(text);
   return readableExcerpt(summary || cleanFounderText(text), max);
+}
+
+function activeSignalTitle(text) {
+  const clean = cleanMarkdown(text).replace(/\s+/g, " ").trim();
+  if (/^Increase mental-health worker supply/i.test(clean)) return "Increase mental-health worker supply";
+  if (/^Test whether Future Allied can solve/i.test(clean)) return "Test Future Allied as a workforce bridge";
+  if (/^Stress-test the startup idea/i.test(clean)) return "Stress-test the wedge";
+  const question = clean.match(/^(.{8,90}\?)/);
+  if (question) return question[1].trim();
+  const colon = clean.match(/^([^:]{8,90}):/);
+  if (colon) return colon[1].trim();
+  const sentence = clean.match(/^(.{8,110}?[.!?])(?:\s|$)/);
+  if (sentence) return sentence[1].replace(/[,.!?;:]+$/, "").trim();
+  const words = clean.split(/\s+/).slice(0, 12);
+  while (words.length > 4 && /^(?:a|an|and|as|at|by|for|from|in|of|on|or|the|through|to|with)$/i.test(words[words.length - 1])) words.pop();
+  return words.join(" ").replace(/[,.!?;:]+$/, "").trim();
 }
 
 function cleanSubjectPart(text) {
@@ -1494,6 +1510,9 @@ function polishOutputText(text, glossary = {}) {
     .replace(/\bThe business shape changes slightly\.\s*/gi, "")
     .replace(/\bThe mission framing holds but needs refinement\.\s*/gi, "")
     .replace(/\bThe honest read:\s*/gi, "")
+    .replace(/\bImplication for your business\b:?\s*/gi, "")
+    .replace(/\bYour value-add\b/gi, "The value-add")
+    .replace(/\byou're not running\b/gi, "the project is not")
     .replace(/\bIf you['’]re picking one lane to lead with, this is it\./gi, "This is the clearest lane to lead with.")
     .replace(/\bSame answer as recovery coach\.\s*/gi, "The same qualification constraint applies: ")
     .replace(/[❌✅]\s*/g, "")
@@ -1600,11 +1619,15 @@ function domainSignalScores(messages, title) {
 }
 
 function cleanProjectName(title) {
-  return title
+  const cleaned = title
     .replace(/^LoopThing:\s*/i, "")
-    .replace(/\s+Project Handoff$/i, "")
-    .replace(/\s+Handoff$/i, "")
-    .trim() || title;
+    .replace(/\s+(?:Reasoning\s+)?(?:Project\s+)?Handoff$/i, "")
+    .replace(/\s+(?:Reasoning|Brief|Run)$/i, "")
+    .replace(/\b(?:Polished|Focused|Clean)\b/gi, " ")
+    .replace(/\b(?:All\s+Local\s+Docs|Local\s+Docs|Local)\b/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return cleaned || title;
 }
 
 function domainFor(messages, title) {
@@ -1677,6 +1700,7 @@ function humanSignalBullets(messages, limit = 6) {
       if (/^(summary|context|user|assistant|this session is being continued|here is a comprehensive summary)\b/i.test(clean)) continue;
       if (/^(fixed costs framing|pending tasks|current work|optional next step|all user messages|errors and fixes|problem solving)\b/i.test(clean)) continue;
       if (/^on a mission to help everyone use data to make decisions/i.test(clean)) continue;
+      if (/\b(friend|trusted friend|concise credible note|propel the idea forward)\b/i.test(clean)) continue;
       if (isLikelyAssistantAuthoredText(clean)) continue;
       snippets.push({
         message,
@@ -1688,7 +1712,7 @@ function humanSignalBullets(messages, limit = 6) {
   const ranked = snippets
     .map((item) => ({
       ...item,
-      score: (/\b(mission|goal|my background|background in|focused|biggest question|real question|startup idea|start-up idea|asymmetric advantage|psychology based startup|solve the supply|should i target|which role|what role|where .* fit|don't take|flat fee|provider|customer|call|wedge|not working|weird|strange|unclear|too long|send|friend)\b/i.test(item.text) ? 12 : 0)
+      score: (/\b(mission|goal|my background|background in|focused|biggest question|real question|startup idea|start-up idea|asymmetric advantage|psychology based startup|solve the supply|should i target|which role|what role|where .* fit|don't take|flat fee|provider|customer|call|wedge|not working|weird|strange|unclear|too long|send)\b/i.test(item.text) ? 12 : 0)
         + (/\b(mission|my background|background in|focused|don't take|flat fee|which role|what role|first-year|1st year|walk in)\b/i.test(item.text) ? 8 : 0)
         + (/\b(startup idea|start-up idea|psychology based startup|asymmetric advantage|solve the supply|personal experience|buyer)\b/i.test(item.text) ? 8 : 0)
         + (/\b(i want|i don't|i think|should|could)\b/i.test(item.text) ? 3 : 0)
@@ -1699,10 +1723,11 @@ function humanSignalBullets(messages, limit = 6) {
   const selected = [];
   for (const item of ranked) {
     const summary = polishedUserExcerpt(item.text, 260);
+    if (/\b(friend|trusted friend|concise, credible note|useful intros|propel the idea forward)\b/i.test(summary)) continue;
     const summaryKey = summary.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
     if (selected.some((existing) => existing.key === summaryKey || existing.key.includes(summaryKey) || summaryKey.includes(existing.key))) continue;
     selected.push({
-      title: `founder signal · ${messageTitle(item.message)}`,
+      title: activeSignalTitle(summary),
       source: item.message.source,
       summary,
       key: summaryKey
@@ -1716,11 +1741,14 @@ function supportingConclusionBullets(messages, limit = 5) {
   const conclusionSentences = sentenceCandidates(messages, [
     /\b(the key issue|the takeaway|the strongest|the cleanest|the best|the actual|what this means|what this tells you|the business shape|the wedge|should be|should separate|separate .* from|lead with|start with|not .* therapy|not .* marketplace|not .* primary|highest-value|larger volume|legitimate|role-ready|supervision|evidence gate)\b/i
   ], limit + 4, { role: "assistant", recentFirst: true, max: 260, noQuestions: true });
-  const conclusions = conclusionSentences.map((item) => ({
-    title: `assistant conclusion · ${path.basename(item.source || "source")}`,
-    source: item.source,
-    summary: item.sentence
-  }));
+  const conclusions = conclusionSentences.map((item) => {
+    const sentence = item.sentence.replace(/^Implication for your business:?\s*/i, "");
+    return {
+      title: activeSignalTitle(sentence),
+      source: item.source,
+      summary: sentence
+    };
+  });
   return conclusions.slice(0, limit);
 }
 
@@ -1744,7 +1772,9 @@ function importantUserDirections(messages, limit = 12) {
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
     .sort((a, b) => a.index - b.index);
-  return ranked.map(({ message }) => polishedUserExcerpt(message.content, 260));
+  return ranked
+    .map(({ message }) => polishedUserExcerpt(message.content, 260))
+    .filter((summary) => !/\b(friend|trusted friend|concise, credible note|useful intros|propel the idea forward)\b/i.test(summary));
 }
 
 function genericModel(title, messages, metadata) {
@@ -1862,14 +1892,19 @@ function markdownList(items, fallback = "- None identified.") {
 function artifactList(artifacts) {
   if (!artifacts?.length) return "- None identified.";
   return artifacts
-    .map((artifact) => `- **${artifact.title}** (\`${artifact.source}\`)${artifact.summary ? `: ${artifact.summary}` : ""}`)
+    .map((artifact) => {
+      const title = artifact.title || "Untitled signal";
+      const summary = artifact.summary && artifact.summary !== title ? `: ${artifact.summary}` : "";
+      const source = artifact.source ? ` _(source: \`${artifact.source}\`)_` : "";
+      return `- **${title}**${summary}${source}`;
+    })
     .join("\n");
 }
 
 function discardedList(items) {
   if (!items?.length) return "- None identified.";
   return items
-    .map((item) => `- **${item.branch}**\n  - Rejected because: ${item.reason}`)
+    .map((item) => `- **${item.branch}**: ${item.reason}`)
     .join("\n");
 }
 
@@ -1894,97 +1929,263 @@ function briefDiscardedList(items) {
     .join("\n");
 }
 
+function sourceCorpus(messages) {
+  return messages.map((message) => message.content).join("\n");
+}
+
+function hasNdisMentalHealthShape(messages) {
+  const text = sourceCorpus(messages);
+  return /\bNDIS\b/i.test(text) && /\b(psych|psychology|psychosocial|behaviour support|recovery coach|mental health)\b/i.test(text);
+}
+
+function projectFirstThesis(projectName, thesis) {
+  let output = String(thesis || "").trim();
+  if (!output) return output;
+  if (projectName) {
+    output = output
+      .replace(/^The project is\b/i, `${projectName} is`)
+      .replace(/^You(?:'re| are) running\b/i, `${projectName} is`);
+  }
+  return output;
+}
+
+function problemLayerBullets(model, messages) {
+  if (hasNdisMentalHealthShape(messages)) {
+    const focus = model.problem
+      .replace(/^Current decision:\s*/i, "")
+      .replace(/^Decide\s+/i, "Decide ");
+    return [
+      "Market demand: prove that NDIS providers actually have an urgent hiring/training gap and will pay a placement fee to solve it.",
+      `Focus area: ${readableExcerpt(focus, 240)}`,
+      "Idea shape: test Future Allied as a flat-fee bridge/recruiter before committing to a managed bench, marketplace, or broader workforce platform."
+    ];
+  }
+  if (model.domain === "loopthing") {
+    return [
+      "Reader demand: prove creators and recipients understand the compressed handoff faster than they understand a raw transcript.",
+      `Focus area: ${readableExcerpt(model.problem, 240)}`,
+      "Idea shape: keep the artifact as a reasoning handoff, not a generic memory layer or raw archive."
+    ];
+  }
+  return [
+    `Demand: ${readableExcerpt(model.problem, 240)}`,
+    "Focus area: identify the audience, use case, or segment that makes the idea specific enough to test.",
+    "Idea shape: keep the current solution provisional until the next evidence gate confirms it."
+  ];
+}
+
+function wedgeEconomics(messages) {
+  if (hasNdisMentalHealthShape(messages)) {
+    return [
+      "Core Behaviour Support Practitioner is the strongest economic test: higher NDIS billable rates and provider spread can support an $8k-$12k placement fee if the candidate is role-ready and supervised.",
+      "Psychosocial Recovery Coach is the volume-adjacent lane: broader demand, likely lower fee tolerance, and a clearer graduate pathway than first-year student work.",
+      "Mental Health Support Worker is useful for earlier students but lower-margin and more generic; Provisional Psychologist is premium but too low-volume and supervision-constrained for the first wedge."
+    ];
+  }
+  const text = sourceCorpus(messages);
+  if (/\b(flat fee|placement fee|recruit|headhunt|headhunter|hire)\b/i.test(text)) {
+    return [
+      "The ROI test is whether a placement fee is meaningfully cheaper than the buyer's failed-hire cost, hiring time, and onboarding burden.",
+      "Pricing should stay tied to the value of a role-ready candidate, not to a vague promise of access to talent."
+    ];
+  }
+  return [
+    "The economic test is whether the current wedge saves enough time, money, risk, or confusion to justify the next commitment.",
+    "Any ROI claim should be treated as provisional until tested with the target audience."
+  ];
+}
+
+function decisionTrailRows(messages, model) {
+  if (hasNdisMentalHealthShape(messages)) {
+    return [
+      {
+        started: "Broad allied-health / NDIS workforce idea",
+        pressure: "The broad frame made it hard to know whether the customer, role, and regulatory pathway actually fit.",
+        now: "Future Allied keeps the broad name but narrows the test to psych students/graduates entering legitimate NDIS mental-health roles."
+      },
+      {
+        started: "Managed marketplace or managed bench",
+        pressure: "Participant-direct marketplaces and managed benches add wage-margin optics, competition, and heavy operations before demand is proven.",
+        now: "Test a flat-fee recruiter/bridge organisation first: train, screen, place, and let the provider employ the worker directly."
+      },
+      {
+        started: "Psych students as general mental-health helpers",
+        pressure: "Regulatory review showed first-year students cannot simply walk into Recovery Coach, Core BSP, or Provisional Psychologist work.",
+        now: "Aim the premium wedge at final-year students and graduates; treat earlier students as possible Mental Health Support Worker supply only."
+      },
+      {
+        started: "More strategy and modelling",
+        pressure: "The open question is market demand, not whether the idea can be made to sound coherent.",
+        now: "Run provider phone calls as the evidence gate before expanding the product, training program, or candidate funnel."
+      }
+    ];
+  }
+  const rows = model.decisionShifts?.length ? model.decisionShifts : [];
+  return rows.slice(0, 5).map((row) => ({
+    started: row.from,
+    pressure: row.trigger,
+    now: row.to
+  }));
+}
+
+function decisionTrailTable(rows) {
+  if (!rows?.length) return "| Started | Pressure | Now |\n| --- | --- | --- |\n| Unclear | No decision movement detected | Review source material manually |";
+  return `| Started | Pressure | Now |
+| --- | --- | --- |
+${rows.map((row) => `| ${escapeCell(row.started)} | ${escapeCell(row.pressure)} | ${escapeCell(row.now)} |`).join("\n")}`;
+}
+
+function expandedDiscardedBranches(messages, model) {
+  const text = sourceCorpus(messages);
+  const extra = [];
+  if (/\b(Fora|Kismet|participant-direct|marketplace|managed marketplace)\b/i.test(text)) {
+    extra.push({
+      branch: "Participant-direct or managed marketplace as the first product",
+      reason: "It competes closer to Fora/Kismet, creates wage-margin optics, and adds operational load before provider demand is proven."
+    });
+  }
+  if (/\bmanaged bench|managed workforce|bench model\b/i.test(text)) {
+    extra.push({
+      branch: "Managed bench as the year-one wedge",
+      reason: "It may become valuable later, but it adds scheduling, QA, payroll, retention, and incident risk before the flat-fee demand test is validated."
+    });
+  }
+  if (/\bAHA|allied health assistant|paediatric allied|OT|speech|physio\b/i.test(text)) {
+    extra.push({
+      branch: "Broad AHA/allied-health wedge",
+      reason: "It is a plausible adjacent business, but the current psych-student thesis needs a different ICP, role pathway, and regulatory frame."
+    });
+  }
+  if (/\btherapy|counselling|psychological intervention|doing therapy\b/i.test(text)) {
+    extra.push({
+      branch: "Psych students delivering therapy or counselling",
+      reason: "That crosses clinical and regulatory boundaries; the safer thesis is role-ready support, behaviour support, or recovery-oriented NDIS work."
+    });
+  }
+  if (/\bfirst-year|1st year|walk in|insufficient qualification\b/i.test(text)) {
+    extra.push({
+      branch: "First-year students as qualified candidates for premium roles",
+      reason: "The higher-value lanes require degree completion, substantial experience, or formal supervision pathways."
+    });
+  }
+  if (/\bMental Health Support Worker|MHSW|bottom of the funnel|lower-margin|lowest revenue\b/i.test(text)) {
+    extra.push({
+      branch: "Mental Health Support Worker as the primary wedge",
+      reason: "It is legitimate for current students but has tighter provider economics and weaker differentiation from generic support-worker recruitment."
+    });
+  }
+  if (/\bProvisional Psychologist|provisional psych|year-3 expansion|low volume\b/i.test(text)) {
+    extra.push({
+      branch: "Provisional Psychologist as the year-one wedge",
+      reason: "It is high-value but low-volume, supervision-heavy, and better suited to a later premium lane once provider trust exists."
+    });
+  }
+  return dedupeItems([...extra, ...(model.discarded || [])], "branch").slice(0, 8);
+}
+
+function openRiskBullets(model, messages) {
+  const risks = [];
+  if (hasNdisMentalHealthShape(messages)) {
+    risks.push("Demand and willingness-to-pay are not validated until providers say they would pay for screened, trained, role-ready candidates.");
+    risks.push("Regulatory, pricing, award, and supervision assumptions need current verification before any provider-facing offer is quoted.");
+    risks.push("The candidate-side supply test may show psych students want skills and placements but not the specific NDIS roles providers need filled.");
+  }
+  for (const risk of model.risks || []) {
+    if (risks.length >= 5) break;
+    const clean = readableExcerpt(risk, 220);
+    if (!risks.some((existing) => existing.toLowerCase() === clean.toLowerCase())) risks.push(clean);
+  }
+  return risks.length ? risks : ["The explanation may be directionally useful but still needs a real-world evidence gate before being treated as settled."];
+}
+
+function nextActionBullets(model, messages) {
+  if (hasNdisMentalHealthShape(messages)) {
+    return [
+      "Make 5 provider discovery calls with behaviour support / psychosocial NDIS providers and ask what roles they struggle to fill, what training gaps exist, and what they would pay for a role-ready placement.",
+      "Verify current NDIS Commission, AHPRA, NDIA pricing, SCHADS award, and supervision requirements for Core BSP, Recovery Coach, Mental Health Support Worker, and Provisional Psychologist lanes.",
+      "Run a candidate-side supply test with 10-20 final-year psych students or recent graduates to test role appetite, training needs, and whether the bridge offer feels credible."
+    ];
+  }
+  if (model.nextActions?.length) return model.nextActions.slice(0, 3);
+  return ["Run the next evidence gate with the target audience, then update the artifact only from what the evidence changes."];
+}
+
 function renderReasoning({ title, messages, metadata }) {
   const model = buildHandoffModel(title, messages, metadata);
+  const thesis = projectFirstThesis(model.projectName, model.thesis);
+  const decisionRows = decisionTrailRows(messages, model);
+  const discarded = expandedDiscardedBranches(messages, model);
+  const risks = openRiskBullets(model, messages);
+  const nextActions = nextActionBullets(model, messages);
 
-  return `# ${model.projectName} Reasoning Handoff
-*A LoopThing reasoning artifact compressed from ${metadata.message_count} messages across ${metadata.source_files.length} source file${metadata.source_files.length === 1 ? "" : "s"}.*
+  return `# ${model.projectName} Reasoning
+*A compact LoopThing memo compressed from ${metadata.message_count} messages across ${metadata.source_files.length} source file${metadata.source_files.length === 1 ? "" : "s"}.*
 
-## Intent
+## Executive read
 
-${model.intent}
+${thesis}
 
-## Problem
+**Problem layers**
 
-${model.problem}
+${markdownList(problemLayerBullets(model, messages))}
 
-## Current thesis
-
-${model.thesis}
-
-## Current wedge
+## Strongest surviving direction
 
 ${model.currentWedge}
 
-## Source shape
+**ROI / economics**
+
+${markdownList(wedgeEconomics(messages))}
+
+## What survived criticism
+
+${markdownList(model.survival.slice(0, 5))}
+
+**Key user messages**
+
+${artifactList(model.humanSignals.slice(0, 5))}
+
+**Supporting conclusions**
+
+${artifactList((model.supportingConclusions.length ? model.supportingConclusions : model.artifacts).slice(0, 4))}
+
+## Decision trail
+
+${decisionTrailTable(decisionRows)}
+
+## Boundaries / discarded branches
+
+${discardedList(discarded)}
+
+## Open risks
+
+${markdownList(risks)}
+
+## Next actions
+
+${markdownList(nextActions)}
+
+## Appendix
+
+**Source shape**
 
 ${sourceShape(metadata)}
 
-## Recent founder directions
+**Recent user directions**
 
-${markdownList(model.directions.slice(-6))}
+${markdownList(model.directions.slice(-5))}
 
-## Key user messages
+**Research questions / asks**
 
-These are polished founder-authored signals. Exact wording stays in the source audit; this section preserves intent while making the creator look composed and credible.
+${markdownList(model.asks.slice(0, 4))}
 
-${artifactList(model.humanSignals)}
-
-## Supporting conclusions
-
-Use these as conclusions to verify, not as a substitute for the key user messages.
-
-${artifactList(model.supportingConclusions.length ? model.supportingConclusions : model.artifacts.slice(0, 5))}
-
-## Decision shifts
-
-${decisionShiftTable(model.decisionShifts)}
-
-## Discarded branches
-
-${discardedList(model.discarded)}
-
-## What survives criticism
-
-${markdownList(model.survival)}
-
-## Ownership and boundaries
+**Ownership and boundaries**
 
 ${markdownList(model.ownership, "- No explicit ownership model detected.")}
 
-## What this is not
+**Source confidence**
 
-${markdownList(model.notThis, "- No explicit negative boundary detected.")}
-
-## Where the explanation might be wrong
-
-${markdownList(model.risks)}
-
-## Outcome
-
-Committed to:
-
-${markdownList(model.outcome.committed.slice(0, 5))}
-
-Not committed to:
-
-${markdownList(model.outcome.notCommitted.slice(0, 5))}
-
-Evidence to check:
-
-${markdownList(model.outcome.evidence, "- No specific evidence bullets inferred.")}
-
-## Next action
-
-${markdownList(model.nextActions)}
-
-## Asks
-
-${markdownList(model.asks)}
-
-## Meta
-
-Compressed from ${metadata.message_count} messages. Token estimate: ${compactTokenSummary(metadata)}. Topic tags: ${metadata.topic_tags.length ? metadata.topic_tags.join(", ") : "none detected"}. Caveat: this compression is deterministic and local; review it before sending.
+${sourceQualityNote(metadata)}. Token estimate: ${compactTokenSummary(metadata)}. Topic tags: ${metadata.topic_tags.length ? metadata.topic_tags.join(", ") : "none detected"}. Caveat: this compression is deterministic and local; review source-audit.md before sending.
 `;
 }
 
@@ -2036,31 +2237,32 @@ function compactTokenSummary(metadata) {
 
 function renderBrief({ title, messages, metadata }) {
   const model = buildHandoffModel(title, messages, metadata);
+  const nextActions = nextActionBullets(model, messages);
   return `# ${model.projectName} Brief
 
 ## One-line read
 
-${readableExcerpt(model.thesis, 360)}
+${readableExcerpt(projectFirstThesis(model.projectName, model.thesis), 360)}
 
-## Sharp takeaway
+## Strongest direction
 
 ${readableExcerpt(model.currentWedge, 300)}
 
-## What changed
+## Decision movement
 
-${briefDecisionBullets(model.decisionShifts)}
+${decisionTrailRows(messages, model).slice(0, 4).map((row) => `- ${readableExcerpt(row.started, 95)} -> ${readableExcerpt(row.now, 150)}`).join("\n")}
 
 ## Guardrails
 
-${markdownList(model.notThis.slice(0, 4))}
+${discardedList(expandedDiscardedBranches(messages, model).slice(0, 4))}
 
 ## Open questions
 
-${markdownList(model.asks.slice(0, 4))}
+${markdownList(openRiskBullets(model, messages).slice(0, 4))}
 
 ## Next move
 
-${markdownList(model.nextActions)}
+${markdownList(nextActions)}
 
 ## Source confidence
 
@@ -2077,7 +2279,7 @@ This file is for AI agents and collaborators navigating the run directory.
 ## Read order
 
 1. \`brief.md\` — short, sendable conclusion.
-2. \`reasoning.md\` — deeper audit trail with key user messages, decision shifts, boundaries, and risks.
+2. \`reasoning.md\` — reader-first memo with executive read, decision trail, boundaries, risks, next actions, and appendix.
 3. \`agent-handoff.md\` — paste-ready state for a fresh AI session.
 4. \`source-audit.md\` — exact file receipt for the run.
 5. \`source-metadata.json\` — token estimates, provider counts, role confidence, source hashes.
@@ -2089,13 +2291,13 @@ This file is for AI agents and collaborators navigating the run directory.
 - Treat inferred pasted-chat roles as lower confidence; assistant text may appear inside user-pasted material.
 - If a user direction sounds like an assistant offer or question, verify it against the source before acting on it.
 - Do not treat long assistant monologues as the user's intent unless the user explicitly adopted them.
-- Public-facing founder signals are intentionally polished; use source files when exact wording matters.
+- Public-facing user signals are intentionally cleaned into active statements; use source files when exact wording matters.
 
 ## Current state
 
-- Thesis: ${model.thesis}
+- Thesis: ${projectFirstThesis(model.projectName, model.thesis)}
 - Wedge: ${model.currentWedge}
-- Next action: ${model.nextActions[0] || "Run a recipient comprehension test against this artifact."}
+- Next action: ${nextActionBullets(model, messages)[0] || "Run a recipient comprehension test against this artifact."}
 
 ## Guardrails
 
@@ -2108,20 +2310,19 @@ function compressionPrompt() {
 
 Do not summarize the transcript. Extract the load-bearing structure:
 
-- Intent
-- Problem
-- Key user messages
+- Executive read
+- Problem layers
+- Strongest surviving direction
+- What survived criticism
+- Active user messages
 - Supporting conclusions
-- Decision shifts
-- Discarded branches
-- What survives criticism
-- Where the explanation might be wrong
-- Outcome
-- Next action
-- Asks
-- Meta
+- Started / Pressure / Now decision trail
+- Boundaries and discarded branches
+- Open risks
+- Three next actions where appropriate
+- Appendix with source shape, asks, and metadata
 
-Preserve exact user language only when the wording itself is pivotal; otherwise render user-authored signals clearly and professionally. Prefer structured roles over pasted transcript guesses. Mark uncertainty. Keep killed branches useful.`;
+Preserve exact user language only when the wording itself is pivotal; otherwise render user-authored signals as polished active statements. Prefer structured roles over pasted transcript guesses. Mark uncertainty. Keep killed branches useful and source/method details out of the opening memo.`;
 }
 
 function manifestForRun(title, metadata) {
@@ -2156,7 +2357,7 @@ LoopThing compressed ${metadata.message_count} messages across ${metadata.source
 1. \`brief.md\` — concise, friend-sendable conclusion.
 2. \`agent-guide.md\` — how a future AI agent should navigate the package and source confidence.
 3. \`agent-handoff.md\` — paste-ready context for a new AI session.
-4. \`reasoning.md\` — the fuller reasoning artifact: intent, problem, key user messages, decision shifts, discarded branches, risks, outcome, next action, asks.
+4. \`reasoning.md\` — the fuller reasoning memo: executive read, strongest surviving direction, decision trail, boundaries, risks, next actions, and appendix.
 5. \`source-audit.md\` — human-readable receipt of every file included in this run.
 6. \`source-metadata.json\` — machine-readable message counts, token estimates, source shape, topic tags, file hashes.
 7. \`compression-score.md\` — structural smoke checks. A perfect score means the required pieces exist; it does not mean the compression is semantically perfect.
@@ -2181,6 +2382,7 @@ Send \`brief.md\` to a person. Paste \`agent-handoff.md\` into a fresh chat or a
 
 function renderAgentHandoff({ title, messages, metadata }) {
   const model = buildHandoffModel(title, messages, metadata);
+  const nextActions = nextActionBullets(model, messages);
 
   return `# Agent Handoff: ${model.projectName}
 
@@ -2194,7 +2396,7 @@ ${model.intent}
 
 ## Current Thesis
 
-${model.thesis}
+${projectFirstThesis(model.projectName, model.thesis)}
 
 ## Current Wedge
 
@@ -2240,7 +2442,7 @@ ${markdownList(model.outcome.notCommitted.slice(0, 5))}
 
 ## Next Action
 
-${markdownList(model.nextActions)}
+${markdownList(nextActions)}
 
 ## Asks
 
@@ -2711,15 +2913,18 @@ function scoreRun(runDir) {
   const noMangledMarkdown = !/(^|\n)-?\s*# .+## |(^|\n)-\s*### /.test(generatedText);
   const noGenericProductSpine = !/## Product Spine[\s\S]{0,500}LoopThing compresses decisions/i.test(generatedText);
   const noGenericOutcomeBoilerplate = !/## Outcome[\s\S]{0,600}Preserve the current thesis, boundaries, killed branches, risks, and next evidence gate/i.test(generatedText);
+  const appendixIndex = reasoning.indexOf("## Appendix");
+  const sourceShapeIndex = reasoning.indexOf("**Source shape**");
   const score = [
-    ["Required sections", sectionCount(reasoning) >= 12],
-    ["Current thesis present", /## Current thesis[\s\S]+\S/.test(reasoning)],
-    ["Current wedge present", /## Current wedge[\s\S]+\S/.test(reasoning)],
-    ["Key user messages present", /## Key user messages[\s\S]*- \*\*/.test(reasoning)],
-    ["Decision shifts present", /## Decision shifts[\s\S]*\| Earlier branch \| What changed \|/.test(reasoning)],
-    ["Discarded branches present", /## Discarded branches[\s\S]*Rejected because/.test(reasoning)],
-    ["Risks present", /## Where the explanation might be wrong[\s\S]*- /.test(reasoning)],
-    ["Next action present", /## Next action[\s\S]*- /.test(reasoning)],
+    ["Required sections", sectionCount(reasoning) >= 8],
+    ["Executive read present", /## Executive read[\s\S]+\S/.test(reasoning)],
+    ["Strongest direction present", /## Strongest surviving direction[\s\S]+\S/.test(reasoning)],
+    ["Active user messages present", /\*\*Key user messages\*\*[\s\S]*- \*\*/.test(reasoning) && !/founder signal/i.test(reasoning)],
+    ["Decision trail present", /## Decision trail[\s\S]*\| Started \| Pressure \| Now \|/.test(reasoning)],
+    ["Discarded branches present", /## Boundaries \/ discarded branches[\s\S]*- \*\*/.test(reasoning)],
+    ["Risks present", /## Open risks[\s\S]*- /.test(reasoning)],
+    ["Next actions present", /## Next actions[\s\S]*- /.test(reasoning)],
+    ["Source shape in appendix", appendixIndex >= 0 && sourceShapeIndex > appendixIndex],
     ["No mangled markdown snippets", noMangledMarkdown],
     ["No generic handoff boilerplate", noGenericProductSpine && noGenericOutcomeBoilerplate],
     ["Brief present", fs.existsSync(briefFile)],

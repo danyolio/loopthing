@@ -11,6 +11,7 @@ const codexRunDir = path.join(root, "tmp", "codex-chat-smoke-run");
 const claudeRunDir = path.join(root, "tmp", "claude-code-smoke-run");
 const staleThesisRunDir = path.join(root, "tmp", "stale-thesis-smoke-run");
 const dictatedProblemRunDir = path.join(root, "tmp", "dictated-problem-smoke-run");
+const cleanTitleRunDir = path.join(root, "tmp", "clean-title-smoke-run");
 const timestampRunDir = path.join(root, "tmp", "timestamp-chat-smoke-run");
 const codexSessionRunDir = path.join(root, "tmp", "codex-session-smoke-run");
 const codexSessionArchive = path.join(root, "tmp", "codex-session-smoke.loopthing");
@@ -28,6 +29,7 @@ fs.rmSync(codexRunDir, { recursive: true, force: true });
 fs.rmSync(claudeRunDir, { recursive: true, force: true });
 fs.rmSync(staleThesisRunDir, { recursive: true, force: true });
 fs.rmSync(dictatedProblemRunDir, { recursive: true, force: true });
+fs.rmSync(cleanTitleRunDir, { recursive: true, force: true });
 fs.rmSync(timestampRunDir, { recursive: true, force: true });
 fs.rmSync(codexSessionRunDir, { recursive: true, force: true });
 fs.rmSync(codexSessionCreateRunDir, { recursive: true, force: true });
@@ -61,6 +63,7 @@ run(["compress", "test/fixtures/codex-project-chat.md", "--out", codexRunDir, "-
 run(["compress", "test/fixtures/claude-code.jsonl", "--out", claudeRunDir, "--title", "Claude Code Chat Test"]);
 run(["compress", "test/fixtures/old-thesis-source.md", "test/fixtures/claude-code.jsonl", "--out", staleThesisRunDir, "--title", "Stale Thesis Test"]);
 run(["compress", "test/fixtures/dictated-problem-chat.md", "--out", dictatedProblemRunDir, "--title", "Dictated Problem Test"]);
+run(["compress", "test/fixtures/dictated-problem-chat.md", "--out", cleanTitleRunDir, "--title", "Future Allied Polished Local Focused Handoff"]);
 run(["compress", "test/fixtures/timestamp-chat.md", "--out", timestampRunDir, "--title", "Timestamp Chat Test"]);
 const fakeSessionDir = path.join(fakeCodexHome, "sessions", "2026", "05", "20");
 fs.mkdirSync(fakeSessionDir, { recursive: true });
@@ -103,6 +106,7 @@ const required = [
   path.join(claudeRunDir, "reasoning.md"),
   path.join(staleThesisRunDir, "reasoning.md"),
   path.join(dictatedProblemRunDir, "reasoning.md"),
+  path.join(cleanTitleRunDir, "reasoning.md"),
   path.join(normalizedSessionRunDir, "reasoning.md"),
   path.join(selfRunDir, "START_HERE.md"),
   path.join(selfRunDir, "brief.md"),
@@ -119,12 +123,16 @@ for (const file of required) {
 }
 
 const reasoning = fs.readFileSync(path.join(runDir, "reasoning.md"), "utf8");
-for (const section of ["## Intent", "## Key user messages", "## Decision shifts", "## Discarded branches"]) {
+for (const section of ["## Executive read", "## Decision trail", "## Boundaries / discarded branches", "## Appendix"]) {
   if (!reasoning.includes(section)) throw new Error(`Missing section ${section}`);
+}
+if (reasoning.includes("founder signal")) throw new Error("Reasoning should render user messages as active statements, not founder signals");
+if (reasoning.indexOf("**Source shape**") < reasoning.indexOf("## Appendix")) {
+  throw new Error("Source shape should live in the appendix");
 }
 
 const brief = fs.readFileSync(path.join(runDir, "brief.md"), "utf8");
-for (const expected of ["One-line read", "Sharp takeaway", "Next move"]) {
+for (const expected of ["One-line read", "Strongest direction", "Next move"]) {
   if (!brief.includes(expected)) throw new Error(`Missing brief content ${expected}`);
 }
 
@@ -171,7 +179,7 @@ for (const expected of [
 
 const claudeMetadata = JSON.parse(fs.readFileSync(path.join(claudeRunDir, "source-metadata.json"), "utf8"));
 const claudeReasoning = fs.readFileSync(path.join(claudeRunDir, "reasoning.md"), "utf8");
-const claudeIntent = claudeReasoning.match(/## Intent\n\n([\s\S]*?)\n\n## Problem/)?.[1] || "";
+const claudeIntent = claudeReasoning.match(/## Executive read\n\n([\s\S]*?)\n\n## Strongest surviving direction/)?.[1] || "";
 if (claudeMetadata.role_counts.user !== 2 || claudeMetadata.role_counts.assistant !== 1) {
   throw new Error("Claude Code import should preserve exact user/assistant role counts and skip local-command noise");
 }
@@ -193,7 +201,7 @@ if (/handoff|someone else|rereading the whole strategy thread/i.test(claudeInten
 }
 
 const staleThesisReasoning = fs.readFileSync(path.join(staleThesisRunDir, "reasoning.md"), "utf8");
-const staleThesisMatch = staleThesisReasoning.match(/## Current thesis\n\n([\s\S]*?)\n\n## Current wedge/);
+const staleThesisMatch = staleThesisReasoning.match(/## Executive read\n\n([\s\S]*?)\n\n\*\*Problem layers\*\*/);
 if (!staleThesisMatch) throw new Error("Stale thesis fixture should include current thesis section");
 if (!staleThesisMatch[1].includes("graduate-to-NDIS-workforce bridge")) {
   throw new Error("Recent chat thesis should beat stale source-doc one-line summary");
@@ -203,7 +211,7 @@ if (staleThesisMatch[1].includes("automated claims processing")) {
 }
 
 const dictatedProblemReasoning = fs.readFileSync(path.join(dictatedProblemRunDir, "reasoning.md"), "utf8");
-const dictatedProblemMatch = dictatedProblemReasoning.match(/## Problem\n\n([\s\S]*?)\n\n## Current thesis/);
+const dictatedProblemMatch = dictatedProblemReasoning.match(/\*\*Problem layers\*\*\n\n([\s\S]*?)\n\n## Strongest surviving direction/);
 if (!dictatedProblemMatch) throw new Error("Dictated problem fixture should include problem section");
 if (!dictatedProblemMatch[1].includes("Decide the legitimate fit for psych students and psychology graduates within NDIS roles")) {
   throw new Error("Dictated problem should synthesize the decision rather than paste the voice transcript");
@@ -211,11 +219,16 @@ if (!dictatedProblemMatch[1].includes("Decide the legitimate fit for psych stude
 if (/to to to|like, which role|thirty of your students/i.test(dictatedProblemMatch[1])) {
   throw new Error("Dictated problem should not preserve disfluent transcript text");
 }
-if (!dictatedProblemReasoning.includes("Founder wants a concrete organising answer")) {
-  throw new Error("Dictated user signals should be polished into founder-facing language");
+if (!dictatedProblemReasoning.includes("Which NDIS role is uniquely suited?")) {
+  throw new Error("Dictated user signals should be polished into active decision language");
 }
 if (/So I haven't thoroughly read|thirty of your students|to to to/i.test(dictatedProblemReasoning)) {
   throw new Error("Reasoning should not expose non-pivotal disfluent user wording");
+}
+
+const cleanTitleReasoning = fs.readFileSync(path.join(cleanTitleRunDir, "reasoning.md"), "utf8");
+if (!cleanTitleReasoning.startsWith("# Future Allied Reasoning\n")) {
+  throw new Error("Generated H1 should strip run modifiers from Future Allied titles");
 }
 
 const timestampReasoning = fs.readFileSync(path.join(timestampRunDir, "reasoning.md"), "utf8");
@@ -298,7 +311,7 @@ if (selfMetadata.source_kind_counts.generated) {
 }
 
 const selfScore = fs.readFileSync(path.join(selfRunDir, "compression-score.md"), "utf8");
-if (!selfScore.includes("14/14 checks passed")) throw new Error("Self-run score did not pass 14/14 checks");
+if (!selfScore.includes("15/15 checks passed")) throw new Error("Self-run score did not pass 15/15 checks");
 const selfScoreRecords = fs.readFileSync(path.join(selfRunDir, "scores.jsonl"), "utf8").trim().split(/\n/).filter(Boolean);
 if (selfScoreRecords.length !== 1) throw new Error("Self-run should replace stale score records on repeated create");
 
