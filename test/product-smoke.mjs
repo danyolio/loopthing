@@ -165,6 +165,7 @@ for (const expected of [
 
 const claudeMetadata = JSON.parse(fs.readFileSync(path.join(claudeRunDir, "source-metadata.json"), "utf8"));
 const claudeReasoning = fs.readFileSync(path.join(claudeRunDir, "reasoning.md"), "utf8");
+const claudeIntent = claudeReasoning.match(/## Intent\n\n([\s\S]*?)\n\n## Problem/)?.[1] || "";
 if (claudeMetadata.role_counts.user !== 2 || claudeMetadata.role_counts.assistant !== 1) {
   throw new Error("Claude Code import should preserve exact user/assistant role counts and skip local-command noise");
 }
@@ -180,6 +181,9 @@ for (const expected of [
 }
 if (claudeReasoning.includes("private chain of thought should be ignored") || claudeReasoning.includes("local-command-caveat")) {
   throw new Error("Claude Code fixture should omit thinking/tool/local-command noise");
+}
+if (/handoff|someone else|rereading the whole strategy thread/i.test(claudeIntent)) {
+  throw new Error("Subject intent should not leak LoopThing's handoff purpose into Future Allied output");
 }
 
 const staleThesisReasoning = fs.readFileSync(path.join(staleThesisRunDir, "reasoning.md"), "utf8");

@@ -872,7 +872,7 @@ function sourceMetadata(messages, files) {
 
 function inferIntent(messages, critical) {
   if (isFutureAlliedLike(messages)) {
-    return "Clarify whether Future Allied should be a bridge/recruiter for psychology students and graduates entering legitimate NDIS mental-health roles, then turn the conclusion into a concise handoff someone else can understand without rereading the whole strategy thread.";
+    return "Clarify whether Future Allied should be a bridge/recruiter for psychology students and graduates entering legitimate NDIS mental-health roles, and define the lawful role lane, candidate cohort, and first provider segment to test.";
   }
   const preferred = preferredReasoningMessages(messages);
   const section = matchingSections(preferred, [/^intent$/, /underlying goal/])[0]
