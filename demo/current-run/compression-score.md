@@ -3,7 +3,7 @@
 - [x] Required sections
 - [x] Current thesis present
 - [x] Current wedge present
-- [x] Human signals present
+- [x] Key user messages present
 - [x] Decision shifts present
 - [x] Discarded branches present
 - [x] Risks present
@@ -12,11 +12,12 @@
 - [x] No generic handoff boilerplate
 - [x] Brief present
 - [x] Agent guide present
+- [x] Source audit present
 - [x] Metadata present
 
 ## Result
 
-13/13 checks passed.
+14/14 checks passed.
 
 ## Recipient Test
 

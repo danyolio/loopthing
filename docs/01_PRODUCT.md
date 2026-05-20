@@ -2,7 +2,7 @@
 
 LoopThing turns local Codex and Claude Code history into a handoff artifact for the next chat, agent, collaborator, or future self.
 
-It is a local CLI and portable file format. The CLI reads structured Codex rollout JSONL, Claude Code project JSONL, Markdown, text, and JSON sources, extracts the project thesis, human signals, decision shifts, killed branches, risks, next actions, and important source files, then seals the result into a `.loopthing` zip container.
+It is a local CLI and portable file format. The CLI reads structured Codex rollout JSONL, Claude Code project JSONL, Markdown, text, and JSON sources, extracts the project thesis, key user messages, decision shifts, killed branches, risks, next actions, and important source files, then seals the result into a `.loopthing` zip container.
 
 ## Wedge
 
@@ -22,6 +22,7 @@ The output separates the jobs:
 - `reasoning.md`: the fuller audit trail.
 - `agent-guide.md`: instructions for future AI agents about read order, source confidence, and pasted-transcript ambiguity.
 - `agent-handoff.md`: paste-ready context for a fresh session.
+- `source-audit.md`: readable receipt of exactly which files were included in the run.
 
 That recipient might be:
 
@@ -35,8 +36,8 @@ That recipient might be:
 
 - The real intent beneath the stated request.
 - The final problem framing.
-- Human signals that moved the work.
-- Decision shifts from old framing to sharper framing.
+- Key user messages that moved the work.
+- Decision shifts from earlier branches to what was bounded, rejected, or kept.
 - Discarded branches with reasons.
 - Risks that could falsify the direction.
 - The committed next action.
@@ -51,4 +52,4 @@ That recipient might be:
 
 Compression quality is the product.
 
-The current deterministic renderer builds a project model before writing Markdown. That means it tries to infer the current thesis, current wedge, boundaries, risks, discarded branches, next actions, source map, and source-role confidence before rendering the final handoff.
+The current deterministic renderer builds a project model before writing Markdown. That means it tries to infer the current thesis, current wedge, boundaries, risks, discarded branches, next actions, source audit, and source-role confidence before rendering the final handoff.

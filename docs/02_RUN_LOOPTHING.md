@@ -23,6 +23,7 @@ demo/
     agent-guide.md
     agent-handoff.md
     reasoning.md
+    source-audit.md
     source-metadata.json
     compression-score.md
     scores.jsonl
@@ -44,6 +45,8 @@ Paste `demo/current-run/agent-handoff.md` into a fresh chat or agent session whe
 
 Read `demo/current-run/reasoning.md` when you want the fuller artifact.
 
+Open `demo/current-run/source-audit.md` when you want the receipt of exactly which files and local AI sessions were included.
+
 ## Use Structured Codex Sessions
 
 When the work happened in Codex, prefer the local rollout JSONL over pasted text. The roles are exact instead of inferred.
@@ -62,7 +65,7 @@ Use `sessions scan --all` to see sessions outside the current workspace. Use `cr
 When related work happened in Claude Code, scan the local Claude history first, then explicitly opt selected JSONL files into the run.
 
 ```bash
-node bin/loopthing.mjs claude scan "Future Allied NDIS psych students"
+node bin/loopthing.mjs claude scan "pricing decision customer research"
 node bin/loopthing.mjs claude scan --like tmp/pasted-chat.md
 node bin/loopthing.mjs claude inspect ~/.claude/projects/<project>/<session>.jsonl
 ```
@@ -85,7 +88,7 @@ node bin/loopthing.mjs create \
 - required sections
 - current thesis
 - current wedge
-- human signals
+- key user messages
 - decision shifts
 - discarded branches
 - risks
@@ -94,6 +97,7 @@ node bin/loopthing.mjs create \
 - generic boilerplate in the handoff
 - brief
 - agent guide
+- source audit
 - metadata
 
 A perfect score does not mean the reasoning is perfect. It means the run produced the expected artifact shape and avoided the worst rendering failures.

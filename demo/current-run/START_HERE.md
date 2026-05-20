@@ -9,9 +9,10 @@ LoopThing compressed 17 messages across 9 source files into a handoff artifact f
 1. `brief.md` — concise, friend-sendable conclusion.
 2. `agent-guide.md` — how a future AI agent should navigate the package and source confidence.
 3. `agent-handoff.md` — paste-ready context for a new AI session.
-4. `reasoning.md` — the fuller reasoning artifact: intent, problem, human signals, decision shifts, discarded branches, risks, outcome, next action, asks.
-5. `source-metadata.json` — message counts, source shape, topic tags, file hashes.
-6. `compression-score.md` — structural smoke checks. A perfect score means the required pieces exist; it does not mean the compression is semantically perfect.
+4. `reasoning.md` — the fuller reasoning artifact: intent, problem, key user messages, decision shifts, discarded branches, risks, outcome, next action, asks.
+5. `source-audit.md` — human-readable receipt of every file included in this run.
+6. `source-metadata.json` — machine-readable message counts, source shape, topic tags, file hashes.
+7. `compression-score.md` — structural smoke checks. A perfect score means the required pieces exist; it does not mean the compression is semantically perfect.
 
 ## Source Shape
 

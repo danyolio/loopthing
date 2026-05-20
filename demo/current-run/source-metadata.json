@@ -1,6 +1,6 @@
 {
   "format": "loopthing/source-metadata-v0.1",
-  "created": "2026-05-20T03:52:27.087Z",
+  "created": "2026-05-20T04:22:59.609Z",
   "message_count": 17,
   "role_counts": {
     "user": 16,
@@ -33,8 +33,8 @@
     {
       "path": "README.md",
       "kind": "orientation",
-      "bytes": 7477,
-      "sha256": "5a0e710195e94a474f35822275f14bf696e5df788ef1876aee0c3b2c4dbf83b2"
+      "bytes": 7647,
+      "sha256": "c35e9b872c3a0617db50028596ccb021a56b68d5b5e203e40cd26f27c7219996"
     },
     {
       "path": "START_HERE.md",
@@ -45,14 +45,14 @@
     {
       "path": "docs/01_PRODUCT.md",
       "kind": "docs",
-      "bytes": 2418,
-      "sha256": "9e79a1568575efe607a6295e653e4f659f982e0a1ebe97c61a6647bf6144beb7"
+      "bytes": 2540,
+      "sha256": "95a43574a60080ddacc79a9223844545b3e19cd0179c8adbacc46a4fa7d668c2"
     },
     {
       "path": "docs/02_RUN_LOOPTHING.md",
       "kind": "docs",
-      "bytes": 3401,
-      "sha256": "c5915c3f86982f23f4add488c34d9360c369490c82c5baf749b8bfa2bc608dc7"
+      "bytes": 3568,
+      "sha256": "6a1df5d47d3ad95fbe48e7c7855239f501039d9854931561af7ae1ed5bfd1ea2"
     },
     {
       "path": "docs/03_PUBLIC_DEMO.md",

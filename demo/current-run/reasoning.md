@@ -33,7 +33,7 @@ The strongest product direction is handoff.
 - Keep everything old in an archive. Don't delete anything.
 - Intent Clean up the project into something readable, improve the actual LoopThing product, run it on the cleaned folder, and use the resulting artifact as the source of truth for the public static page.
 
-## Human signals
+## Key user messages
 
 These are the human-authored turns or source signals the next reader should privilege over assistant monologues.
 
@@ -46,18 +46,18 @@ These are the human-authored turns or source signals the next reader should priv
 
 ## Supporting conclusions
 
-Use these as conclusions to verify, not as a substitute for the human signals.
+Use these as conclusions to verify, not as a substitute for the key user messages.
 
 - **assistant conclusion · current-project-chat.md** (`source/current-project-chat.md`): The root should show the current product, the archive should preserve old material, and the public page should be generated from the latest run rather than stale screenshots or old positioning.
 
 ## Decision shifts
 
-| Old framing | Sharper framing | Trigger | Why it matters |
+| Earlier branch | What changed | Evidence | Why it matters |
 | --- | --- | --- | --- |
-| Raw archive as product | The strongest product direction is handoff. | storing everything preserves the mess instead of compressing it. | This keeps the next reader from reopening a branch the conversation already narrowed away from. |
-| Viewer-first polish | The strongest product direction is handoff. | a beautiful page can hide weak compression. The artifact has to be useful before the viewer earns trust. | This keeps the next reader from reopening a branch the conversation already narrowed away from. |
-| Test fixtures as current source | The strongest product direction is handoff. | fixtures are validation material, not the living project context. Including them made old Ralph-loop planning appear in the fresh output. | This keeps the next reader from reopening a branch the conversation already narrowed away from. |
-| GitHub repo framing | The strongest product direction is handoff. | the current task is readability and product direction, not repository presentation or commit history. | This keeps the next reader from reopening a branch the conversation already narrowed away from. |
+| Raw archive as product | Bounded or rejected | storing everything preserves the mess instead of compressing it. | Preserve this as a settled boundary unless new evidence reopens it. |
+| Viewer-first polish | Bounded or rejected | a beautiful page can hide weak compression. The artifact has to be useful before the viewer earns trust. | Preserve this as a settled boundary unless new evidence reopens it. |
+| Test fixtures as current source | Bounded or rejected | fixtures are validation material, not the living project context. Including them made old Ralph-loop planning appear in the fresh output. | Preserve this as a settled boundary unless new evidence reopens it. |
+| GitHub repo framing | Bounded or rejected | the current task is readability and product direction, not repository presentation or commit history. | Preserve this as a settled boundary unless new evidence reopens it. |
 
 ## Discarded branches
 

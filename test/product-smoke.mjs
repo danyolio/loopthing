@@ -91,6 +91,7 @@ const required = [
   path.join(runDir, "reasoning.md"),
   path.join(runDir, "agent-guide.md"),
   path.join(runDir, "agent-handoff.md"),
+  path.join(runDir, "source-audit.md"),
   path.join(runDir, "source-metadata.json"),
   path.join(runDir, "compression-score.md"),
   path.join(runDir, "scores.jsonl"),
@@ -108,6 +109,7 @@ const required = [
   path.join(selfRunDir, "reasoning.md"),
   path.join(selfRunDir, "agent-guide.md"),
   path.join(selfRunDir, "agent-handoff.md"),
+  path.join(selfRunDir, "source-audit.md"),
   path.join(selfRunDir, "compression-score.md"),
   selfArchive
 ];
@@ -117,7 +119,7 @@ for (const file of required) {
 }
 
 const reasoning = fs.readFileSync(path.join(runDir, "reasoning.md"), "utf8");
-for (const section of ["## Intent", "## Human signals", "## Decision shifts", "## Discarded branches"]) {
+for (const section of ["## Intent", "## Key user messages", "## Decision shifts", "## Discarded branches"]) {
   if (!reasoning.includes(section)) throw new Error(`Missing section ${section}`);
 }
 
@@ -137,7 +139,7 @@ for (const expected of ["Agent Handoff", "Do Not Reopen These Branches", "Operat
 }
 
 const startHere = fs.readFileSync(path.join(runDir, "START_HERE.md"), "utf8");
-for (const expected of ["START HERE", "Read In This Order", "brief.md", "agent-guide.md", "agent-handoff.md"]) {
+for (const expected of ["START HERE", "Read In This Order", "brief.md", "agent-guide.md", "agent-handoff.md", "source-audit.md"]) {
   if (!startHere.includes(expected)) throw new Error(`Missing start content ${expected}`);
 }
 
@@ -286,7 +288,7 @@ if (selfMetadata.source_kind_counts.generated) {
 }
 
 const selfScore = fs.readFileSync(path.join(selfRunDir, "compression-score.md"), "utf8");
-if (!selfScore.includes("13/13 checks passed")) throw new Error("Self-run score did not pass 13/13 checks");
+if (!selfScore.includes("14/14 checks passed")) throw new Error("Self-run score did not pass 14/14 checks");
 const selfScoreRecords = fs.readFileSync(path.join(selfRunDir, "scores.jsonl"), "utf8").trim().split(/\n/).filter(Boolean);
 if (selfScoreRecords.length !== 1) throw new Error("Self-run should replace stale score records on repeated create");
 

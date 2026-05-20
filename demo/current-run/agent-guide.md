@@ -5,10 +5,11 @@ This file is for AI agents and collaborators navigating the run directory.
 ## Read order
 
 1. `brief.md` — short, sendable conclusion.
-2. `reasoning.md` — deeper audit trail with human signals, decision shifts, boundaries, and risks.
+2. `reasoning.md` — deeper audit trail with key user messages, decision shifts, boundaries, and risks.
 3. `agent-handoff.md` — paste-ready state for a fresh AI session.
-4. `source-metadata.json` — provider counts, role confidence, source hashes.
-5. `compression-score.md` — structural smoke test, not semantic truth.
+4. `source-audit.md` — exact file receipt for the run.
+5. `source-metadata.json` — provider counts, role confidence, source hashes.
+6. `compression-score.md` — structural smoke test, not semantic truth.
 
 ## Source handling
 

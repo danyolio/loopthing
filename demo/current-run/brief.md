@@ -10,17 +10,17 @@ The strongest product direction is handoff.
 
 ## What changed
 
-- Raw archive as product was downgraded or bounded. Trigger: storing everything preserves the mess instead of compressing it.
-- Viewer-first polish was downgraded or bounded. Trigger: a beautiful page can hide weak compression. The artifact has to be useful before the viewer earns trust.
-- Test fixtures as current source was downgraded or bounded. Trigger: fixtures are validation material, not the living project context. Including them made old Ralph-loop planning appear in the fresh output.
-- GitHub repo framing was downgraded or bounded. Trigger: the current task is readability and product direction, not repository presentation or commit history.
-
-## What not to reopen
-
 - Raw archive as product: storing everything preserves the mess instead of compressing it.
 - Viewer-first polish: a beautiful page can hide weak compression. The artifact has to be useful before the viewer earns trust.
 - Test fixtures as current source: fixtures are validation material, not the living project context. Including them made old Ralph-loop planning appear in the fresh output.
 - GitHub repo framing: the current task is readability and product direction, not repository presentation or commit history.
+
+## Guardrails
+
+- Not a memory feature.
+- Not a generic chat summary.
+- Not a beautiful archive of everything.
+- Not a dashboard that proves value through UI alone.
 
 ## Open questions
 

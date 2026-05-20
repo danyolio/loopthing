@@ -85,6 +85,7 @@ function resetRunDir(outDir) {
     "reasoning.md",
     "agent-guide.md",
     "agent-handoff.md",
+    "source-audit.md",
     "source-metadata.json",
     "compression-score.md",
     "scores.jsonl",
@@ -139,7 +140,7 @@ function classifySource(file) {
   if (/^rollout-.*\.jsonl$/i.test(basename)) return "chat-transcript";
   if (/(^|\/)\.claude\/projects\//.test(file.replace(/\\/g, "/"))) return "chat-transcript";
   if (/LOCAL_CHAT_MD_FILES\.md$/i.test(basename)) return "source-index";
-  if (/source-metadata\.json$|scores\.jsonl$|compression-score\.md$|agent-guide\.md$|agent-handoff\.md$|brief\.md$|reasoning\.md$/i.test(basename)) return "generated";
+  if (/^(?:source-audit\.md|source-metadata\.json|scores\.jsonl|compression-score\.md|agent-guide\.md|agent-handoff\.md|brief\.md|reasoning\.md)$/i.test(basename)) return "generated";
   if (/START_HERE\.md$/i.test(basename) && relative.split("/").some((part) => ["current-run", "runs"].includes(part))) return "generated";
   if (relative.startsWith("loopthing-source/Prompts/")) return "prompt";
   if (relative.startsWith("loopthing-source/Thinking/")) return "thinking";
@@ -856,7 +857,13 @@ function inferIntent(messages, title = "") {
       const summary = sectionSummary(section, 320);
       if (summary) return summary;
   }
-  if (/\bloopthing\b/i.test(`${title}\n${messages.map((message) => message.content).join("\n")}`) && domainFor(messages, title) === "loopthing") {
+  const allText = messages.map((message) => message.content).join("\n");
+  if (/\b(?:start-?up|startup)\s+(?:ideas?|concepts?|opportunit(?:y|ies))\b/i.test(allText)
+    || /\bexplor(?:e|ing)\s+(?:a\s+)?(?:start-?up|startup|business)\s+idea\b/i.test(allText)
+    || /\bwhich\s+(?:business|startup)\s+idea\b/i.test(allText)) {
+    return "Explore and narrow startup ideas into a viable, evidence-tested business direction.";
+  }
+  if (/\bloopthing\b/i.test(title) && domainFor(messages, title) === "loopthing") {
     return "Compress messy local AI work history into a useful handoff artifact for the next chat, agent, collaborator, or future self.";
   }
   const recentQuestion = sentenceCandidates(preferred, [
@@ -930,9 +937,11 @@ function extractStatedObjective(text) {
 function synthesizedProblemFromQuestion(text, context = "") {
   const clean = cleanDictatedQuestion(text);
   const combined = `${clean}\n${context}`;
-  const fitFrame = extractFitFrame(combined);
+  const fitFrame = extractFitFrame(clean) || extractFitFrame(combined);
   if (fitFrame) {
-    return `Decide the legitimate fit for ${fitFrame.subject} within ${fitFrame.context}, which role or segment is the strongest initial wedge, and what first target is concrete enough to organize the next loop.`;
+    const subject = fitFrame.subject;
+    const contextLabel = fitFrame.context.replace(/\bndis\b/gi, "NDIS");
+    return `Decide the legitimate fit for ${subject} within ${contextLabel}, which role or segment is the strongest initial wedge, and what first target is concrete enough to organize the next loop.`;
   }
   const objective = extractStatedObjective(combined);
   if (objective && /\bwedge\b/i.test(clean)) {
@@ -957,7 +966,7 @@ function inferProblem(messages) {
   ], 2, { role: "user", recentFirst: true, max: 260 }).map((item) => item.sentence);
   if (recentQuestion.length) {
     const context = recentMessages(preferred, 0.2).map((message) => message.content).join("\n");
-    return synthesizedProblemFromQuestion(recentQuestion.join(" "), context);
+    return `Current decision: ${synthesizedProblemFromQuestion(recentQuestion.join(" "), context)}`;
   }
   const problem = findSentences(messages, [/problem/, /gold/, /messy/, /chaos/, /noisy/, /copy/, /handoff/, /trust/, /share/], 1)[0];
   if (problem) return `The problem surfaced in the source language: "${excerpt(problem.sentence, 260)}"`;
@@ -981,13 +990,12 @@ function framingDiffs(critical) {
 
 function decisionShifts(messages, critical) {
   const discarded = discardedBranches(messages).slice(0, 4);
-  const wedge = transcriptWedge(messages);
-  if (discarded.length && !/^The strongest surviving direction/.test(wedge)) {
+  if (discarded.length) {
     return discarded.map((item) => ({
       from: item.branch,
-      to: readableExcerpt(wedge, 120),
+      to: "Bounded or rejected",
       trigger: item.reason,
-      why: "This keeps the next reader from reopening a branch the conversation already narrowed away from."
+      why: "Preserve this as a settled boundary unless new evidence reopens it."
     }));
   }
   return framingDiffs(critical);
@@ -998,6 +1006,51 @@ function sourceShape(metadata) {
     .sort((a, b) => b[1] - a[1]);
   if (!rows.length) return "No source-shape metadata detected.";
   return rows.map(([kind, count]) => `- ${kind}: ${count}`).join("\n");
+}
+
+function readableBytes(bytes = 0) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function sourceAuditPath(filePath) {
+  const normalized = String(filePath || "").replace(/\\/g, "/");
+  if (normalized.startsWith("..")) return path.resolve(process.cwd(), normalized);
+  return normalized;
+}
+
+function renderSourceAudit({ title, metadata }) {
+  const files = metadata.source_files || [];
+  const byKind = new Map();
+  for (const file of files) {
+    const kind = file.kind || "source";
+    if (!byKind.has(kind)) byKind.set(kind, []);
+    byKind.get(kind).push(file);
+  }
+  const groups = [...byKind.entries()]
+    .sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]))
+    .map(([kind, kindFiles]) => {
+      const rows = kindFiles
+        .sort((a, b) => sourceAuditPath(a.path).localeCompare(sourceAuditPath(b.path)))
+        .map((file) => `- \`${sourceAuditPath(file.path)}\` (${readableBytes(file.bytes)}, sha256 ${String(file.sha256 || "").slice(0, 12)})`)
+        .join("\n");
+      return `## ${kind} (${kindFiles.length})\n\n${rows}`;
+    })
+    .join("\n\n");
+
+  return `# Source Audit: ${title}
+
+LoopThing parsed ${metadata.message_count} messages from ${files.length} source file${files.length === 1 ? "" : "s"}.
+
+This is the receipt for the run. If the handoff feels wrong, check this before debating the summary: these are the exact files that were included after directory expansion and ignored-directory filtering.
+
+## Source Shape
+
+${sourceShape(metadata)}
+
+${groups || "No source files recorded."}
+`;
 }
 
 function recentUserDirections(messages, limit = 5) {
@@ -1430,6 +1483,8 @@ function humanSignalBullets(messages, limit = 6) {
       const clean = cleanDictatedQuestion(cleanMarkdown(part).replace(/\s+/g, " ").trim());
       if (clean.length < 18 || clean.length > 320) continue;
       if (/^(summary|context|user|assistant|this session is being continued|here is a comprehensive summary)\b/i.test(clean)) continue;
+      if (/^(fixed costs framing|pending tasks|current work|optional next step|all user messages|errors and fixes|problem solving)\b/i.test(clean)) continue;
+      if (/^on a mission to help everyone use data to make decisions/i.test(clean)) continue;
       if (isLikelyAssistantAuthoredText(clean)) continue;
       snippets.push({
         message,
@@ -1441,8 +1496,9 @@ function humanSignalBullets(messages, limit = 6) {
   const ranked = snippets
     .map((item) => ({
       ...item,
-      score: (/\b(mission|goal|my background|background in|focused|biggest question|real question|should i target|which role|what role|where .* fit|don't take|flat fee|provider|customer|call|wedge|not working|weird|strange|unclear|too long|send|friend)\b/i.test(item.text) ? 12 : 0)
+      score: (/\b(mission|goal|my background|background in|focused|biggest question|real question|startup idea|start-up idea|asymmetric advantage|psychology based startup|solve the supply|should i target|which role|what role|where .* fit|don't take|flat fee|provider|customer|call|wedge|not working|weird|strange|unclear|too long|send|friend)\b/i.test(item.text) ? 12 : 0)
         + (/\b(mission|my background|background in|focused|don't take|flat fee|which role|what role|first-year|1st year|walk in)\b/i.test(item.text) ? 8 : 0)
+        + (/\b(startup idea|start-up idea|psychology based startup|asymmetric advantage|solve the supply|personal experience|buyer)\b/i.test(item.text) ? 8 : 0)
         + (/\b(i want|i don't|i think|should|could)\b/i.test(item.text) ? 3 : 0)
         + (/\?/.test(item.text) ? 3 : 0)
         + (item.index / Math.max(messages.length, 1))
@@ -1539,16 +1595,35 @@ function genericModel(title, messages, metadata) {
 }
 
 function survivalClaims(messages, outcome) {
-  const explicit = sectionBlock(messages, [/what survives criticism/, /outcome/, /committed to/, /narrowest claim/], 6);
+  const preferred = preferredReasoningMessages(messages);
+  const explicit = matchingSections(preferred, [/what survives criticism/, /narrowest claim/])
+    .flatMap((section) => sectionLines(section, 8))
+    .filter(isSurvivalClaimCandidate)
+    .slice(0, 6);
   if (explicit.length) return explicit;
   const lines = lineCandidates(messages, [
     /\b(highest-value lane|strongest economic wedge|unit economics are the strongest|largest market|legitimate entry point|mission framing holds|wedge is genuinely real|value-add isn't just placement)\b/i
-  ], 6, { role: "assistant", recentFirst: true, max: 240, noQuestions: true }).map((item) => item.line);
+  ], 8, { role: "assistant", recentFirst: true, max: 240, noQuestions: true })
+    .map((item) => item.line)
+    .filter(isSurvivalClaimCandidate)
+    .slice(0, 6);
   if (lines.length) return lines;
   const candidates = sentenceCandidates(messages, [
     /\b(strongest|cleanest|highest-value|fits|legitimate|real role|real wedge|mission .* holds|value-add|differentiator|works|survives)\b/i
-  ], 5, { role: "assistant", recentFirst: true, max: 240 }).map((item) => item.sentence);
+  ], 8, { role: "assistant", recentFirst: true, max: 240 })
+    .map((item) => item.sentence)
+    .filter(isSurvivalClaimCandidate)
+    .slice(0, 5);
   return candidates.length ? candidates : outcome.committed.slice(0, 5);
+}
+
+function isSurvivalClaimCandidate(line) {
+  const clean = cleanMarkdown(line).replace(/\s+/g, " ").trim();
+  if (!clean) return false;
+  return !/^(complete each row|choose one tentative implication|use one note per completed provider call|recommended filename|leave no blank evidence rows|record only delegated|source metadata|score checklist|reasoning\.md|optional sealed|the ask|read in this order|use it)\b/i.test(clean)
+    && !/^(same answer as)\b/i.test(clean)
+    && !/\b(doesn'?t meet|insufficient qualification|not a student role|not your primary lane|not the right role)\b/i.test(clean)
+    && !/\b(INTERVIEW_TRACKER\.md|Target Change Queue|completed provider call|blank evidence rows|call-notes\/CALL-|YYYY-MM-DD|project\/sales|compression-score\.md|source-metadata\.json|agent-handoff\.md)\b/i.test(clean);
 }
 
 function boundariesFromTranscript(messages, outcome) {
@@ -1576,7 +1651,7 @@ function outcomeModel(messages) {
   ], 6, { role: "assistant", recentFirst: true, max: 240, noQuestions: true }).map((item) => item.line);
 
   return {
-    committed: committed.length ? committed : (committedFallback.length ? committedFallback : ["No specific commitment inferred; review the human signals before using this handoff."]),
+    committed: committed.length ? committed : (committedFallback.length ? committedFallback : ["No specific commitment inferred; review the key user messages before using this handoff."]),
     notCommitted: notCommitted.length ? notCommitted : (notCommittedFallback.length ? notCommittedFallback : (explicitNotCommitted.length ? explicitNotCommitted : ["No specific rejected commitment inferred."])),
     evidence
   };
@@ -1607,8 +1682,8 @@ function discardedList(items) {
 }
 
 function decisionShiftTable(rows) {
-  if (!rows?.length) return "| Old framing | Sharper framing | Trigger | Why it matters |\n| --- | --- | --- | --- |\n| Unclear | Unclear | No decision shift detected | Review source material manually |";
-  return `| Old framing | Sharper framing | Trigger | Why it matters |
+  if (!rows?.length) return "| Earlier branch | What changed | Evidence | Why it matters |\n| --- | --- | --- | --- |\n| Unclear | Unclear | No decision shift detected | Review source material manually |";
+  return `| Earlier branch | What changed | Evidence | Why it matters |
 | --- | --- | --- | --- |
 ${rows.map((row) => `| ${escapeCell(row.from)} | ${escapeCell(row.to)} | ${escapeCell(row.trigger)} | ${escapeCell(row.why)} |`).join("\n")}`;
 }
@@ -1616,7 +1691,7 @@ ${rows.map((row) => `| ${escapeCell(row.from)} | ${escapeCell(row.to)} | ${escap
 function briefDecisionBullets(rows) {
   if (!rows?.length) return "- No clear framing change detected.";
   return rows.slice(0, 4)
-    .map((row) => `- ${readableExcerpt(row.from, 95)} was downgraded or bounded. Trigger: ${readableExcerpt(row.trigger, 150)}`)
+    .map((row) => `- ${readableExcerpt(row.from, 110)}: ${readableExcerpt(row.trigger, 170)}`)
     .join("\n");
 }
 
@@ -1657,7 +1732,7 @@ ${sourceShape(metadata)}
 
 ${markdownList(model.directions.slice(-6))}
 
-## Human signals
+## Key user messages
 
 These are the human-authored turns or source signals the next reader should privilege over assistant monologues.
 
@@ -1665,7 +1740,7 @@ ${artifactList(model.humanSignals)}
 
 ## Supporting conclusions
 
-Use these as conclusions to verify, not as a substitute for the human signals.
+Use these as conclusions to verify, not as a substitute for the key user messages.
 
 ${artifactList(model.supportingConclusions.length ? model.supportingConclusions : model.artifacts.slice(0, 5))}
 
@@ -1775,9 +1850,9 @@ ${readableExcerpt(model.currentWedge, 300)}
 
 ${briefDecisionBullets(model.decisionShifts)}
 
-## What not to reopen
+## Guardrails
 
-${briefDiscardedList(model.discarded)}
+${markdownList(model.notThis.slice(0, 4))}
 
 ## Open questions
 
@@ -1802,10 +1877,11 @@ This file is for AI agents and collaborators navigating the run directory.
 ## Read order
 
 1. \`brief.md\` — short, sendable conclusion.
-2. \`reasoning.md\` — deeper audit trail with human signals, decision shifts, boundaries, and risks.
+2. \`reasoning.md\` — deeper audit trail with key user messages, decision shifts, boundaries, and risks.
 3. \`agent-handoff.md\` — paste-ready state for a fresh AI session.
-4. \`source-metadata.json\` — provider counts, role confidence, source hashes.
-5. \`compression-score.md\` — structural smoke test, not semantic truth.
+4. \`source-audit.md\` — exact file receipt for the run.
+5. \`source-metadata.json\` — provider counts, role confidence, source hashes.
+6. \`compression-score.md\` — structural smoke test, not semantic truth.
 
 ## Source handling
 
@@ -1833,7 +1909,7 @@ Do not summarize the transcript. Extract the load-bearing structure:
 
 - Intent
 - Problem
-- Human signals
+- Key user messages
 - Supporting conclusions
 - Decision shifts
 - Discarded branches
@@ -1860,6 +1936,7 @@ files:
   - reasoning.md
   - agent-guide.md
   - agent-handoff.md
+  - source-audit.md
   - source-metadata.json
   - prompts/compression-prompt.md
   - variants/generic.md
@@ -1878,9 +1955,10 @@ LoopThing compressed ${metadata.message_count} messages across ${metadata.source
 1. \`brief.md\` — concise, friend-sendable conclusion.
 2. \`agent-guide.md\` — how a future AI agent should navigate the package and source confidence.
 3. \`agent-handoff.md\` — paste-ready context for a new AI session.
-4. \`reasoning.md\` — the fuller reasoning artifact: intent, problem, human signals, decision shifts, discarded branches, risks, outcome, next action, asks.
-5. \`source-metadata.json\` — message counts, source shape, topic tags, file hashes.
-6. \`compression-score.md\` — structural smoke checks. A perfect score means the required pieces exist; it does not mean the compression is semantically perfect.
+4. \`reasoning.md\` — the fuller reasoning artifact: intent, problem, key user messages, decision shifts, discarded branches, risks, outcome, next action, asks.
+5. \`source-audit.md\` — human-readable receipt of every file included in this run.
+6. \`source-metadata.json\` — machine-readable message counts, source shape, topic tags, file hashes.
+7. \`compression-score.md\` — structural smoke checks. A perfect score means the required pieces exist; it does not mean the compression is semantically perfect.
 
 ## Source Shape
 
@@ -2345,6 +2423,7 @@ function writeCompressionRun({ messages, files, flags, sourceLabel }) {
   const reasoning = renderReasoning({ title, messages, metadata });
   const agentGuide = renderAgentGuide({ title, messages, metadata });
   const handoff = renderAgentHandoff({ title, messages, metadata });
+  const sourceAudit = renderSourceAudit({ title, metadata });
   const startHere = renderStartHere({ title, metadata });
 
   resetRunDir(outDir);
@@ -2354,6 +2433,7 @@ function writeCompressionRun({ messages, files, flags, sourceLabel }) {
   write(path.join(outDir, "reasoning.md"), reasoning);
   write(path.join(outDir, "agent-guide.md"), agentGuide);
   write(path.join(outDir, "agent-handoff.md"), handoff);
+  write(path.join(outDir, "source-audit.md"), sourceAudit);
   write(path.join(outDir, "source-metadata.json"), `${JSON.stringify(metadata, null, 2)}\n`);
   write(path.join(outDir, "prompts", "compression-prompt.md"), compressionPrompt());
   write(path.join(outDir, "variants", "generic.md"), genericSummary(messages, metadata));
@@ -2387,6 +2467,7 @@ function sectionCount(markdown) {
 function scoreRun(runDir) {
   const reasoningFile = path.join(runDir, "reasoning.md");
   const metadataFile = path.join(runDir, "source-metadata.json");
+  const sourceAuditFile = path.join(runDir, "source-audit.md");
   const briefFile = path.join(runDir, "brief.md");
   const agentGuideFile = path.join(runDir, "agent-guide.md");
   const handoffFile = path.join(runDir, "agent-handoff.md");
@@ -2404,8 +2485,8 @@ function scoreRun(runDir) {
     ["Required sections", sectionCount(reasoning) >= 12],
     ["Current thesis present", /## Current thesis[\s\S]+\S/.test(reasoning)],
     ["Current wedge present", /## Current wedge[\s\S]+\S/.test(reasoning)],
-    ["Human signals present", /## Human signals[\s\S]*- \*\*/.test(reasoning)],
-    ["Decision shifts present", /## Decision shifts[\s\S]*\| Old framing \| Sharper framing \|/.test(reasoning)],
+    ["Key user messages present", /## Key user messages[\s\S]*- \*\*/.test(reasoning)],
+    ["Decision shifts present", /## Decision shifts[\s\S]*\| Earlier branch \| What changed \|/.test(reasoning)],
     ["Discarded branches present", /## Discarded branches[\s\S]*Rejected because/.test(reasoning)],
     ["Risks present", /## Where the explanation might be wrong[\s\S]*- /.test(reasoning)],
     ["Next action present", /## Next action[\s\S]*- /.test(reasoning)],
@@ -2413,6 +2494,7 @@ function scoreRun(runDir) {
     ["No generic handoff boilerplate", noGenericProductSpine && noGenericOutcomeBoilerplate],
     ["Brief present", fs.existsSync(briefFile)],
     ["Agent guide present", fs.existsSync(agentGuideFile)],
+    ["Source audit present", fs.existsSync(sourceAuditFile)],
     ["Metadata present", Boolean(metadata)]
   ];
   const passed = score.filter(([, ok]) => ok).length;

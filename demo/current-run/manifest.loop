@@ -1,7 +1,7 @@
 format: loopthing/run-v0.1
 title: LoopThing Clean Project Handoff
 kind: reasoning-handoff-run
-created: 2026-05-20T03:52:27.087Z
+created: 2026-05-20T04:22:59.609Z
 mimetype: application/vnd.loopthing+zip
 
 files:
@@ -10,6 +10,7 @@ files:
   - reasoning.md
   - agent-guide.md
   - agent-handoff.md
+  - source-audit.md
   - source-metadata.json
   - prompts/compression-prompt.md
   - variants/generic.md

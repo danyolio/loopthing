@@ -4,7 +4,7 @@ Do not summarize the transcript. Extract the load-bearing structure:
 
 - Intent
 - Problem
-- Human signals
+- Key user messages
 - Supporting conclusions
 - Decision shifts
 - Discarded branches
