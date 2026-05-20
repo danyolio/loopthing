@@ -211,6 +211,12 @@ if (!dictatedProblemMatch[1].includes("Decide the legitimate fit for psych stude
 if (/to to to|like, which role|thirty of your students/i.test(dictatedProblemMatch[1])) {
   throw new Error("Dictated problem should not preserve disfluent transcript text");
 }
+if (!dictatedProblemReasoning.includes("Founder wants a concrete organising answer")) {
+  throw new Error("Dictated user signals should be polished into founder-facing language");
+}
+if (/So I haven't thoroughly read|thirty of your students|to to to/i.test(dictatedProblemReasoning)) {
+  throw new Error("Reasoning should not expose non-pivotal disfluent user wording");
+}
 
 const timestampReasoning = fs.readFileSync(path.join(timestampRunDir, "reasoning.md"), "utf8");
 const timestampMetadata = JSON.parse(fs.readFileSync(path.join(timestampRunDir, "source-metadata.json"), "utf8"));
