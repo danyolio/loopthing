@@ -1,138 +1,96 @@
-# LoopThing
+# Loop Thing
 
-LoopThing turns your local Codex and Claude Code history into a handoff artifact for the next chat, agent, collaborator, or future self.
+Loop Thing is a collaborative continuous-thinking workspace for work that
+evolves over days, weeks, or months. The document remains the primary
+interface; AI Loops connect changes, evidence, questions, decisions, and
+alternatives without silently rewriting accepted human work.
 
-It is an exportable `.loopthing` container plus a local CLI that scans structured AI session logs, imports exact `user` / `assistant` turns where available, and extracts the load-bearing shape of a project: intent, problem, key user messages, decision shifts, discarded branches, risks, decisions, and the next action.
+## What is included
 
-## Why It Exists
+- Next.js 16 App Router, React 19, TypeScript, Tailwind CSS, and shadcn/ui
+- Supabase Auth, Postgres, Row Level Security, invitations, and private Storage
+- Tiptap with Yjs, IndexedDB offline recovery, Hocuspocus WebSockets, awareness,
+  and immutable checkpoints
+- Light, daily, and weekly Loops on Vercel Workflow DevKit
+- Selectable Gemini or OpenAI/Codex synthesis through one Zod-validated output
+  contract
+- Sources and uploads, questions, decisions, comments, branches, review,
+  restoration, progress, and history
+- Vercel Web Analytics, Speed Insights, structured logs, cron authentication,
+  and per-project Loop limits
 
-Have you ever:
+The architecture and role matrix are in
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Product acceptance criteria are
+in [`docs/MVP_ACCEPTANCE_CRITERIA.md`](docs/MVP_ACCEPTANCE_CRITERIA.md).
 
-- gotten an AI-generated doc from someone and wished you knew what prompts, pivots, and rejected ideas led there?
-- seen a strong AI-built prototype and wondered how the person actually made it?
-- written "summarize this chat" to share your AI project, only to get something that missed the gold?
+## Local setup
 
-AI work now happens across local Codex sessions, Claude Code projects, long pasted chats, notes, prototypes, screenshots, and docs. The useful context is usually in the turns: the moment the framing changed, the branch that died, the reason a decision stuck.
-
-LoopThing finds those local histories, lets you opt selected conversations into a run, and turns that mess into something sendable.
-
-The test is simple: can someone who was not in the conversation read the artifact in under five minutes and land where the creator landed?
-
-## The Current Product
-
-The actual product is a local CLI that can run on a project folder or scan local AI histories first:
-
-```bash
-node bin/loopthing.mjs create . \
-  --out demo/loopthing-clean.loopthing \
-  --run-dir demo/current-run \
-  --title "LoopThing Clean Project Handoff"
-
-node bin/loopthing.mjs sessions scan
-node bin/loopthing.mjs claude scan "pricing decision customer research"
-```
-
-That command creates:
-
-- `demo/current-run/START_HERE.md`: the reading order.
-- `demo/current-run/brief.md`: a concise, friend-sendable summary.
-- `demo/current-run/agent-guide.md`: instructions for AI agents on source confidence, read order, and role ambiguity.
-- `demo/current-run/agent-handoff.md`: paste-ready context for a new AI session.
-- `demo/current-run/reasoning.md`: the full compressed reasoning artifact.
-- `demo/current-run/source-audit.md`: a human-readable receipt of every source file included.
-- `demo/current-run/source-metadata.json`: message counts, input/output token estimates, source shape, topic tags, and file hashes.
-- `demo/current-run/compression-score.md`: structural and readability smoke checks.
-- `demo/loopthing-clean.loopthing`: a sealed portable container with MIME marker `application/vnd.loopthing+zip`.
-
-The renderer builds a project model before writing Markdown, so it tries to produce a readable project-specific handoff instead of chopped transcript snippets. The short brief is deliberately separate from the deeper reasoning artifact: one is for a friend or collaborator, the other is for audit and continuation.
-
-The latest checked-in demo was regenerated from the cleaned repo and compresses 17 messages across 9 source files. Its structural score is 14/14. That score is a shape check, not a claim that the reasoning is perfect; the recipient test is still the real bar.
-
-## Structured Chat Sources
-
-This is the clutch path: prefer structured local AI history over copied transcript text whenever possible.
-
-For Codex work, LoopThing can use the structured local session log instead of guessing roles from pasted text:
+Use Node.js 24 and npm.
 
 ```bash
-node bin/loopthing.mjs sessions scan
-node bin/loopthing.mjs sessions inspect <session-id>
-node bin/loopthing.mjs create-session <session-id> \
-  --out selected-session.loopthing
+npm install
+cp .env.example .env.local
+npm run dev
 ```
 
-Codex session imports preserve exact `user` / `assistant` roles from the rollout JSONL and skip synthetic environment-context messages. Pasted transcripts still work, but they are the fallback path because role boundaries can be ambiguous.
+Use `vercel dev` when testing the WebSocket upgrade and Vercel-specific runtime.
 
-Claude Code conversations can also be passed directly as JSONL inputs:
-
-```bash
-node bin/loopthing.mjs create \
-  ~/.claude/projects/<project>/<session>.jsonl \
-  --out claude-session.loopthing \
-  --title "Claude Session Handoff"
-```
-
-Claude Code imports preserve exact `user` / `assistant` roles, skip local command wrappers, and ignore tool/thinking blocks so the artifact is based on the actual conversation instead of terminal noise.
-
-LoopThing can also scan your local Claude Code history for related conversations before you opt them into a run:
-
-```bash
-node bin/loopthing.mjs claude scan "pricing decision customer research"
-node bin/loopthing.mjs claude scan --like ./chat-paste.md
-node bin/loopthing.mjs claude inspect ~/.claude/projects/<project>/<session>.jsonl
-```
-
-The scan walks `~/.claude/projects` by default, scores conversations against the query or `--like` file, and prints matching JSONL paths. It does not automatically include every match in the artifact; you still choose which paths to pass into `create`. Subagent conversations are skipped by default because they are often noisy, but can be included with `--include-subagents`.
-
-Mixed runs are supported. You can combine pasted ChatGPT text, Codex rollout JSONL, Claude Code JSONL, and project docs in one command when a decision was spread across multiple tools or dates. `source-audit.md` gives a readable receipt of the files included, while `source-metadata.json` records where messages came from, including `provider_counts`, `role_quality`, and local input/output token estimates. A recipient can see which roles were exact, which were inferred, and how much context was compressed. `agent-guide.md` tells future AI agents to trust exact-role Codex / Claude Code logs before inferred pasted transcript text, and to avoid treating assistant offers inside a paste as user intent.
-
-## Quality Guardrails
-
-`npm run test:product` now covers the product path end to end:
-
-- fixture compression
-- one-command create, score, compare, and seal
-- structured Codex session scan, inspect, normalize, compress, and create
-- Claude Code JSONL import with exact roles and tool-noise filtering
-- Claude Code local-history scanning by query or similarity to a source file
-- mixed source runs where recent structured chat beats stale source-doc summaries
-- dictated / voice-style problem statements that must be synthesized into a clean decision question
-- sendable briefs and agent guides for every run
-- a full self-run on this repo
-- regressions that keep the checked-in demo focused on LoopThing's own project evolution
-- repeated-run checks so regenerated artifacts do not accumulate stale score records
-
-This matters because an earlier deterministic pass could score green while producing a semantically wrong handoff. The checked-in demo is now the LoopThing of LoopThing: it compresses how this project moved from a broad artifact/viewer idea into a handoff-first CLI product.
-
-## Project Map
+Required public environment variables:
 
 ```text
-START_HERE.md     human front door
-README.md         concept and current usage
-index.html        static public demo page
-bin/              LoopThing CLI product
-docs/             short current docs
-source/           current curated chat/context used by the demo run
-demo/             latest generated output, including brief.md and agent-guide.md
-test/             fixtures and product smoke test
-archive/          old demos, screenshots, source folders, and prior loops
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+NEXT_PUBLIC_SITE_URL
 ```
 
-Everything historical is preserved in `archive/2026-05-08-readability-cleanup/`.
+Server-only variables:
 
-## Read Next
+```text
+CRON_SECRET
+GOOGLE_GENERATIVE_AI_API_KEY
+GOOGLE_GENERATIVE_AI_MODEL=gemini-3.5-flash
+OPENAI_API_KEY
+OPENAI_MODEL=gpt-5.6-sol
+LOOPTHING_AI_PROVIDER=google
+REDIS_URL
+```
 
-Start here:
+At least one AI provider key is needed to run a Loop. `REDIS_URL` is optional
+for a single Hocuspocus instance and required before horizontal realtime
+fan-out.
 
-- [START_HERE.md](START_HERE.md)
-- [docs/01_PRODUCT.md](docs/01_PRODUCT.md)
-- [docs/02_RUN_LOOPTHING.md](docs/02_RUN_LOOPTHING.md)
-- [docs/03_PUBLIC_DEMO.md](docs/03_PUBLIC_DEMO.md)
-- [docs/05_ARCHIVE_MAP.md](docs/05_ARCHIVE_MAP.md)
-- [demo/current-run/START_HERE.md](demo/current-run/START_HERE.md)
+Apply the ordered SQL files in `supabase/migrations/` to a Supabase project.
+Every exposed project table uses RLS; privileged scheduled RPC bodies live in
+the private schema behind narrow invoker-safe wrappers.
 
-## Validate
+## Verification
 
 ```bash
-npm run test:product
+npm run typecheck
+npm run lint
+npm test
+npm run build
 ```
+
+For browser verification, check `/`, `/login`, the unauthenticated redirect from
+`/app`, and an authenticated project flow. For the Vercel runtime, verify that
+`ws(s)://<host>/api/ws` upgrades successfully and that
+`/.well-known/workflow/v1/flow` responds to Workflow health checks.
+
+## Deployment
+
+The Vercel project is configured by `vercel.json`. Production deploys use:
+
+```bash
+vercel --prod
+```
+
+The daily cron endpoint claims both due daily and weekly runs and validates the
+Vercel `Authorization: Bearer $CRON_SECRET` header. The intended production
+domain is `loopthing.ai`.
+
+## Canonical product documents
+
+- [`docs/loopthing-core-system-prompt-v2.md`](docs/loopthing-core-system-prompt-v2.md)
+- [`docs/loopthing-project-checklist.md`](docs/loopthing-project-checklist.md)
+- [`docs/MVP_ACCEPTANCE_CRITERIA.md`](docs/MVP_ACCEPTANCE_CRITERIA.md)

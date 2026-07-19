@@ -14,4 +14,3 @@ Old material is preserved in `archive/2026-05-08-readability-cleanup/`.
 - `legacy-loops/`: the prior Ralph-loop/product-loop workbench.
 
 The archive is not part of the current product run. It exists so nothing was lost while the main project became readable.
-
