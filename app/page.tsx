@@ -86,32 +86,31 @@ export default function Home() {
             Continuous thinking. Asynchronous work.
           </p>
           <h1 className="max-w-6xl text-[clamp(3.5rem,8.7vw,8rem)] font-medium leading-[0.86] tracking-[-0.078em]">
-            AI answers in seconds.
+            Good thinking isn’t generated.
             <br />
-            Hard problems take{" "}
             <span className="font-serif italic text-[var(--signal-strong)]">
-              months.
+              It’s developed.
             </span>
           </h1>
           <div className="mt-10 grid max-w-6xl gap-8 border-l border-foreground/20 pl-6 sm:pl-8 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
               <p className="max-w-3xl text-lg leading-8 text-muted-foreground sm:text-xl">
                 <strong className="font-semibold text-foreground">
-                  Loop Thing is a continuous-thinking document for hard
-                  problems.
+                  Loop Thing is an async workflow for deep thinking and
+                  research.
                 </strong>{" "}
-                It keeps working between meetings—connecting evidence,
-                assumptions, decisions, alternatives, contradictions, and open
-                questions as new facts arrive.
+                Add notes, sources, questions, and early ideas as you go. It
+                connects new material to what came before and helps your thesis
+                develop over days, weeks, or months.
               </p>
               <p className="mt-4 text-sm font-medium text-foreground/75">
-                For decisions too important to leave in a chat history.
+                Drop notes. Build the thesis. Keep the thread.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
               <Button asChild size="lg" className="rounded-full px-6">
                 <Link href="/login">
-                  Work the problem
+                  Start a project
                   <ArrowRight />
                 </Link>
               </Button>
