@@ -89,6 +89,19 @@ The daily cron endpoint claims both due daily and weekly runs and validates the
 Vercel `Authorization: Bearer $CRON_SECRET` header. The intended production
 domain is `loopthing.ai`.
 
+The production deployment was verified on 19 July 2026 at
+`https://loopthing-fp16rjp8v-danyolio.vercel.app`. Vercel has attached both
+`loopthing.ai` and `www.loopthing.ai` to the project. Because DNS remains hosted
+on Cloudflare, publish these two proxied-or-DNS-only records there before the
+custom domain can resolve:
+
+```text
+A  @    76.76.21.21
+A  www  76.76.21.21
+```
+
+Vercel will issue the certificates automatically after DNS verification.
+
 ## Canonical product documents
 
 - [`docs/loopthing-core-system-prompt-v2.md`](docs/loopthing-core-system-prompt-v2.md)

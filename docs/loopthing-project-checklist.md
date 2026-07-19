@@ -56,4 +56,4 @@ Only completed work is checked. This file is updated after implementation and ve
 - [x] Build light, daily, and weekly Loops with durable execution.
 - [x] Build embedded insights, briefings, branch review, progress, and history.
 - [x] Add automated tests, AI evaluations, security checks, privacy controls, limits, and monitoring.
-- [ ] Seed, deploy, verify, and document the MVP.
+- [x] Seed, deploy, verify, and document the MVP.
