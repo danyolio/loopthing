@@ -79,6 +79,10 @@ describe("product invariants", () => {
     );
     const workflow = readFileSync("workflows/run-loop.ts", "utf8");
     const schedule = readFileSync("vercel.json", "utf8");
+    const provenanceMigration = readFileSync(
+      "supabase/migrations/20260719114739_distinguish_dream_runs.sql",
+      "utf8",
+    );
 
     expect(migration).toContain("create or replace function public.apply_daily_dream");
     expect(migration).toContain("'dream'");
@@ -87,6 +91,10 @@ describe("product invariants", () => {
     expect(workflow).toContain("Run the overnight Dream");
     expect(workflow).toContain("complete rewritten document");
     expect(schedule).toContain('"schedule": "0 17 * * *"');
+    expect(provenanceMigration).toContain(
+      "add column is_dream boolean not null default false",
+    );
+    expect(provenanceMigration).toContain("true");
   });
 
   it("explains the day, Dream, and morning rhythm on the landing page", () => {

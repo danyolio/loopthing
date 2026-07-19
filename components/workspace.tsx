@@ -266,7 +266,7 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
   const pendingDailyDream = insights.find((insight) => {
     if (insight.accepted_at || !asProposal(insight.proposal)) return false;
     const run = runs.find((item) => item.id === insight.loop_run_id);
-    return run?.loop_type === "daily" && run.status === "complete";
+    return run?.is_dream === true && run.status === "complete";
   });
 
   useEffect(() => {
@@ -871,10 +871,10 @@ function LoopPanel({
   );
   const runById = new Map(runs.map((run) => [run.id, run]));
   const dailyInsights = insights.filter(
-    (insight) => runById.get(insight.loop_run_id)?.loop_type === "daily",
+    (insight) => runById.get(insight.loop_run_id)?.is_dream === true,
   );
   const manualInsights = insights.filter(
-    (insight) => runById.get(insight.loop_run_id)?.loop_type !== "daily",
+    (insight) => runById.get(insight.loop_run_id)?.is_dream !== true,
   );
 
   return (
@@ -888,7 +888,7 @@ function LoopPanel({
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-2 text-sm font-semibold">
               <LoaderCircle className="size-4 animate-spin" />
-              {activeRun.loop_type === "daily"
+              {activeRun.is_dream
                 ? "Dreaming on the day’s work"
                 : activeRun.progress_stage}
             </span>
@@ -896,7 +896,7 @@ function LoopPanel({
           </div>
           <Progress value={activeRun.progress_percent} className="mt-3 h-1.5" />
           <p className="mt-3 text-xs leading-5 text-muted-foreground">
-            {activeRun.loop_type === "daily"
+            {activeRun.is_dream
               ? "Loopthing is following threads, testing the reasoning, and composing the next version."
               : "The Loop is durable. You can leave this page and return without losing its progress."}
           </p>

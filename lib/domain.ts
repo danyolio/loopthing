@@ -43,6 +43,7 @@ export type LoopRun = {
   project_id: string;
   loop_type: LoopType;
   status: LoopStatus;
+  is_dream: boolean;
   progress_stage: string;
   progress_percent: number;
   provider?: AIProvider;
