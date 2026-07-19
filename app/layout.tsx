@@ -21,8 +21,8 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL || "https://loopthing.ai",
   ),
   title: {
-    default: "Loop Thing — Great work is developed",
-    template: "%s · Loop Thing",
+    default: "Loopthing — Great work is developed",
+    template: "%s · Loopthing",
   },
   description:
     "Develop a thesis, strategy, or important decision over time. Add unfinished ideas, challenge the reasoning, and decide what comes next.",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     description:
       "Develop a thesis, strategy, or important decision over time.",
     url: "/",
-    siteName: "Loop Thing",
+    siteName: "Loopthing",
     type: "website",
     images: [{ url: "/og.png", width: 1200, height: 630 }],
   },

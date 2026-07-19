@@ -19,7 +19,7 @@ const mechanics = [
   {
     icon: Orbit,
     title: "Loops catch what changed.",
-    body: "As new facts arrive, Loop Thing tests them against earlier reasoning and shows what still holds, what broke, and why it matters.",
+    body: "As new facts arrive, Loopthing tests them against earlier reasoning and shows what still holds, what broke, and why it matters.",
   },
   {
     icon: GitBranch,
@@ -87,11 +87,11 @@ export default function Home() {
               It’s developed.
             </span>
           </h1>
-          <div className="mt-10 grid max-w-6xl gap-8 border-l border-foreground/20 pl-6 sm:pl-8 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div className="mt-10 grid max-w-6xl gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
               <p className="max-w-3xl text-lg leading-8 text-muted-foreground sm:text-xl">
                 <strong className="font-semibold text-foreground">
-                  Loop Thing is for developing a thesis, strategy, or important
+                  Loopthing is for developing a thesis, strategy, or important
                   decision over time.
                 </strong>{" "}
                 Work solo or with a team, adding unfinished ideas whenever they
@@ -132,7 +132,7 @@ export default function Home() {
               <h2 className="mt-5 text-4xl font-medium leading-[0.98] tracking-[-0.055em] sm:text-6xl">
                 Chat answers the prompt.
                 <br />
-                Loop Thing stays with the problem.
+                Loopthing stays with the problem.
               </h2>
             </div>
             <p className="max-w-2xl text-base leading-8 text-white/55 lg:justify-self-end">
@@ -316,7 +316,7 @@ export default function Home() {
               Keep the thinking.
             </h2>
             <p className="mt-7 max-w-2xl text-base leading-8 text-black/65 sm:text-lg">
-              Start with the decision in front of you. Loop Thing keeps the
+              Start with the decision in front of you. Loopthing keeps the
               evidence, reasoning, and unresolved questions alive until the
               work is done.
             </p>
