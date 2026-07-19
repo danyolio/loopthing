@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     template: "%s · Loop Thing",
   },
   description:
-    "The continuous-thinking workspace for decisions that evolve as the evidence arrives.",
+    "A continuous-thinking document for hard problems. It keeps working between meetings as new facts arrive.",
   openGraph: {
     title: "Loop Thing — Hard problems take months",
     description:

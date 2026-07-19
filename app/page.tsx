@@ -83,7 +83,7 @@ export default function Home() {
         <div className="relative">
           <p className="mb-7 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--signal-strong)]">
             <Sparkles className="size-3.5" />
-            The continuous-thinking workspace
+            Continuous thinking. Asynchronous work.
           </p>
           <h1 className="max-w-6xl text-[clamp(3.5rem,8.7vw,8rem)] font-medium leading-[0.86] tracking-[-0.078em]">
             AI answers in seconds.
@@ -96,10 +96,13 @@ export default function Home() {
           <div className="mt-10 grid max-w-6xl gap-8 border-l border-foreground/20 pl-6 sm:pl-8 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
               <p className="max-w-3xl text-lg leading-8 text-muted-foreground sm:text-xl">
-                Loop Thing keeps one living record of the problem—evidence,
-                assumptions, decisions, alternatives, contradictions, and
-                unresolved questions—and rechecks the thinking as the facts
-                change.
+                <strong className="font-semibold text-foreground">
+                  Loop Thing is a continuous-thinking document for hard
+                  problems.
+                </strong>{" "}
+                It keeps working between meetings—connecting evidence,
+                assumptions, decisions, alternatives, contradictions, and open
+                questions as new facts arrive.
               </p>
               <p className="mt-4 text-sm font-medium text-foreground/75">
                 For decisions too important to leave in a chat history.
@@ -150,7 +153,7 @@ export default function Home() {
 
           <div className="mt-16 overflow-hidden rounded-[2rem] border border-white/12 bg-[#20231f] shadow-2xl shadow-black/25">
             <div className="flex items-center justify-between border-b border-white/10 px-5 py-4 text-[0.68rem] uppercase tracking-[0.17em] text-white/38 sm:px-8">
-              <span>Living problem</span>
+              <span>Continuous-thinking document</span>
               <span className="flex items-center gap-2">
                 <span className="size-1.5 rounded-full bg-[var(--signal)]" />
                 Updated today
