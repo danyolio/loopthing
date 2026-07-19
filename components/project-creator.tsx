@@ -31,7 +31,7 @@ export function ProjectCreator({ templates }: { templates: Template[] }) {
   const [saving, setSaving] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [template, setTemplate] = useState<Template | null>(templates[0] ?? null);
+  const [template, setTemplate] = useState<Template | null>(null);
 
   async function createProject(event: React.FormEvent) {
     event.preventDefault();
@@ -60,12 +60,14 @@ export function ProjectCreator({ templates }: { templates: Template[] }) {
       return;
     }
 
-    if (template) {
-      await supabase
-        .from("documents")
-        .update({ content_text: template.initial_document })
-        .eq("project_id", data.id);
-    }
+    await supabase
+      .from("documents")
+      .update({
+        content_text:
+          template?.initial_document ??
+          `# ${title.trim()}\n\nDrop unfinished thoughts here. The first Dream will begin developing them overnight.`,
+      })
+      .eq("project_id", data.id);
 
     setOpen(false);
     router.push(`/app/projects/${data.id}`);
@@ -86,11 +88,32 @@ export function ProjectCreator({ templates }: { templates: Template[] }) {
             Start a line of thought
           </DialogTitle>
           <DialogDescription>
-            Pick a light structure. Everything stays editable.
+            Start empty or use a light structure. Rough thinking is welcome.
           </DialogDescription>
         </DialogHeader>
         <form className="space-y-6 pt-2" onSubmit={createProject}>
           <div className="grid gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => setTemplate(null)}
+              className={`rounded-xl border p-4 text-left transition ${
+                template === null
+                  ? "border-foreground bg-foreground text-background"
+                  : "hover:border-foreground/40 hover:bg-muted/50"
+              }`}
+            >
+              <span className="text-sm font-semibold">Blank project</span>
+              <span
+                className={`mt-1 block text-xs leading-5 ${
+                  template === null
+                    ? "text-background/65"
+                    : "text-muted-foreground"
+                }`}
+              >
+                Drop raw fragments first. The first Dream will begin shaping
+                the document overnight.
+              </span>
+            </button>
             {templates.map((item) => (
               <button
                 key={item.slug}
@@ -133,13 +156,13 @@ export function ProjectCreator({ templates }: { templates: Template[] }) {
               id="project-description"
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              placeholder="A sentence or two is enough."
+              placeholder="What is this work trying to become? A sentence is enough."
               rows={3}
             />
           </div>
           <Button className="w-full" disabled={saving}>
             {saving ? <LoaderCircle className="animate-spin" /> : <ArrowRight />}
-            Create living document
+            Start project
           </Button>
         </form>
       </DialogContent>

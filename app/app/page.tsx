@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { ArrowUpRight, FileText, Orbit } from "lucide-react";
+import { ArrowUpRight, FileText, Moon, Orbit } from "lucide-react";
 import { ProjectCreator } from "@/components/project-creator";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
@@ -10,7 +10,9 @@ export default async function ProjectsPage() {
   const [{ data: projects }, { data: templates }] = await Promise.all([
     supabase
       .from("projects")
-      .select("id,title,description,status,updated_at,ai_provider")
+      .select(
+        "id,title,description,status,updated_at,ai_provider,next_daily_loop_at",
+      )
       .order("updated_at", { ascending: false }),
     supabase
       .from("project_templates")
@@ -29,8 +31,8 @@ export default async function ProjectsPage() {
             Lines of thought
           </h1>
           <p className="mt-3 max-w-xl leading-7 text-muted-foreground">
-            Return to the work with its context intact—evidence, decisions,
-            questions, and all.
+            Add unfinished thinking during the day. Return after the next
+            Dream to a new version, critique, and questions.
           </p>
         </div>
         <ProjectCreator templates={templates ?? []} />
@@ -54,13 +56,23 @@ export default async function ProjectsPage() {
                 {project.title}
               </h2>
               <p className="mt-2 min-h-12 text-sm leading-6 text-muted-foreground">
-                {project.description || "A living problem, ready to be worked."}
+                {project.description ||
+                  "An unfinished line of thought, ready to develop."}
               </p>
-              <div className="mt-6 flex items-center justify-between">
-                <Badge variant="secondary" className="gap-1.5 font-normal">
-                  <Orbit className="size-3" />
-                  {project.ai_provider === "openai" ? "OpenAI" : "Gemini"}
-                </Badge>
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary" className="gap-1.5 font-normal">
+                    <Orbit className="size-3" />
+                    {project.ai_provider === "openai" ? "OpenAI" : "Gemini"}
+                  </Badge>
+                  <Badge variant="outline" className="gap-1.5 font-normal">
+                    <Moon className="size-3 text-[var(--signal-strong)]" />
+                    Dream{" "}
+                    {formatDistanceToNow(new Date(project.next_daily_loop_at), {
+                      addSuffix: true,
+                    })}
+                  </Badge>
+                </div>
                 <span className="text-xs text-muted-foreground">
                   Updated{" "}
                   {formatDistanceToNow(new Date(project.updated_at), {

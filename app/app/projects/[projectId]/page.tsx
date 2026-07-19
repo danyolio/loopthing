@@ -23,7 +23,7 @@ export default async function ProjectPage({
     decisionsResult,
     commentsResult,
     branchesResult,
-    checkpointsResult,
+    versionsResult,
     runsResult,
     insightsResult,
   ] = await Promise.all([
@@ -62,10 +62,12 @@ export default async function ProjectPage({
       .eq("project_id", projectId)
       .order("created_at", { ascending: false }),
     supabase
-      .from("yjs_checkpoints")
-      .select("id,plain_text,reason,sequence,created_at,created_by")
+      .from("document_versions")
+      .select(
+        "id,label,source,rationale,created_at,created_by,checkpoint_id,loop_run_id,insight_id,yjs_checkpoints(plain_text,reason,sequence)",
+      )
       .eq("project_id", projectId)
-      .order("sequence", { ascending: false })
+      .order("created_at", { ascending: false })
       .limit(30),
     supabase
       .from("loop_runs")
@@ -108,7 +110,17 @@ export default async function ProjectPage({
     decisions: decisionsResult.data ?? [],
     comments: commentsResult.data ?? [],
     branches: branchesResult.data ?? [],
-    checkpoints: checkpointsResult.data ?? [],
+    versions: (versionsResult.data ?? []).map((version) => {
+      const checkpoint = Array.isArray(version.yjs_checkpoints)
+        ? version.yjs_checkpoints[0]
+        : version.yjs_checkpoints;
+      return {
+        ...version,
+        plain_text: checkpoint?.plain_text ?? "",
+        reason: checkpoint?.reason ?? version.source,
+        sequence: checkpoint?.sequence ?? null,
+      };
+    }),
     runs: runsResult.data ?? [],
     insights: insightsResult.data ?? [],
   } as WorkspaceData;

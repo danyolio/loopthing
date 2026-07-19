@@ -13,7 +13,6 @@ import { formatDistanceToNow } from "date-fns";
 import {
   ArrowLeft,
   BookOpen,
-  Bot,
   Check,
   ChevronRight,
   CircleDot,
@@ -25,6 +24,7 @@ import {
   Link2,
   LoaderCircle,
   MessageSquare,
+  Moon,
   PanelRightClose,
   PanelRightOpen,
   Play,
@@ -63,6 +63,7 @@ import type {
   AIProvider,
   LoopInsight,
   LoopRun,
+  Project,
   ThinkingItem,
   WorkspaceData,
 } from "@/lib/domain";
@@ -84,13 +85,13 @@ type RailTab =
   | "history";
 
 const railTabs: { id: RailTab; label: string; icon: typeof Sparkles }[] = [
-  { id: "loops", label: "Loops", icon: Sparkles },
+  { id: "loops", label: "Dream", icon: Moon },
   { id: "sources", label: "Sources", icon: Link2 },
   { id: "questions", label: "Questions", icon: Lightbulb },
   { id: "decisions", label: "Decisions", icon: CircleDot },
-  { id: "comments", label: "Comments", icon: MessageSquare },
+  { id: "comments", label: "Notes", icon: MessageSquare },
   { id: "branches", label: "Branches", icon: GitBranch },
-  { id: "history", label: "History", icon: History },
+  { id: "history", label: "Versions", icon: History },
 ];
 
 const presenceColours = ["#b8f43d", "#ff9f6e", "#76b7ff", "#e596ff"];
@@ -135,6 +136,7 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
   );
   const [localReady, setLocalReady] = useState(false);
   const [remoteReady, setRemoteReady] = useState(false);
+  const [workspaceReady, setWorkspaceReady] = useState(false);
   const [railOpen, setRailOpen] = useState(true);
   const [mobileRail, setMobileRail] = useState(false);
   const [tab, setTab] = useState<RailTab>("loops");
@@ -153,10 +155,14 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
     decisions: initialData.decisions,
     comments: initialData.comments,
     branches: initialData.branches,
-    history: initialData.checkpoints,
+    history: initialData.versions,
   });
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const seeded = useRef(false);
+  const applyingDream = useRef<string | null>(null);
+  const [dreamApplication, setDreamApplication] = useState<
+    "idle" | "applying" | "applied" | "failed"
+  >("idle");
   const editable = initialData.role === "owner" || initialData.role === "editor";
 
   useEffect(() => {
@@ -213,7 +219,7 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
         Collaboration.configure({ document: ydoc }),
         Placeholder.configure({
           placeholder:
-            "Start with the decision, question, or outcome this work needs to move forward…",
+            "Drop an unfinished thought, loose conjecture, question, or early idea…",
         }),
         ...(provider
           ? [
@@ -248,6 +254,7 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
       replaceCanonicalDocument(editor, initialData.document.content_text);
     }
     seeded.current = true;
+    setWorkspaceReady(true);
   }, [
     editor,
     initialData.document.content_text,
@@ -255,6 +262,82 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
     remoteReady,
     ydoc,
   ]);
+
+  const pendingDailyDream = insights.find((insight) => {
+    if (insight.accepted_at || !asProposal(insight.proposal)) return false;
+    const run = runs.find((item) => item.id === insight.loop_run_id);
+    return run?.loop_type === "daily" && run.status === "complete";
+  });
+
+  useEffect(() => {
+    if (
+      !editor ||
+      !editable ||
+      !workspaceReady ||
+      !pendingDailyDream ||
+      applyingDream.current
+    ) {
+      return;
+    }
+
+    const proposal = asProposal(pendingDailyDream.proposal);
+    if (!proposal) return;
+
+    applyingDream.current = pendingDailyDream.id;
+    const previousDocument = editor.getJSON();
+
+    const applyDream = async () => {
+      await Promise.resolve();
+      setDreamApplication("applying");
+      replaceCanonicalDocument(editor, proposal.content);
+      const update = Y.encodeStateAsUpdate(ydoc);
+      const plainText = editor.getText({ blockSeparator: "\n\n" });
+      const appliedAt = new Date().toISOString();
+      const { data, error } = await createClient().rpc("apply_daily_dream", {
+        p_insight_id: pendingDailyDream.id,
+        p_state_base64: bytesToBase64(update),
+        p_plain_text: plainText,
+      });
+
+      if (error) {
+        editor.commands.setContent(previousDocument);
+        applyingDream.current = null;
+        setDreamApplication("failed");
+        toast.error(`The Dream is ready, but could not be applied: ${error.message}`);
+        return;
+      }
+
+      setLastSavedAt(new Date());
+      setInsights((current) =>
+        current.map((item) =>
+          item.id === pendingDailyDream.id
+            ? { ...item, accepted_at: appliedAt }
+            : item,
+        ),
+      );
+      setItems((current) => ({
+        ...current,
+        history: [
+          {
+            id: String(data),
+            label: "Overnight Dream",
+            source: "dream",
+            rationale: proposal.rationale,
+            plain_text: plainText,
+            created_at: appliedAt,
+            insight_id: pendingDailyDream.id,
+            loop_run_id: pendingDailyDream.loop_run_id,
+          },
+          ...current.history,
+        ],
+      }));
+      applyingDream.current = null;
+      setDreamApplication("applied");
+      toast.success("Last night’s Dream is now the current document.");
+    };
+
+    void applyDream();
+  }, [editable, editor, pendingDailyDream, workspaceReady, ydoc]);
 
   const saveCheckpoint = useCallback(
     async (reason: "autosave" | "manual" | "accepted_proposal" | "restored") => {
@@ -282,7 +365,19 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
           history: [
             {
               id: String(data),
-              sequence: "new",
+              checkpoint_id: String(data),
+              label:
+                reason === "manual"
+                  ? "Manual checkpoint"
+                  : reason === "restored"
+                    ? "Restored version"
+                    : "Accepted proposal",
+              source:
+                reason === "accepted_proposal"
+                  ? "ai_proposal"
+                  : reason === "restored"
+                    ? "restore"
+                    : "human",
               reason,
               plain_text: plainText,
               created_at: new Date().toISOString(),
@@ -305,6 +400,7 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
   useEffect(() => {
     if (!editor || !editable) return;
     const schedule = () => {
+      if (applyingDream.current) return;
       if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
       autosaveTimer.current = setTimeout(() => saveCheckpoint("autosave"), 3500);
     };
@@ -464,6 +560,7 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
       onAcceptProposal={acceptProposal}
       onAcceptBranch={acceptBranch}
       onRestore={restoreCheckpoint}
+      dreamApplication={dreamApplication}
     />
   );
 
@@ -604,6 +701,7 @@ function Rail({
   onAcceptProposal,
   onAcceptBranch,
   onRestore,
+  dreamApplication,
 }: {
   activeTab: RailTab;
   setActiveTab: (tab: RailTab) => void;
@@ -617,6 +715,7 @@ function Rail({
   onAcceptProposal: (insight: LoopInsight) => void;
   onAcceptBranch: (branch: ThinkingItem) => void;
   onRestore: (checkpoint: ThinkingItem) => void;
+  dreamApplication: "idle" | "applying" | "applied" | "failed";
 }) {
   const itemTab = activeTab !== "loops" && activeTab !== "history" ? activeTab : null;
   const itemKind: ItemKind | null = itemTab
@@ -652,6 +751,8 @@ function Rail({
               insights={insights}
               editable={editable}
               onAcceptProposal={onAcceptProposal}
+              project={initialData.project}
+              dreamApplication={dreamApplication}
             />
           )}
           {itemKind && (editable || itemKind === "comment") && (
@@ -681,31 +782,51 @@ function Rail({
             ))}
           {activeTab === "history" &&
             (items.history.length ? (
-              items.history.map((checkpoint, index) => (
-                <div key={checkpoint.id} className="rounded-xl border p-4">
+              items.history.map((version, index) => (
+                <div key={version.id} className="rounded-xl border p-4">
                   <div className="flex items-center justify-between">
-                    <Badge variant="secondary">
-                      {getText(checkpoint, "reason").replaceAll("_", " ") || "checkpoint"}
+                    <Badge
+                      variant={
+                        getText(version, "source") === "dream"
+                          ? "default"
+                          : "secondary"
+                      }
+                      className={
+                        getText(version, "source") === "dream"
+                          ? "bg-[var(--signal-strong)]"
+                          : ""
+                      }
+                    >
+                      {getText(version, "source") === "dream" && (
+                        <Moon className="size-3" />
+                      )}
+                      {getText(version, "label", "reason").replaceAll("_", " ") ||
+                        "Version"}
                     </Badge>
                     <span className="text-[11px] text-muted-foreground">
-                      {formatDistanceToNow(new Date(getText(checkpoint, "created_at")), {
+                      {formatDistanceToNow(new Date(getText(version, "created_at")), {
                         addSuffix: true,
                       })}
                     </span>
                   </div>
+                  {getText(version, "rationale") && (
+                    <p className="mt-3 text-xs font-medium leading-5">
+                      {getText(version, "rationale")}
+                    </p>
+                  )}
                   <p className="mt-3 line-clamp-3 text-xs leading-5 text-muted-foreground">
-                    {getText(checkpoint, "plain_text") || "Yjs state checkpoint"}
+                    {getText(version, "plain_text") || "Preserved document state"}
                   </p>
                   {items.history[index + 1] && (
                     <p className="mt-2 font-mono text-[10px] text-muted-foreground">
-                      {getText(checkpoint, "plain_text").length -
+                      {getText(version, "plain_text").length -
                         getText(items.history[index + 1], "plain_text").length >=
                       0
                         ? "+"
                         : ""}
-                      {getText(checkpoint, "plain_text").length -
+                      {getText(version, "plain_text").length -
                         getText(items.history[index + 1], "plain_text").length}{" "}
-                      characters from previous checkpoint
+                      characters from previous version
                     </p>
                   )}
                   {editable && (
@@ -713,7 +834,7 @@ function Rail({
                       variant="ghost"
                       size="sm"
                       className="mt-2 -ml-2"
-                      onClick={() => onRestore(checkpoint)}
+                      onClick={() => onRestore(version)}
                     >
                       <RotateCcw />
                       Restore as a new version
@@ -735,31 +856,49 @@ function LoopPanel({
   insights,
   editable,
   onAcceptProposal,
+  project,
+  dreamApplication,
 }: {
   runs: LoopRun[];
   insights: LoopInsight[];
   editable: boolean;
   onAcceptProposal: (insight: LoopInsight) => void;
+  project: Project;
+  dreamApplication: "idle" | "applying" | "applied" | "failed";
 }) {
   const activeRun = runs.find(
     (run) => run.status !== "complete" && run.status !== "failed",
   );
+  const runById = new Map(runs.map((run) => [run.id, run]));
+  const dailyInsights = insights.filter(
+    (insight) => runById.get(insight.loop_run_id)?.loop_type === "daily",
+  );
+  const manualInsights = insights.filter(
+    (insight) => runById.get(insight.loop_run_id)?.loop_type !== "daily",
+  );
 
   return (
     <>
+      <DreamSchedule
+        nextDreamAt={project.next_daily_loop_at}
+        applicationState={dreamApplication}
+      />
       {activeRun && (
         <div className="rounded-xl border border-[var(--signal-strong)]/25 bg-[var(--signal)]/10 p-4">
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-2 text-sm font-semibold">
               <LoaderCircle className="size-4 animate-spin" />
-              {activeRun.progress_stage}
+              {activeRun.loop_type === "daily"
+                ? "Dreaming on the day’s work"
+                : activeRun.progress_stage}
             </span>
             <span className="font-mono text-xs">{activeRun.progress_percent}%</span>
           </div>
           <Progress value={activeRun.progress_percent} className="mt-3 h-1.5" />
           <p className="mt-3 text-xs leading-5 text-muted-foreground">
-            The Loop is durable. You can leave this page and return without
-            losing its progress.
+            {activeRun.loop_type === "daily"
+              ? "Loopthing is following threads, testing the reasoning, and composing the next version."
+              : "The Loop is durable. You can leave this page and return without losing its progress."}
           </p>
         </div>
       )}
@@ -772,92 +911,284 @@ function LoopPanel({
           </p>
         </div>
       )}
-      {insights.length ? (
-        insights.map((insight) => {
-          const proposal = asProposal(insight.proposal);
-          return (
-            <article key={insight.id} className="rounded-xl border p-4">
-              <div className="flex items-center justify-between gap-3">
-                <Badge
-                  variant={insight.material_change ? "default" : "secondary"}
-                  className={insight.material_change ? "bg-[var(--signal-strong)]" : ""}
-                >
-                  {insight.material_change ? "Material change" : "No material change"}
-                </Badge>
-                <span className="text-[11px] text-muted-foreground">
-                  {formatDistanceToNow(new Date(insight.created_at), { addSuffix: true })}
-                </span>
-              </div>
-              <h3 className="mt-4 font-semibold leading-6">{insight.summary}</h3>
-              <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                {insight.why_it_matters}
-              </p>
-              {asStrings(insight.what_changed).length > 0 && (
-                <div className="mt-4 space-y-2">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                    What changed
-                  </p>
-                  {asStrings(insight.what_changed).map((change) => (
-                    <p key={change} className="flex gap-2 text-xs leading-5">
-                      <ChevronRight className="mt-0.5 size-3.5 shrink-0 text-[var(--signal-strong)]" />
-                      {change}
-                    </p>
-                  ))}
-                </div>
-              )}
-              <div className="mt-4 rounded-lg bg-muted/60 p-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                  Next useful action
-                </p>
-                <p className="mt-1 text-sm leading-6">{insight.next_action}</p>
-              </div>
-              {proposal && (
-                <div className="mt-4 border-t pt-4">
-                  <div className="flex items-center gap-2">
-                    {proposal.isSignificantBranch ? (
-                      <GitBranch className="size-4" />
-                    ) : (
-                      <BookOpen className="size-4" />
-                    )}
-                    <p className="text-sm font-semibold">{proposal.title}</p>
-                  </div>
-                  <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                    {proposal.rationale}
-                  </p>
-                  {editable && !insight.accepted_at && (
-                    <Button
-                      size="sm"
-                      className="mt-3"
-                      onClick={() => onAcceptProposal(insight)}
-                    >
-                      <Check />
-                      {proposal.isSignificantBranch
-                        ? "Create review branch"
-                        : "Accept into document"}
-                    </Button>
-                  )}
-                  {insight.accepted_at && (
-                    <p className="mt-3 flex items-center gap-1.5 text-xs text-[var(--signal-strong)]">
-                      <Check className="size-3.5" />
-                      Accepted by a person
-                    </p>
-                  )}
-                </div>
-              )}
-            </article>
-          );
-        })
-      ) : (
+      {dailyInsights.map((insight) => (
+        <DreamReport key={insight.id} insight={insight} />
+      ))}
+      {manualInsights.map((insight) => (
+        <LoopInsightCard
+          key={insight.id}
+          insight={insight}
+          editable={editable}
+          onAcceptProposal={onAcceptProposal}
+        />
+      ))}
+      {!insights.length && !activeRun && (
         <div className="rounded-xl border border-dashed p-6 text-center">
-          <Bot className="mx-auto size-6 text-[var(--signal-strong)]" />
-          <p className="mt-3 text-sm font-semibold">The first Loop starts here</p>
+          <Moon className="mx-auto size-6 text-[var(--signal-strong)]" />
+          <p className="mt-3 text-sm font-semibold">
+            Add something unfinished today
+          </p>
           <p className="mt-2 text-xs leading-5 text-muted-foreground">
-            It will connect changes, questions, decisions, and evidence without
-            rewriting your document.
+            Loopthing will stay out of the way, dream on it overnight, and
+            return with a rewritten document, a critique, and new questions.
           </p>
         </div>
       )}
     </>
+  );
+}
+
+function DreamSchedule({
+  nextDreamAt,
+  applicationState,
+}: {
+  nextDreamAt: string;
+  applicationState: "idle" | "applying" | "applied" | "failed";
+}) {
+  const [now, setNow] = useState<Date | null>(null);
+
+  useEffect(() => {
+    const ready = window.setTimeout(() => setNow(new Date()), 0);
+    const timer = window.setInterval(() => setNow(new Date()), 60_000);
+    return () => {
+      window.clearTimeout(ready);
+      window.clearInterval(timer);
+    };
+  }, []);
+
+  const nextDream = new Date(nextDreamAt);
+  const valid = Number.isFinite(nextDream.getTime());
+  const absolute = valid
+    ? new Intl.DateTimeFormat(undefined, {
+        weekday: "short",
+        hour: "numeric",
+        minute: "2-digit",
+        timeZoneName: "short",
+      }).format(nextDream)
+    : "overnight";
+  const relative =
+    now && valid
+      ? nextDream.getTime() <= now.getTime()
+        ? "due now"
+        : formatDistanceToNow(nextDream, { addSuffix: true })
+      : "calculating…";
+
+  return (
+    <div className="overflow-hidden rounded-xl bg-[var(--ink)] text-[var(--paper)]">
+      <div className="flex items-start justify-between gap-4 p-4">
+        <div>
+          <p className="flex items-center gap-2 text-sm font-semibold">
+            <Moon className="size-4 text-[var(--signal)]" />
+            Next overnight Dream
+          </p>
+          <p className="mt-2 text-xs leading-5 text-white/55">
+            Runs daily when there is new work. No new activity, no needless
+            rewrite.
+          </p>
+        </div>
+        <div className="shrink-0 text-right">
+          <p className="font-mono text-sm text-[var(--signal)]">{relative}</p>
+          <p className="mt-1 text-[10px] text-white/40">{absolute}</p>
+        </div>
+      </div>
+      {applicationState !== "idle" && (
+        <div className="border-t border-white/10 px-4 py-2.5 text-xs text-white/60">
+          {applicationState === "applying" && (
+            <span className="flex items-center gap-2">
+              <LoaderCircle className="size-3.5 animate-spin" />
+              Waking the latest Dream into the document…
+            </span>
+          )}
+          {applicationState === "applied" && (
+            <span className="flex items-center gap-2 text-[var(--signal)]">
+              <Check className="size-3.5" />
+              Last night’s version is now current.
+            </span>
+          )}
+          {applicationState === "failed" && (
+            <span>The Dream is preserved, but needs another attempt to apply.</span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DreamReport({ insight }: { insight: LoopInsight }) {
+  const questions = asStrings(insight.unresolved);
+
+  return (
+    <article className="rounded-xl border border-[var(--signal-strong)]/20 bg-[var(--signal)]/[0.055] p-4">
+      <div className="flex items-center justify-between gap-3">
+        <Badge className="bg-[var(--signal-strong)]">
+          <Moon className="size-3" />
+          Overnight Dream report
+        </Badge>
+        <span className="text-[11px] text-muted-foreground">
+          {formatDistanceToNow(new Date(insight.created_at), { addSuffix: true })}
+        </span>
+      </div>
+
+      <section className="mt-5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          What became stronger
+        </p>
+        <h3 className="mt-2 font-semibold leading-6">{insight.summary}</h3>
+        {insight.thinking_evolution && (
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">
+            {insight.thinking_evolution}
+          </p>
+        )}
+      </section>
+
+      <section className="mt-5 border-t pt-4">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Honest critique
+        </p>
+        <p className="mt-2 text-sm leading-6">{insight.why_it_matters}</p>
+      </section>
+
+      {asStrings(insight.what_changed).length > 0 && (
+        <section className="mt-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            What changed overnight
+          </p>
+          <div className="mt-2 space-y-2">
+            {asStrings(insight.what_changed).map((change) => (
+              <p key={change} className="flex gap-2 text-xs leading-5">
+                <ChevronRight className="mt-0.5 size-3.5 shrink-0 text-[var(--signal-strong)]" />
+                {change}
+              </p>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {questions.length > 0 && (
+        <section className="mt-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            Questions to keep the riff going
+          </p>
+          <ol className="mt-2 space-y-2">
+            {questions.map((question, index) => (
+              <li key={question} className="flex gap-2 text-xs leading-5">
+                <span className="font-mono text-[var(--signal-strong)]">
+                  {index + 1}.
+                </span>
+                {question}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      <div className="mt-5 rounded-lg bg-[var(--ink)] p-3 text-[var(--paper)]">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--signal)]">
+          Thread to follow today
+        </p>
+        <p className="mt-1 text-sm leading-6 text-white/80">
+          {insight.next_action}
+        </p>
+      </div>
+
+      <p className="mt-3 flex items-center gap-1.5 text-xs text-[var(--signal-strong)]">
+        {insight.accepted_at ? (
+          <>
+            <Check className="size-3.5" />
+            Rewritten document preserved as a new version
+          </>
+        ) : (
+          <>
+            <LoaderCircle className="size-3.5 animate-spin" />
+            Ready to become the current version
+          </>
+        )}
+      </p>
+    </article>
+  );
+}
+
+function LoopInsightCard({
+  insight,
+  editable,
+  onAcceptProposal,
+}: {
+  insight: LoopInsight;
+  editable: boolean;
+  onAcceptProposal: (insight: LoopInsight) => void;
+}) {
+  const proposal = asProposal(insight.proposal);
+
+  return (
+    <article className="rounded-xl border p-4">
+      <div className="flex items-center justify-between gap-3">
+        <Badge
+          variant={insight.material_change ? "default" : "secondary"}
+          className={insight.material_change ? "bg-[var(--signal-strong)]" : ""}
+        >
+          {insight.material_change ? "Material change" : "No material change"}
+        </Badge>
+        <span className="text-[11px] text-muted-foreground">
+          {formatDistanceToNow(new Date(insight.created_at), { addSuffix: true })}
+        </span>
+      </div>
+      <h3 className="mt-4 font-semibold leading-6">{insight.summary}</h3>
+      <p className="mt-3 text-sm leading-6 text-muted-foreground">
+        {insight.why_it_matters}
+      </p>
+      {asStrings(insight.what_changed).length > 0 && (
+        <div className="mt-4 space-y-2">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            What changed
+          </p>
+          {asStrings(insight.what_changed).map((change) => (
+            <p key={change} className="flex gap-2 text-xs leading-5">
+              <ChevronRight className="mt-0.5 size-3.5 shrink-0 text-[var(--signal-strong)]" />
+              {change}
+            </p>
+          ))}
+        </div>
+      )}
+      <div className="mt-4 rounded-lg bg-muted/60 p-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Next useful action
+        </p>
+        <p className="mt-1 text-sm leading-6">{insight.next_action}</p>
+      </div>
+      {proposal && (
+        <div className="mt-4 border-t pt-4">
+          <div className="flex items-center gap-2">
+            {proposal.isSignificantBranch ? (
+              <GitBranch className="size-4" />
+            ) : (
+              <BookOpen className="size-4" />
+            )}
+            <p className="text-sm font-semibold">{proposal.title}</p>
+          </div>
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">
+            {proposal.rationale}
+          </p>
+          {editable && !insight.accepted_at && (
+            <Button
+              size="sm"
+              className="mt-3"
+              onClick={() => onAcceptProposal(insight)}
+            >
+              <Check />
+              {proposal.isSignificantBranch
+                ? "Create review branch"
+                : "Accept into document"}
+            </Button>
+          )}
+          {insight.accepted_at && (
+            <p className="mt-3 flex items-center gap-1.5 text-xs text-[var(--signal-strong)]">
+              <Check className="size-3.5" />
+              Accepted by a person
+            </p>
+          )}
+        </div>
+      )}
+    </article>
   );
 }
 
@@ -887,7 +1218,9 @@ function ThinkingCard({
     <article className="rounded-xl border p-4">
       <div className="flex items-center justify-between gap-3">
         <span className="text-[11px] font-semibold uppercase tracking-[0.13em] text-muted-foreground">
-          {itemKindForCollection(kind as ItemCollection)}
+          {kind === "comments"
+            ? "note"
+            : itemKindForCollection(kind as ItemCollection)}
         </span>
         {status && <Badge variant="secondary">{status}</Badge>}
       </div>
@@ -908,11 +1241,14 @@ function ThinkingCard({
 }
 
 function EmptyPanel({ tab }: { tab: RailTab }) {
+  const label =
+    tab === "comments" ? "notes" : tab === "history" ? "versions" : tab;
   return (
     <div className="rounded-xl border border-dashed p-6 text-center">
-      <p className="text-sm font-semibold">No {tab} yet</p>
+      <p className="text-sm font-semibold">No {label} yet</p>
       <p className="mt-2 text-xs leading-5 text-muted-foreground">
-        This context stays attached to the living document when it appears.
+        Add something unfinished. It will become part of the next Dream’s
+        context.
       </p>
     </div>
   );

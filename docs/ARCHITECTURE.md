@@ -6,7 +6,9 @@
 - Supabase is the durable system of record for PostgreSQL, passwordless email authentication, memberships, invitations, Row Level Security, private attachments, derived text, and immutable Yjs checkpoints.
 - Yjs is the canonical collaborative document state. Plain text is derived for search, previews, diffs, and Loop context.
 - Hocuspocus clients reconnect and keep an IndexedDB copy for local recovery. A single Vercel WebSocket instance is verified for launch. Shared Redis is required before relying on cross-instance realtime fan-out.
-- Vercel Workflow DevKit is the selected durable job runner. Manual, daily, and weekly Loops share the same retryable, idempotent workflow.
+- Vercel Workflow DevKit is the selected durable job runner. Manual Loops,
+  nightly Dreams, and weekly Loops share the same retryable, idempotent
+  workflow.
 - Supabase Storage is the selected source, transcript, and attachment store.
 
 ## Roles
@@ -28,7 +30,14 @@
 - Server routes validate the authenticated user again before mutations.
 - `GOOGLE_GENERATIVE_AI_API_KEY`, `OPENAI_API_KEY`, and `CRON_SECRET` are Vercel-only secrets.
 - Scheduled database functions are additionally gated by the SHA-256 hash of `CRON_SECRET`.
-- AI never mutates canonical content directly. An accepted proposal is recorded with the accepting user and source Loop.
+- Manual AI output never mutates canonical content directly. An accepted
+  proposal is recorded with the accepting user and source Loop.
+- A completed daily Dream returns a full rewrite. The first Owner or Editor to
+  open the project applies its Yjs state atomically, creating an immutable
+  version linked to the Dream before it becomes current.
+- Daily Dreams run around 03:00 AEST / 04:00 AEDT, only when activity has
+  occurred since the previous Dream. The interface shows the exact next run in
+  the viewer's local time.
 
 ## Launch boundaries
 

@@ -17,6 +17,8 @@ export type Project = {
   description: string;
   status: string;
   ai_provider: AIProvider;
+  next_daily_loop_at: string;
+  next_weekly_loop_at: string;
   created_at: string;
   updated_at: string;
 };
@@ -80,7 +82,7 @@ export type WorkspaceData = {
   decisions: ThinkingItem[];
   comments: ThinkingItem[];
   branches: ThinkingItem[];
-  checkpoints: ThinkingItem[];
+  versions: ThinkingItem[];
   runs: LoopRun[];
   insights: LoopInsight[];
 };

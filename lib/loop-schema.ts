@@ -13,7 +13,7 @@ export const proposalSchema = z.object({
     .string()
     .min(1)
     .describe(
-      "The complete revised canonical document in Markdown, ready to replace the current document if a person accepts it.",
+      "The complete revised canonical document in Markdown, ready to become the next restorable version.",
     ),
   isSignificantBranch: z.boolean(),
 });

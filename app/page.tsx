@@ -1,30 +1,30 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  CircleDot,
   FileText,
-  GitBranch,
   History,
-  Orbit,
+  MessageSquareText,
+  Moon,
+  Sunrise,
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 
 const mechanics = [
   {
-    icon: FileText,
-    title: "The document is the memory.",
-    body: "Evidence, assumptions, decisions, alternatives, and open questions stay attached to the work—not scattered through chat history.",
+    icon: MessageSquareText,
+    title: "Drop unfinished thinking.",
+    body: "Add notes, sources, questions, loose conjecture, and voice transcripts whenever they arrive. No prompt or polished brief required.",
   },
   {
-    icon: Orbit,
-    title: "Loops catch what changed.",
-    body: "As new facts arrive, Loopthing tests them against earlier reasoning and shows what still holds, what broke, and why it matters.",
+    icon: Moon,
+    title: "Loopthing dreams overnight.",
+    body: "It follows the new threads, tests them against what came before, critiques weak reasoning, and rewrites the whole document.",
   },
   {
-    icon: GitBranch,
-    title: "You decide what becomes true.",
-    body: "AI proposes. People accept. The canonical document never changes silently, and serious alternatives keep their own branch and rationale.",
+    icon: Sunrise,
+    title: "Wake up to developed work.",
+    body: "Read the new version, an honest critique, the questions still open, and one thread worth following. Every earlier version remains restorable.",
   },
 ];
 
@@ -91,12 +91,14 @@ export default function Home() {
             <div>
               <p className="max-w-3xl text-lg leading-8 text-muted-foreground sm:text-xl">
                 <strong className="font-semibold text-foreground">
-                  Loopthing is for developing a thesis, strategy, or important
-                  decision over time.
+                  Loopthing is an async workspace for work that needs time to
+                  develop.
                 </strong>{" "}
-                Work solo or with a team, adding unfinished ideas whenever they
-                come. Each Loop connects what you add to what came before,
-                challenges the reasoning, and helps you develop your work.
+                Work alone or with a team. Drop notes, sources, questions, and
+                loose conjecture as they come. Loopthing stays quiet by day,
+                then dreams on the new material overnight. Wake up to a
+                rewritten document, an honest critique, and new questions.
+                Every version is preserved.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -127,71 +129,72 @@ export default function Home() {
           <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-end">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--signal)]">
-                A working model, not a summary
+                The daily rhythm
               </p>
               <h2 className="mt-5 text-4xl font-medium leading-[0.98] tracking-[-0.055em] sm:text-6xl">
-                Chat answers the prompt.
+                Think freely by day.
                 <br />
-                Loopthing stays with the problem.
+                Wake up to developed work.
               </h2>
             </div>
             <p className="max-w-2xl text-base leading-8 text-white/55 lg:justify-self-end">
-              Every source, assumption, decision, and open question remains
-              connected to the document. When new evidence lands, a Loop shows
-              exactly what changed, why it matters, and what to do next.
+              Most tools ask for a clean prompt. Loopthing gives unfinished
+              work time to accumulate, connect, and change. It does the
+              synthesis overnight, after the day’s thinking is done.
             </p>
           </div>
 
           <div className="mt-16 overflow-hidden rounded-[2rem] border border-white/12 bg-[#20231f] shadow-2xl shadow-black/25">
             <div className="flex items-center justify-between border-b border-white/10 px-5 py-4 text-[0.68rem] uppercase tracking-[0.17em] text-white/38 sm:px-8">
-              <span>Continuous-thinking document</span>
+              <span>Long-form writing</span>
               <span className="flex items-center gap-2">
                 <span className="size-1.5 rounded-full bg-[var(--signal)]" />
-                Updated today
+                Next Dream in 7h 42m
               </span>
             </div>
             <div className="grid lg:grid-cols-[1.16fr_0.84fr]">
               <article className="border-b border-white/10 p-6 sm:p-10 lg:border-b-0 lg:border-r">
                 <div className="flex items-center gap-2 text-xs text-white/40">
                   <FileText className="size-3.5" />
-                  Canonical document
+                  Today’s working document
                 </div>
                 <h3 className="mt-7 max-w-2xl text-3xl leading-tight tracking-[-0.04em] sm:text-5xl">
-                  Should we move upmarket this year?
+                  The first idea is rarely the finished one.
                 </h3>
-                <div className="mt-10 border-l-2 border-[var(--signal)] pl-5">
+                <div className="mt-10 border-l-2 border-white/15 pl-5">
                   <p className="text-[0.68rem] uppercase tracking-[0.16em] text-white/35">
-                    Current decision
+                    Current thesis
                   </p>
                   <p className="mt-2 max-w-xl text-base leading-7 text-white/80">
-                    Do not scale sales yet. Validate a partner-led onboarding
-                    model first.
+                    Great work does not appear fully formed. It develops through
+                    fragments, contradiction, time, and return.
                   </p>
                 </div>
                 <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-3">
                   <div className="bg-[#20231f] p-5">
                     <p className="text-[0.68rem] uppercase tracking-[0.14em] text-[var(--signal)]">
-                      New evidence
+                      Loose conjecture
                     </p>
                     <p className="mt-3 text-sm leading-6 text-white/60">
-                      3 of 5 lost deals cited implementation risk—not missing
-                      features.
-                    </p>
-                  </div>
-                  <div className="bg-[#20231f] p-5">
-                    <p className="text-[0.68rem] uppercase tracking-[0.14em] text-amber-300">
-                      Assumption at risk
-                    </p>
-                    <p className="mt-3 text-sm leading-6 text-white/60">
-                      More sales capacity will unlock growth.
+                      Maybe incubation is not inactivity. Maybe it is part of
+                      the work.
                     </p>
                   </div>
                   <div className="bg-[#20231f] p-5">
                     <p className="text-[0.68rem] uppercase tracking-[0.14em] text-white/38">
-                      Still unresolved
+                      Voice note
                     </p>
                     <p className="mt-3 text-sm leading-6 text-white/60">
-                      Can partners absorb onboarding without lowering quality?
+                      “I know this matters. I don’t know the argument yet.”
+                    </p>
+                  </div>
+                  <div className="bg-[#20231f] p-5">
+                    <p className="text-[0.68rem] uppercase tracking-[0.14em] text-white/38">
+                      Question
+                    </p>
+                    <p className="mt-3 text-sm leading-6 text-white/60">
+                      What can only become clear after we stop forcing an
+                      answer?
                     </p>
                   </div>
                 </div>
@@ -199,38 +202,40 @@ export default function Home() {
 
               <aside className="bg-[#191b18] p-6 sm:p-10">
                 <p className="flex items-center gap-2 text-xs uppercase tracking-[0.17em] text-white/38">
-                  <Orbit className="size-3.5" />
-                  Latest Loop
+                  <Moon className="size-3.5" />
+                  Overnight Dream report
                 </p>
-                <div className="mt-8 inline-flex items-center gap-2 rounded-full bg-[var(--signal)]/12 px-3 py-1.5 text-xs text-[var(--signal)]">
-                  <CircleDot className="size-3.5" />
-                  Material change found
-                </div>
                 <div className="mt-9 space-y-8">
                   <div>
                     <p className="text-[0.68rem] uppercase tracking-[0.15em] text-white/32">
-                      What changed
+                      What became stronger
                     </p>
                     <p className="mt-2 text-lg leading-7 text-white/85">
-                      The bottleneck is delivery, not demand.
+                      The piece now argues that incubation is a working method,
+                      not a delay.
                     </p>
                   </div>
                   <div>
                     <p className="text-[0.68rem] uppercase tracking-[0.15em] text-white/32">
-                      Why it matters
+                      Honest critique
                     </p>
                     <p className="mt-2 text-sm leading-7 text-white/58">
-                      Scaling sales now would increase pipeline the team cannot
-                      onboard well.
+                      The opening still treats speed as the enemy. The sharper
+                      contrast is between instant output and developed judgment.
                     </p>
                   </div>
                   <div className="rounded-2xl border border-[var(--signal)]/20 bg-[var(--signal)]/[0.07] p-5">
                     <p className="text-[0.68rem] uppercase tracking-[0.15em] text-[var(--signal)]">
-                      Next useful action
+                      Question for today
                     </p>
                     <p className="mt-2 text-sm leading-7 text-white/75">
-                      Price a partner-led pilot before changing the roadmap.
+                      What does slow thinking make possible that another prompt
+                      cannot?
                     </p>
+                  </div>
+                  <div className="flex items-center justify-between border-t border-white/10 pt-5 text-xs text-white/38">
+                    <span>Version 08 preserved</span>
+                    <span className="text-[var(--signal)]">Version 09 current</span>
                   </div>
                 </div>
               </aside>
@@ -242,12 +247,12 @@ export default function Home() {
       <section className="mx-auto max-w-7xl px-5 py-24 sm:px-8 lg:py-36">
         <div className="max-w-3xl">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--signal-strong)]">
-            Built for thinking that changes
+            Day, night, morning
           </p>
           <h2 className="mt-5 text-4xl font-medium leading-[1.02] tracking-[-0.055em] sm:text-6xl">
-            The work moves.
+            The work changes.
             <br />
-            The reasoning moves with it.
+            The history stays.
           </h2>
         </div>
         <div className="mt-16 grid gap-px overflow-hidden rounded-3xl border bg-border lg:grid-cols-3">
@@ -275,10 +280,10 @@ export default function Home() {
           <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr]">
             <div className="lg:sticky lg:top-12 lg:self-start">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--signal-strong)]">
-                Built for decisions that evolve
+                Built for work that develops
               </p>
               <h2 className="mt-5 max-w-lg text-4xl font-medium leading-[1.02] tracking-[-0.055em] sm:text-6xl">
-                Use it when the answer changes as the evidence arrives.
+                Use it when one sitting is not enough.
               </h2>
             </div>
             <div className="border-t border-foreground/15">
@@ -308,17 +313,17 @@ export default function Home() {
           <History className="absolute -bottom-24 -right-16 size-80 stroke-[0.5] opacity-15" />
           <div className="relative max-w-4xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em]">
-              Stop restarting the thinking
+              Leave something unfinished
             </p>
             <h2 className="mt-5 text-5xl font-medium leading-[0.95] tracking-[-0.06em] sm:text-7xl">
-              Bring the problem.
+              Give the work
               <br />
-              Keep the thinking.
+              another night.
             </h2>
             <p className="mt-7 max-w-2xl text-base leading-8 text-black/65 sm:text-lg">
-              Start with the decision in front of you. Loopthing keeps the
-              evidence, reasoning, and unresolved questions alive until the
-              work is done.
+              Start with a rough thought, a difficult decision, or a blank
+              document. Add to it when ideas arrive. Loopthing will keep the
+              thread and move the work forward overnight.
             </p>
             <Button
               asChild
@@ -337,7 +342,7 @@ export default function Home() {
       <footer className="border-t">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-10 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <Logo />
-          <p>For problems that take longer than a prompt.</p>
+          <p>For work that needs time to develop.</p>
         </div>
       </footer>
     </main>

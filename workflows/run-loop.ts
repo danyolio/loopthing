@@ -22,7 +22,10 @@ type LoopContext = {
   sources: Record<string, unknown>[];
   questions: Record<string, unknown>[];
   decisions: Record<string, unknown>[];
+  comments?: Record<string, unknown>[];
+  branches?: Record<string, unknown>[];
   recent_loops: Record<string, unknown>[];
+  new_activity?: Record<string, unknown>;
 };
 
 function supabaseClient(accessToken?: string) {
@@ -167,7 +170,35 @@ async function synthesise(
     throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not configured");
   }
 
-  const prompt = `Run a ${input.loopType} Loop over the supplied project state.
+  const dailyDreamPrompt = `Run the overnight Dream over the supplied project state.
+
+This is not a chat response or a summary. It is the quiet co-authoring pass that
+happens after people have spent the day adding raw notes, sources, questions,
+critiques, voice transcripts, and unfinished conjecture.
+
+Success means:
+- follow promising threads before forcing them into an outline
+- push conjectures far enough to reveal what is useful, weak, or surprising
+- distinguish evidence, assumptions, decisions, and unresolved questions
+- preserve the authors' intent and voice while making the prose direct and exact
+- omit needless words; prefer active language and memorable rhythm without ornament
+- return a proposal containing the complete rewritten document in Markdown
+- set proposal.isSignificantBranch to false; the previous document is preserved as a version
+- bootstrap a coherent first document when the current document is nearly empty
+- use summary for what became stronger
+- use whyItMatters for an honest critique of what remains weak, flabby, unsupported, or unresolved
+- use whatChanged for the concrete changes made to the document
+- use unresolved for open questions that can keep the next day's thinking moving
+- use thinkingEvolution to explain how the thesis or direction developed
+- choose one compelling next thread as nextAction
+
+Pay particular attention to new_activity, which contains contributions since the
+last completed Dream. Use the rest of the state as history and context.
+
+PROJECT STATE
+${JSON.stringify(context)}`;
+
+  const standardLoopPrompt = `Run a ${input.loopType} Loop over the supplied project state.
 
 Success means:
 - identify only material changes supported by the supplied state
@@ -180,6 +211,11 @@ Success means:
 
 PROJECT STATE
 ${JSON.stringify(context)}`;
+
+  const prompt =
+    input.scheduled && input.loopType === "daily"
+      ? dailyDreamPrompt
+      : standardLoopPrompt;
 
   const { output } = await generateText({
     model:
@@ -195,6 +231,14 @@ ${JSON.stringify(context)}`;
         ? { openai: { reasoningEffort: "medium" } }
         : undefined,
   });
+
+  if (
+    input.scheduled &&
+    input.loopType === "daily" &&
+    (!output.proposal || output.proposal.isSignificantBranch)
+  ) {
+    throw new Error("The overnight Dream did not return a complete rewrite");
+  }
 
   return { result: output, provider, model };
 }

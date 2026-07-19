@@ -25,11 +25,11 @@ export const metadata: Metadata = {
     template: "%s · Loopthing",
   },
   description:
-    "Develop a thesis, strategy, or important decision over time. Add unfinished ideas, challenge the reasoning, and decide what comes next.",
+    "Drop unfinished thinking by day. Loopthing dreams on it overnight and returns a rewritten document, an honest critique, and new questions.",
   openGraph: {
     title: "Great work isn't generated. It's developed.",
     description:
-      "Develop a thesis, strategy, or important decision over time.",
+      "Drop unfinished thinking by day. Wake up to a rewritten document, an honest critique, and new questions.",
     url: "/",
     siteName: "Loopthing",
     type: "website",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Great work isn't generated. It's developed.",
     description:
-      "Develop a thesis, strategy, or important decision over time.",
+      "Drop unfinished thinking by day. Wake up to a rewritten document, an honest critique, and new questions.",
     images: ["/og.png"],
   },
 };

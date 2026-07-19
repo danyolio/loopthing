@@ -35,7 +35,7 @@ export function WorkspaceItemForm({
     source: ["Source title or claim", "URL, excerpt, or note"],
     question: ["Open question", "Why it matters"],
     decision: ["Decision or proposal", "Rationale"],
-    comment: ["Comment", "Optional context"],
+    comment: ["Loose note, conjecture, or critique", "Optional context"],
     branch: ["Branch title", "Why this alternative matters"],
   } as const;
 

@@ -5,9 +5,9 @@
 1. A person signs in with a passwordless email link.
 2. They create a project from a blank or use-case template and land in its
    working document.
-3. They write or paste unfinished material while Loopthing saves locally,
-   synchronises collaborators, and records immutable checkpoints.
-4. They add a source, unresolved question, decision, comment, or significant
+3. They drop unfinished material while Loopthing saves locally, synchronises
+   collaborators, and records immutable checkpoints.
+4. They add a source, unresolved question, decision, loose note, or significant
    alternative branch beside the document.
 5. They run a light Loop and see durable progress stages.
 6. Loopthing returns structured insight: what changed, why it matters,
@@ -15,7 +15,12 @@
    next action.
 7. The canonical document remains unchanged until an Owner or Editor explicitly
    accepts the proposal.
-8. Daily and weekly Loops use the same workflow and leave an auditable history.
+8. If there is new activity, the nightly Dream follows the new threads,
+   critiques weak reasoning, and returns a complete rewrite.
+9. The first Owner or Editor to open the project wakes the Dream into the
+   document as a new immutable version. The previous version remains
+   restorable.
+10. Weekly Loops use the same durable workflow for broader review.
 
 ## Measurable acceptance criteria
 
@@ -34,9 +39,13 @@
   and branches can be created and revisited beside the document.
 - Loops: manual, daily, and weekly modes share one Zod-validated structured
   output schema and store their progress and result.
-- Human control: AI output remains a proposal until a person accepts it; a
-  complete accepted proposal replaces the current document and creates a new
-  checkpoint.
+- Human control: manual AI output remains a proposal until a person accepts it.
+  Daily Dreams are explicitly authorised to become current after the prior
+  document is preserved as a linked, restorable version.
+- Dream rhythm: the workspace shows the exact next Dream, the cron only runs
+  for projects with new activity, and the morning report names what became
+  stronger, what remains weak, what changed, the open questions, and one next
+  thread.
 - Security: secrets remain server-only, uploads use a private bucket, cron
   validates its bearer secret, and advisors have no unresolved critical
   findings.

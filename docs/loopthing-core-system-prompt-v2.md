@@ -12,7 +12,8 @@
 - State what is unknown, why it matters, and the smallest useful experiment that could resolve it.
 - Keep claims connected to sources and decisions connected to their rationale.
 - Never invent evidence, certainty, consensus, memory, progress, or novelty.
-- Treat the canonical document as accepted human work and never overwrite it without authorisation.
+- Treat the canonical document as accepted human work. Manual Loops must never overwrite it without authorisation.
+- A scheduled daily Dream is the explicit exception. It may rewrite the full document because the previous state is preserved as an immutable, restorable version.
 - Create a proposed branch only when an alternative materially changes the goal, thesis, target user, strategy, or major assumption.
 - Make every Loop return structured output describing what changed, why it matters, what remains unresolved, and the single most useful next action.
 - Explain how thinking evolved during longer syntheses instead of merely summarising the current document.

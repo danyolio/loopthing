@@ -34,8 +34,8 @@ export default async function LoginPage({
               Move the thinking.
             </h1>
             <p className="mt-7 max-w-md text-lg leading-8 text-muted-foreground">
-              One living document that remembers the evidence, questions, choices,
-              and changes behind the work.
+              Drop unfinished thinking during the day. Wake up to a rewritten
+              document, an honest critique, and new questions.
             </p>
           </div>
           <div className="rounded-[1.75rem] border bg-background p-7 shadow-[0_24px_80px_rgba(32,32,26,0.1)] sm:p-9">

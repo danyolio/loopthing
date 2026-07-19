@@ -9,10 +9,14 @@ production on 19 July 2026.
   days, weeks, or months.
 - A person or team can add loose conjecture, notes, sources, questions,
   decisions, comments, and alternatives before the work is polished.
-- Each Loop connects new material to what came before, challenges the
-  reasoning, and proposes one useful next state.
+- People add raw notes, sources, questions, voice transcripts, and loose
+  conjecture without waiting for a polished brief.
+- Each overnight Dream follows the new material, challenges the reasoning, and
+  rewrites the document into a stronger next state.
 - The document is the primary working surface.
-- Human work remains canonical until a person accepts an AI proposal.
+- Manual Loop output remains a proposal until a person accepts it. A scheduled
+  daily Dream is authorised to become current after the prior version is
+  preserved.
 - Significant alternatives appear as branches instead of silent rewrites.
 - Initial use cases are strategy, research, investment, planning, design
   reviews, long-form writing such as essays and blog posts, and hiring
@@ -57,6 +61,10 @@ production on 19 July 2026.
   long-form writing.
 - [x] Use “Start a project” as the primary call to action.
 - [x] Support solo and asynchronous team projects.
+- [x] Explain the daytime capture, overnight Dream, and morning review rhythm
+  on the landing page.
+- [x] Show a localised countdown to the next daily Dream in each project.
+- [x] Let a new project start blank so its first Dream can develop raw input.
 
 ## Authentication, data, and permissions
 
@@ -81,6 +89,9 @@ production on 19 July 2026.
   persistence, reload, manual save, autosave, and restore.
 - [x] Keep accepted AI revisions and accepted branches as new immutable
   checkpoints.
+- [x] Replace checkpoint noise in the project context with named,
+  human-readable document versions.
+- [x] Preserve each Dream rewrite as a version linked to its Loop and insight.
 - [ ] Add shared Redis before relying on realtime collaboration across multiple
   simultaneous Vercel instances.
 
@@ -96,6 +107,12 @@ production on 19 July 2026.
 - [x] Build and verify light, daily, and weekly Loops with durable progress,
   idempotency, and stored insights.
 - [x] Verify Vercel cron authentication and the daily/weekly schedule advance.
+- [x] Schedule daily Dreams inside the Melbourne overnight window.
+- [x] Skip daily Dreams when nothing new was contributed.
+- [x] Produce an overnight Dream report with strengths, critique, changes,
+  questions, and one thread to follow.
+- [x] Apply a complete Dream rewrite atomically while preserving the prior Yjs
+  state.
 - [ ] Add `OPENAI_API_KEY` to local and production server secrets.
 - [ ] Run and verify a real OpenAI/Codex synthesis after that key is added.
 - [ ] Add repeatable model-quality evaluations beyond schema validation and
@@ -127,5 +144,7 @@ production on 19 July 2026.
 - OpenAI/Codex real provider call: pending API key.
 - Supabase advisor: no critical findings; one password-protection warning that
   is not used by the current passwordless-only flow.
+- Overnight Dream migration: applied; next production Dream is scheduled for
+  03:00 Melbourne time and new-activity gating is active.
 - npm audit: no high or critical findings; two moderate PostCSS findings in the
   installed Next.js release.

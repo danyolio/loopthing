@@ -10,6 +10,9 @@ describe("product invariants", () => {
     );
     expect(CORE_SYSTEM_PROMPT).toContain("Never invent evidence");
     expect(CORE_SYSTEM_PROMPT).toContain("single most useful next action");
+    expect(CORE_SYSTEM_PROMPT).toContain(
+      "scheduled daily Dream is the explicit exception",
+    );
   });
 
   it("converts the seeded document structure without accepting raw HTML", () => {
@@ -67,6 +70,33 @@ describe("product invariants", () => {
     );
     expect(migration).toContain("'long-form-writing'");
     expect(migration).toContain("essay, article, or thesis");
+  });
+
+  it("ships daily Dreams as complete, restorable document versions", () => {
+    const migration = readFileSync(
+      "supabase/migrations/20260719113226_add_overnight_dreams.sql",
+      "utf8",
+    );
+    const workflow = readFileSync("workflows/run-loop.ts", "utf8");
+    const schedule = readFileSync("vercel.json", "utf8");
+
+    expect(migration).toContain("create or replace function public.apply_daily_dream");
+    expect(migration).toContain("'dream'");
+    expect(migration).toContain("reason <> 'dream'");
+    expect(migration).toContain("new_activity");
+    expect(workflow).toContain("Run the overnight Dream");
+    expect(workflow).toContain("complete rewritten document");
+    expect(schedule).toContain('"schedule": "0 17 * * *"');
+  });
+
+  it("explains the day, Dream, and morning rhythm on the landing page", () => {
+    const landing = readFileSync("app/page.tsx", "utf8");
+
+    expect(landing).toContain("Loopthing stays quiet by day");
+    expect(landing).toContain("dreams on the new material overnight");
+    expect(landing).toContain("Wake up to a");
+    expect(landing).toContain("Every version is preserved");
+    expect(landing).toContain("Overnight Dream report");
   });
 
   it("does not offer an OAuth provider that is disabled in production", () => {
