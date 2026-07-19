@@ -96,7 +96,7 @@ export default function Home() {
                 </strong>{" "}
                 Work solo or with a team, adding unfinished ideas whenever they
                 come. Each Loop connects what you add to what came before,
-                challenges the reasoning, and helps you decide what comes next.
+                challenges the reasoning, and helps you develop your work.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
