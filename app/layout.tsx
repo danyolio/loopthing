@@ -21,13 +21,13 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL || "https://loopthing.ai",
   ),
   title: {
-    default: "Loop Thing — Good thinking is developed",
+    default: "Loop Thing — Great thinking is developed",
     template: "%s · Loop Thing",
   },
   description:
     "An async workflow for deep thinking and research that helps your thesis develop over time.",
   openGraph: {
-    title: "Good thinking isn't generated. It's developed.",
+    title: "Great thinking isn't generated. It's developed.",
     description:
       "Loop Thing is an async workflow for deep thinking and research.",
     url: "/",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Good thinking isn't generated. It's developed.",
+    title: "Great thinking isn't generated. It's developed.",
     description:
       "Loop Thing is an async workflow for deep thinking and research.",
     images: ["/og.png"],
