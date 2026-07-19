@@ -21,15 +21,15 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL || "https://loopthing.ai",
   ),
   title: {
-    default: "Loop Thing — Work that remembers why",
+    default: "Loop Thing — Hard problems take months",
     template: "%s · Loop Thing",
   },
   description:
-    "A continuous-thinking workspace for living documents, evolving decisions, and the reasoning behind them.",
+    "The continuous-thinking workspace for decisions that evolve as the evidence arrives.",
   openGraph: {
-    title: "Loop Thing — Work that remembers why",
+    title: "Loop Thing — Hard problems take months",
     description:
-      "A continuous-thinking workspace for living documents and evolving decisions.",
+      "AI answers in seconds. Loop Thing stays with the problems that take months.",
     url: "/",
     siteName: "Loop Thing",
     type: "website",
@@ -37,9 +37,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Loop Thing — Work that remembers why",
+    title: "Loop Thing — Hard problems take months",
     description:
-      "A continuous-thinking workspace for living documents and evolving decisions.",
+      "AI answers in seconds. Loop Thing stays with the problems that take months.",
     images: ["/og.png"],
   },
 };

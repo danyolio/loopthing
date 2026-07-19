@@ -55,5 +55,6 @@ Only completed work is checked. This file is updated after implementation and ve
 - [x] Build Gemini and OpenAI/Codex synthesis with AI SDK structured outputs and Zod schemas.
 - [x] Build light, daily, and weekly Loops with durable execution.
 - [x] Build embedded insights, briefings, branch review, progress, and history.
+- [x] Rewrite the landing page around the continuous-thinking category, a concrete Loop, and specific decision-led use cases.
 - [x] Add automated tests, AI evaluations, security checks, privacy controls, limits, and monitoring.
 - [x] Seed, deploy, verify, and document the MVP.
