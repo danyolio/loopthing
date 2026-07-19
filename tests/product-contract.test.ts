@@ -83,6 +83,10 @@ describe("product invariants", () => {
       "supabase/migrations/20260719114739_distinguish_dream_runs.sql",
       "utf8",
     );
+    const identityMigration = readFileSync(
+      "supabase/migrations/20260719121000_separate_dream_run_identity.sql",
+      "utf8",
+    );
 
     expect(migration).toContain("create or replace function public.apply_daily_dream");
     expect(migration).toContain("'dream'");
@@ -95,6 +99,8 @@ describe("product invariants", () => {
       "add column is_dream boolean not null default false",
     );
     expect(provenanceMigration).toContain("true");
+    expect(identityMigration).toContain("'dream:' || a.id::text");
+    expect(identityMigration).toContain("and lr.is_dream");
   });
 
   it("explains the day, Dream, and morning rhythm on the landing page", () => {

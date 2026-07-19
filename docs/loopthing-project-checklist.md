@@ -141,10 +141,19 @@ production on 19 July 2026.
 - Thinking objects, upload, branch acceptance, history, and restoration: passed.
 - Owner/Viewer RLS role checks: passed.
 - Gemini light, daily, and weekly Loops: passed.
+- Overnight Dream: passed end to end in production from a loose conjecture,
+  through the authenticated cron and Gemini workflow, to a complete document
+  rewrite, morning report, automatic application, and linked restorable
+  version.
+- Dream provenance and idempotency: passed; legacy daily Loops remain ordinary
+  insights and Dreams use their own `dream:` run identity.
+- Production cron secret: verified against the database hash and corrected in
+  Vercel; an authenticated production invocation started the controlled Dream.
 - OpenAI/Codex real provider call: pending API key.
 - Supabase advisor: no critical findings; one password-protection warning that
   is not used by the current passwordless-only flow.
-- Overnight Dream migration: applied; next production Dream is scheduled for
-  03:00 Melbourne time and new-activity gating is active.
+- Overnight Dream migrations: applied; after the controlled run, the next
+  production Dream is scheduled for 03:00 Melbourne time on 21 July and
+  new-activity gating is active.
 - npm audit: no high or critical findings; two moderate PostCSS findings in the
   installed Next.js release.
