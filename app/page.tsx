@@ -86,7 +86,7 @@ export default function Home() {
             Continuous thinking. Asynchronous work.
           </p>
           <h1 className="max-w-6xl text-[clamp(3.15rem,7.2vw,6.75rem)] font-medium leading-[0.9] tracking-[-0.067em]">
-            Great thinking isn’t generated.
+            Great work isn’t generated.
             <br />
             <span className="font-serif italic text-[var(--signal-strong)]">
               It’s developed.
