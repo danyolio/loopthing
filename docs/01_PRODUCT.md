@@ -1,57 +1,54 @@
-# Product Spine
+# Loopthing product
 
-LoopThing turns local Codex and Claude Code history into a handoff artifact for the next chat, agent, collaborator, or future self.
+## Product
 
-It is a local CLI and portable file format. The CLI reads structured Codex rollout JSONL, Claude Code project JSONL, Markdown, text, and JSON sources, extracts the project thesis, key user messages, decision shifts, killed branches, risks, next actions, and important source files, then seals the result into a `.loopthing` zip container.
+Loopthing is a continuous-thinking workspace for work that cannot be finished
+in one sitting.
 
-Each run also records local input and output token estimates so the recipient can see roughly how much context was compressed and how large the generated handoff became.
+A person or team starts a project with a working document. They add unfinished
+ideas, notes, sources, questions, decisions, comments, and serious alternatives
+as the work develops. Loopthing preserves that context, connects each new
+contribution to what came before, challenges the reasoning, and proposes what
+should change or happen next.
 
-## Wedge
+The accepted document remains canonical. AI output is reviewable evidence,
+analysis, or a proposed revision; it never becomes accepted work until a person
+approves it.
 
-The strongest product direction is handoff.
+## Jobs
 
-People already copy-paste old chats into new chats because they know the useful context is in there. But the stronger version is local-history first: scan Codex and Claude Code conversations on disk, preserve exact roles where possible, and only fall back to pasted transcript parsing when structured history is unavailable.
+Loopthing supports work that benefits from incubation, research, critique,
+reflection, and revision:
 
-LoopThing replaces that manual behavior with a structured compression pass.
+- develop a strategy or plan as evidence changes
+- build and test a research or investment thesis
+- write and strengthen an essay, article, or blog post
+- review a design direction without losing rejected alternatives
+- make an important hiring or operating decision with its rationale intact
 
-## Job
+## Core loop
 
-Given a messy project folder, transcript, or selected set of local Codex / Claude Code conversations, produce the smallest useful artifact that lets a recipient inherit the reasoning without reading the raw source.
+1. Add unfinished material whenever it emerges.
+2. Keep sources, questions, decisions, comments, and branches attached to the
+   project.
+3. Run a Loop, or let a scheduled Loop review what changed.
+4. Inspect the structured result: what changed, why it matters, unresolved
+   issues, evidence, a proposed revision, and one useful next action.
+5. Accept, reject, or preserve the proposal as a branch.
 
-The output separates the jobs:
+## Product principles
 
-- `brief.md`: the concise, sendable takeaway.
-- `reasoning.md`: the fuller audit trail.
-- `agent-guide.md`: instructions for future AI agents about read order, source confidence, and pasted-transcript ambiguity.
-- `agent-handoff.md`: paste-ready context for a fresh session.
-- `source-audit.md`: readable receipt of exactly which files were included in the run.
+- The document is the working surface, not a chat transcript.
+- The reasoning should survive across days, weeks, and contributors.
+- Loose conjecture is welcome; the product helps refine and challenge it.
+- Human edits remain canonical until a person explicitly accepts a proposal.
+- Significant alternatives become branches rather than silent rewrites.
+- History must show what changed, when, by whom, and why.
+- The AI is a persistent collaborator, not an answer box.
 
-That recipient might be:
+## Initial scope
 
-- a new AI session
-- Codex
-- a collaborator
-- a cofounder
-- future you
-
-## What The Artifact Must Preserve
-
-- The real intent beneath the stated request.
-- The final problem framing.
-- Key user messages that moved the work.
-- Decision shifts from earlier branches to what was bounded, rejected, or kept.
-- Discarded branches with reasons.
-- Risks that could falsify the direction.
-- The committed next action.
-- The key local files a recipient should open first.
-
-## What It Is Not
-
-- Not a memory feature.
-- Not a generic chat summary.
-- Not a beautiful archive of everything.
-- Not a dashboard that proves value through UI alone.
-
-Compression quality is the product.
-
-The current deterministic renderer builds a project model before writing Markdown. That means it tries to infer the current thesis, current wedge, boundaries, risks, discarded branches, next actions, source audit, and source-role confidence before rendering the final handoff.
+The first product is a responsive web application for solo and asynchronous
+team use. The initial use cases are strategy, research, investment, planning,
+design reviews, long-form writing, and hiring decisions. A future native
+application can share the same schemas, policies, APIs, and domain logic.

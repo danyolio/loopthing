@@ -9,7 +9,12 @@ export const evidenceSchema = z.object({
 export const proposalSchema = z.object({
   title: z.string().min(1),
   rationale: z.string().min(1),
-  content: z.string().min(1),
+  content: z
+    .string()
+    .min(1)
+    .describe(
+      "The complete revised canonical document in Markdown, ready to replace the current document if a person accepts it.",
+    ),
   isSignificantBranch: z.boolean(),
 });
 

@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createClient } from "@/lib/supabase/client";
+import type { ItemKind } from "@/lib/workspace-items";
 
-export type ItemKind = "source" | "question" | "decision" | "comment" | "branch";
+export type { ItemKind } from "@/lib/workspace-items";
 
 export function WorkspaceItemForm({
   kind,

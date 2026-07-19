@@ -174,6 +174,7 @@ Success means:
 - distinguish evidence, assumptions, decisions, and unresolved questions
 - leave the canonical document unchanged
 - propose content only when it creates a genuinely clearer next state
+- when proposing content, return the complete revised canonical document in Markdown; do not return a fragment or repeat the proposal title outside the document
 - use a significant branch only for a material alternative
 - choose one smallest useful next action
 

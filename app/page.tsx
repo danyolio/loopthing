@@ -34,8 +34,8 @@ const useCases = [
     question: "Which market can we win—and what would prove us wrong?",
   },
   {
-    label: "Product planning",
-    question: "Build it, sequence it, or kill it?",
+    label: "Planning",
+    question: "What should happen next, in what order, and why?",
   },
   {
     label: "Research",
@@ -55,7 +55,7 @@ const useCases = [
   },
   {
     label: "Long-form writing",
-    question: "Is the argument getting stronger—or just longer?",
+    question: "What is this essay, article, or blog post really arguing?",
   },
 ];
 

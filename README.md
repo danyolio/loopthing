@@ -1,22 +1,27 @@
-# Loop Thing
+# Loopthing
 
-Loop Thing is a collaborative continuous-thinking workspace for work that
-evolves over days, weeks, or months. The document remains the primary
-interface; AI Loops connect changes, evidence, questions, decisions, and
-alternatives without silently rewriting accepted human work.
+Loopthing is a continuous-thinking workspace for work that develops over more
+than one sitting. A person or team can add unfinished ideas, sources, questions,
+decisions, and alternatives over time. Loops connect new material to the
+existing reasoning, challenge it, and propose a clearer next state without
+silently changing the accepted document.
+
+It is designed for strategy, research, investment theses, planning, design
+reviews, long-form writing such as essays and blog posts, and hiring decisions.
 
 ## What is included
 
 - Next.js 16 App Router, React 19, TypeScript, Tailwind CSS, and shadcn/ui
-- Supabase Auth, Postgres, Row Level Security, invitations, and private Storage
-- Tiptap with Yjs, IndexedDB offline recovery, Hocuspocus WebSockets, awareness,
-  and immutable checkpoints
-- Light, daily, and weekly Loops on Vercel Workflow DevKit
-- Selectable Gemini or OpenAI/Codex synthesis through one Zod-validated output
-  contract
+- Supabase passwordless authentication, Postgres, Row Level Security,
+  invitations, and private Storage
+- Tiptap with Yjs, IndexedDB recovery, Hocuspocus WebSockets, awareness, and
+  immutable checkpoints
 - Sources and uploads, questions, decisions, comments, branches, review,
-  restoration, progress, and history
-- Vercel Web Analytics, Speed Insights, structured logs, cron authentication,
+  restoration, and history
+- Light, daily, and weekly Loops on Vercel Workflow DevKit
+- Selectable Gemini or OpenAI synthesis through one Zod-validated output
+  contract
+- Vercel Web Analytics, Speed Insights, structured logs, authenticated cron,
   and per-project Loop limits
 
 The architecture and role matrix are in
@@ -33,7 +38,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Use `vercel dev` when testing the WebSocket upgrade and Vercel-specific runtime.
+Use `vercel dev` when testing the Vercel WebSocket upgrade or Workflow runtime.
 
 Required public environment variables:
 
@@ -55,55 +60,48 @@ LOOPTHING_AI_PROVIDER=google
 REDIS_URL
 ```
 
-At least one AI provider key is needed to run a Loop. `REDIS_URL` is optional
-for a single Hocuspocus instance and required before horizontal realtime
-fan-out.
+At least one AI provider key is required to run a Loop. Gemini is configured
+and verified locally and in production. The OpenAI/Codex path is implemented,
+but it remains unavailable until `OPENAI_API_KEY` is added. `REDIS_URL` is not
+needed for one Hocuspocus instance; add shared Redis before relying on
+cross-instance realtime fan-out.
 
 Apply the ordered SQL files in `supabase/migrations/` to a Supabase project.
-Every exposed project table uses RLS; privileged scheduled RPC bodies live in
-the private schema behind narrow invoker-safe wrappers.
+Every exposed project table uses RLS. Privileged scheduled functions live in
+the private schema behind narrow, secret-validated wrappers.
 
 ## Verification
 
 ```bash
 npm run typecheck
 npm run lint
-npm test
+npm run test:coverage
 npm run build
+npm audit --omit=dev --audit-level=moderate
 ```
 
-For browser verification, check `/`, `/login`, the unauthenticated redirect from
-`/app`, and an authenticated project flow. For the Vercel runtime, verify that
-`ws(s)://<host>/api/ws` upgrades successfully and that
-`/.well-known/workflow/v1/flow` responds to Workflow health checks.
+The production flow was verified end to end on 19 July 2026: passwordless
+sign-in, protected routes, project creation, realtime editing, autosave and
+manual history, restoration, sources and private uploads, questions, decisions,
+comments, branches, invitations, role policies, Gemini synthesis, proposal
+acceptance, and manual/daily/weekly durable Loops.
 
 ## Deployment
 
 The Vercel project is configured by `vercel.json`. Production deploys use:
 
 ```bash
-vercel --prod
+vercel --prod --yes
 ```
 
-The daily cron endpoint claims both due daily and weekly runs and validates the
-Vercel `Authorization: Bearer $CRON_SECRET` header. The intended production
-domain is `loopthing.ai`.
-
-The production deployment was verified on 19 July 2026 at
-`https://loopthing-fp16rjp8v-danyolio.vercel.app`. Vercel has attached both
-`loopthing.ai` and `www.loopthing.ai` to the project. Because DNS remains hosted
-on Cloudflare, publish these two proxied-or-DNS-only records there before the
-custom domain can resolve:
-
-```text
-A  @    76.76.21.21
-A  www  76.76.21.21
-```
-
-Vercel will issue the certificates automatically after DNS verification.
+The production application is live at
+[`https://www.loopthing.ai`](https://www.loopthing.ai). Vercel serves the web
+application, API routes, WebSocket endpoint, cron, and Workflow jobs. Supabase
+remains the durable backend for authentication, data, policies, and files.
 
 ## Canonical product documents
 
 - [`docs/loopthing-core-system-prompt-v2.md`](docs/loopthing-core-system-prompt-v2.md)
 - [`docs/loopthing-project-checklist.md`](docs/loopthing-project-checklist.md)
+- [`docs/01_PRODUCT.md`](docs/01_PRODUCT.md)
 - [`docs/MVP_ACCEPTANCE_CRITERIA.md`](docs/MVP_ACCEPTANCE_CRITERIA.md)

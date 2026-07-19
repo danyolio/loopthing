@@ -3,9 +3,9 @@
 ## Deployment
 
 - Vercel runs the Next.js application, Route Handlers, Gemini or OpenAI/Codex synthesis, Workflow DevKit jobs, cron triggers, and Hocuspocus WebSocket endpoint.
-- Supabase is the durable system of record for PostgreSQL, authentication, memberships, invitations, Row Level Security, private attachments, derived text, and immutable Yjs checkpoints.
+- Supabase is the durable system of record for PostgreSQL, passwordless email authentication, memberships, invitations, Row Level Security, private attachments, derived text, and immutable Yjs checkpoints.
 - Yjs is the canonical collaborative document state. Plain text is derived for search, previews, diffs, and Loop context.
-- Hocuspocus clients reconnect with exponential backoff and keep an IndexedDB copy for offline recovery. Redis is optional at launch and becomes required when horizontal WebSocket fan-out is enabled.
+- Hocuspocus clients reconnect and keep an IndexedDB copy for local recovery. A single Vercel WebSocket instance is verified for launch. Shared Redis is required before relying on cross-instance realtime fan-out.
 - Vercel Workflow DevKit is the selected durable job runner. Manual, daily, and weekly Loops share the same retryable, idempotent workflow.
 - Supabase Storage is the selected source, transcript, and attachment store.
 
@@ -29,3 +29,13 @@
 - `GOOGLE_GENERATIVE_AI_API_KEY`, `OPENAI_API_KEY`, and `CRON_SECRET` are Vercel-only secrets.
 - Scheduled database functions are additionally gated by the SHA-256 hash of `CRON_SECRET`.
 - AI never mutates canonical content directly. An accepted proposal is recorded with the accepting user and source Loop.
+
+## Launch boundaries
+
+- Gemini is the configured and verified synthesis provider.
+- OpenAI/Codex support is implemented but unavailable until `OPENAI_API_KEY` is
+  configured and a production call is verified.
+- Google OAuth is disabled and is not presented in the sign-in interface.
+- Baseline security headers are enabled; a strict nonce-based Content Security
+  Policy remains a follow-up because it must be validated against all dynamic
+  script and connection sources.

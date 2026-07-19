@@ -1,60 +1,131 @@
-# Loop Thing — Project Specification and Build Checklist
+# Loopthing project specification and build checklist
 
-Only completed work is checked. This file is updated after implementation and verification, not before.
+Only completed and verified work is checked. This file was last verified against
+production on 19 July 2026.
 
 ## Product specification
 
-- Loop Thing is a collaborative continuous-thinking workspace for work that evolves over days, weeks, or months.
-- The document is a living problem and the primary interface.
-- The product should feel closer to Linear, Figma, and Notion than to ChatGPT.
-- The AI behaves as an embedded persistent collaborator rather than a chatbot.
-- Every Loop returns structured insight that improves clarity, decisions, and reasoning rather than prose alone.
-- Lightweight Loops respond to meaningful events, deep Loops run daily by default, and strategic synthesis runs weekly.
-- Human work remains canonical until a user accepts an AI proposal.
+- Loopthing is a continuous-thinking workspace for work that develops over
+  days, weeks, or months.
+- A person or team can add loose conjecture, notes, sources, questions,
+  decisions, comments, and alternatives before the work is polished.
+- Each Loop connects new material to what came before, challenges the
+  reasoning, and proposes one useful next state.
+- The document is the primary working surface.
+- Human work remains canonical until a person accepts an AI proposal.
 - Significant alternatives appear as branches instead of silent rewrites.
-- Version history preserves human edits, AI proposals, evidence, decisions, questions, and rationales.
-- Initial use cases include strategy, research, investment, planning, design reviews, long-form writing, and hiring decisions.
+- Initial use cases are strategy, research, investment, planning, design
+  reviews, long-form writing such as essays and blog posts, and hiring
+  decisions.
 
 ## Technical specification
 
-- The web application uses Next.js App Router, React, and TypeScript.
-- Tailwind CSS provides the styling system and shadcn/ui provides editable component source.
-- Tiptap provides the document editor.
-- Supabase provides PostgreSQL, magic-link and Google authentication, project memberships, invitations, and Row Level Security.
-- Every project assigns each member the Owner, Editor, or Viewer role.
-- Yjs and Hocuspocus provide document synchronisation, cursors, awareness, reconnection, and offline editing.
-- Immutable Yjs checkpoints provide canonical history while derived plain text supports AI analysis, search, previews, and diffs.
-- The Vercel AI SDK and `@ai-sdk/google` connect server-side synthesis to Gemini.
-- `gemini-3.5-flash` is the pinned synthesis model.
-- `GOOGLE_GENERATIVE_AI_API_KEY` stores the Gemini credential as a server-only environment secret.
-- OpenAI is a selectable synthesis provider through `@ai-sdk/openai`; `gpt-5.6-sol` is the initial OpenAI/Codex model.
-- `OPENAI_API_KEY` stores the OpenAI credential as a server-only environment secret.
-- AI SDK `Output.object()` and Zod validate every Loop result.
-- Vercel Workflow DevKit executes scheduled Loops with idempotency, retries, and genuine progress stages.
-- The MVP is a responsive Next.js web application, while a future Expo application may share types, schemas, API clients, authentication, and domain logic.
+- Next.js App Router, React, TypeScript, Tailwind CSS, and shadcn/ui provide the
+  web application and component system.
+- Supabase provides passwordless authentication, PostgreSQL, project
+  memberships, invitations, Row Level Security, and private file storage.
+- Tiptap is the editor. Yjs and Hocuspocus provide collaboration, awareness,
+  reconnection, and IndexedDB recovery.
+- Immutable Yjs checkpoints preserve canonical history; derived plain text
+  provides Loop context, previews, and diffs.
+- Gemini is the live synthesis provider through the Vercel AI SDK. OpenAI is
+  implemented as an optional provider and requires a server-side API key.
+- Zod validates every structured Loop result.
+- Vercel hosts Next.js, the WebSocket endpoint, cron, and retryable Workflow
+  DevKit jobs. Supabase remains the durable system of record.
 
 ## Decisions
 
 - [x] Use Vercel Workflow DevKit as the durable job runner.
-- [x] Deploy Next.js, Workflow jobs, cron, and the Hocuspocus WebSocket endpoint on Vercel; use Supabase as durable state.
+- [x] Deploy Next.js, Workflow jobs, cron, and the Hocuspocus WebSocket endpoint
+  on Vercel; use Supabase as durable state.
 - [x] Store sources, transcripts, and attachments in private Supabase Storage.
 - [x] Define Owner, Editor, and Viewer capabilities.
+- [x] Launch with passwordless email sign-in; do not show disabled Google OAuth.
 
-## Build tasks
+## Product and interface
 
-- [x] Create the concise Loop Thing core system prompt.
-- [x] Consolidate the product and technical specifications into a skimmable checklist.
+- [x] Commit the supplied core system prompt.
+- [x] Commit and maintain this project checklist.
 - [x] Define the MVP happy path and measurable acceptance criteria.
-- [x] Scaffold Next.js with TypeScript, Tailwind CSS, and shadcn/ui.
-- [x] Configure Supabase, authentication, project memberships, invitations, API grants, and Row Level Security.
-- [ ] Add `GOOGLE_GENERATIVE_AI_API_KEY` to local and production server secrets without committing its value.
-- [ ] Add `OPENAI_API_KEY` to local and production server secrets without committing its value.
 - [x] Build the Tiptap document workspace.
-- [x] Build Yjs and Hocuspocus collaboration with offline recovery.
-- [x] Build comments, sources, questions, decisions, checkpoints, diffs, restoration, and branches.
-- [x] Build Gemini and OpenAI/Codex synthesis with AI SDK structured outputs and Zod schemas.
-- [x] Build light, daily, and weekly Loops with durable execution.
-- [x] Build embedded insights, briefings, branch review, progress, and history.
-- [x] Rewrite the landing page around the continuous-thinking category, a concrete Loop, and specific decision-led use cases.
-- [x] Add automated tests, AI evaluations, security checks, privacy controls, limits, and monitoring.
-- [x] Seed, deploy, verify, and document the MVP.
+- [x] Build sources, private uploads, questions, decisions, comments, branches,
+  checkpoints, restoration, and history.
+- [x] Build structured insights, proposal review, progress, and one next action.
+- [x] Rewrite the landing page with the “Great work is developed” direction.
+- [x] List the initial use cases, including essays and blog posts under
+  long-form writing.
+- [x] Use “Start a project” as the primary call to action.
+- [x] Support solo and asynchronous team projects.
+
+## Authentication, data, and permissions
+
+- [x] Configure Supabase passwordless email authentication and production
+  redirects for `loopthing.ai`.
+- [x] Create project memberships and invitations.
+- [x] Enforce Owner, Editor, and Viewer policies with RLS on every exposed
+  project table.
+- [x] Verify that a Viewer cannot edit thinking objects but can comment.
+- [x] Configure the private `loopthing-attachments` bucket and verify a real
+  upload.
+- [x] Keep AI and cron secrets on the server.
+- [ ] Enable Google OAuth before restoring a Google sign-in button.
+- [ ] Enable Supabase leaked-password protection if password authentication is
+  introduced.
+
+## Realtime and history
+
+- [x] Build Yjs, Hocuspocus, awareness, reconnection, and IndexedDB recovery.
+- [x] Wire upgraded Vercel WebSocket messages and closes into Hocuspocus.
+- [x] Verify production WebSocket authentication, synchronisation, checkpoint
+  persistence, reload, manual save, autosave, and restore.
+- [x] Keep accepted AI revisions and accepted branches as new immutable
+  checkpoints.
+- [ ] Add shared Redis before relying on realtime collaboration across multiple
+  simultaneous Vercel instances.
+
+## AI and durable Loops
+
+- [x] Add `GOOGLE_GENERATIVE_AI_API_KEY` to local and production server secrets
+  without committing its value.
+- [x] Build Gemini and OpenAI/Codex provider selection against one structured
+  output schema.
+- [x] Verify a real Gemini Loop in production.
+- [x] Ensure an accepted full-document proposal replaces rather than appends to
+  the canonical document.
+- [x] Build and verify light, daily, and weekly Loops with durable progress,
+  idempotency, and stored insights.
+- [x] Verify Vercel cron authentication and the daily/weekly schedule advance.
+- [ ] Add `OPENAI_API_KEY` to local and production server secrets.
+- [ ] Run and verify a real OpenAI/Codex synthesis after that key is added.
+- [ ] Add repeatable model-quality evaluations beyond schema validation and
+  product contract tests.
+
+## Deployment and operations
+
+- [x] Deploy the production application to Vercel.
+- [x] Attach and verify `loopthing.ai` and `www.loopthing.ai`.
+- [x] Configure Web Analytics, Speed Insights, structured logs, rate limits,
+  cron authentication, and baseline browser security headers.
+- [x] Run typecheck, lint, unit tests with coverage, a production build, and npm
+  audit.
+- [x] Run the authenticated production flow end to end.
+- [x] Check Supabase security and performance advisors after the final
+  migration.
+- [ ] Add a strict nonce-based Content Security Policy after auditing the
+  editor, analytics, Supabase, Workflow, and WebSocket sources it must allow.
+
+## Verification record
+
+- Passwordless sign-in: passed.
+- Protected routing and callback redirect: passed.
+- Project workspace and long-form-writing template: passed.
+- Realtime WebSocket and persisted checkpoints: passed on one Vercel instance.
+- Thinking objects, upload, branch acceptance, history, and restoration: passed.
+- Owner/Viewer RLS role checks: passed.
+- Gemini light, daily, and weekly Loops: passed.
+- OpenAI/Codex real provider call: pending API key.
+- Supabase advisor: no critical findings; one password-protection warning that
+  is not used by the current passwordless-only flow.
+- npm audit: no high or critical findings; two moderate PostCSS findings in the
+  installed Next.js release.

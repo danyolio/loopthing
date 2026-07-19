@@ -66,8 +66,13 @@ import type {
   ThinkingItem,
   WorkspaceData,
 } from "@/lib/domain";
-import { simpleMarkdownToHtml } from "@/lib/markdown";
+import { replaceCanonicalDocument } from "@/lib/canonical-document";
 import { createClient } from "@/lib/supabase/client";
+import {
+  collectionForItemKind,
+  itemKindForCollection,
+  type ItemCollection,
+} from "@/lib/workspace-items";
 
 type RailTab =
   | "loops"
@@ -240,7 +245,7 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
   useEffect(() => {
     if (!editor || !localReady || !remoteReady || seeded.current) return;
     if (ydoc.getXmlFragment("default").length === 0) {
-      editor.commands.setContent(simpleMarkdownToHtml(initialData.document.content_text));
+      replaceCanonicalDocument(editor, initialData.document.content_text);
     }
     seeded.current = true;
   }, [
@@ -387,7 +392,7 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
       return;
     }
 
-    editor.chain().focus("end").insertContent(`<h2>${proposal.title}</h2><p>${proposal.content}</p>`).run();
+    replaceCanonicalDocument(editor, proposal.content);
     await saveCheckpoint("accepted_proposal");
     await createClient()
       .from("loop_insights")
@@ -408,7 +413,7 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
   async function acceptBranch(branch: ThinkingItem) {
     if (!editor || !editable) return;
     const content = getText(branch, "proposed_content_text");
-    editor.commands.setContent(simpleMarkdownToHtml(content));
+    replaceCanonicalDocument(editor, content);
     await saveCheckpoint("accepted_proposal");
     const { error } = await createClient()
       .from("branches")
@@ -433,15 +438,15 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
   async function restoreCheckpoint(checkpoint: ThinkingItem) {
     if (!editor || !editable) return;
     const content = getText(checkpoint, "plain_text");
-    editor.commands.setContent(simpleMarkdownToHtml(content));
+    replaceCanonicalDocument(editor, content);
     await saveCheckpoint("restored");
   }
 
   function onCreated(kind: ItemKind, item: Record<string, unknown>) {
-    const plural = `${kind}s` as keyof typeof items;
+    const collection = collectionForItemKind(kind);
     setItems((current) => ({
       ...current,
-      [plural]: [item as ThinkingItem, ...current[plural]],
+      [collection]: [item as ThinkingItem, ...current[collection]],
     }));
   }
 
@@ -614,6 +619,9 @@ function Rail({
   onRestore: (checkpoint: ThinkingItem) => void;
 }) {
   const itemTab = activeTab !== "loops" && activeTab !== "history" ? activeTab : null;
+  const itemKind: ItemKind | null = itemTab
+    ? itemKindForCollection(itemTab as ItemCollection)
+    : null;
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -646,9 +654,10 @@ function Rail({
               onAcceptProposal={onAcceptProposal}
             />
           )}
-          {itemTab && editable && (
+          {itemKind && (editable || itemKind === "comment") && (
             <WorkspaceItemForm
-              kind={itemTab.slice(0, -1) as ItemKind}
+              key={itemKind}
+              kind={itemKind}
               projectId={initialData.project.id}
               documentId={initialData.document.id}
               userId={initialData.user.id}
@@ -878,7 +887,7 @@ function ThinkingCard({
     <article className="rounded-xl border p-4">
       <div className="flex items-center justify-between gap-3">
         <span className="text-[11px] font-semibold uppercase tracking-[0.13em] text-muted-foreground">
-          {kind.slice(0, -1)}
+          {itemKindForCollection(kind as ItemCollection)}
         </span>
         {status && <Badge variant="secondary">{status}</Badge>}
       </div>

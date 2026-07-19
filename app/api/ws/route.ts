@@ -14,7 +14,25 @@ export async function GET(request: Request) {
 
   return experimental_upgradeWebSocket(
     async (socket) => {
-      getHocuspocus().handleConnection(socket, request);
+      const connection = getHocuspocus().handleConnection(socket, request);
+
+      socket.on("message", (data) => {
+        const bytes =
+          typeof data === "string"
+            ? Buffer.from(data)
+            : data instanceof ArrayBuffer
+              ? new Uint8Array(data)
+              : ArrayBuffer.isView(data)
+                ? new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+                : Buffer.concat(data);
+        connection.handleMessage(bytes);
+      });
+      socket.on("close", (code, reason) => {
+        connection.handleClose({
+          code,
+          reason: reason.toString(),
+        });
+      });
     },
     { maxPayload: 1024 * 1024 },
   );
