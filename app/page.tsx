@@ -6,7 +6,6 @@ import {
   GitBranch,
   History,
   Orbit,
-  Sparkles,
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
@@ -81,10 +80,6 @@ export default function Home() {
       <section className="relative mx-auto max-w-7xl px-5 pb-24 pt-16 sm:px-8 sm:pb-32 sm:pt-24 lg:pb-40">
         <div className="pointer-events-none absolute -right-40 -top-20 size-[36rem] rounded-full bg-[var(--signal)]/18 blur-[110px]" />
         <div className="relative">
-          <p className="mb-7 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--signal-strong)]">
-            <Sparkles className="size-3.5" />
-            Continuous thinking. Asynchronous work.
-          </p>
           <h1 className="max-w-6xl text-[clamp(3.15rem,7.2vw,6.75rem)] font-medium leading-[0.9] tracking-[-0.067em]">
             Great work isn’t generated.
             <br />
@@ -96,15 +91,12 @@ export default function Home() {
             <div>
               <p className="max-w-3xl text-lg leading-8 text-muted-foreground sm:text-xl">
                 <strong className="font-semibold text-foreground">
-                  Loop Thing is an async workflow for deep thinking and
-                  research.
+                  Loop Thing is for developing a thesis, strategy, or important
+                  decision over time.
                 </strong>{" "}
-                Add notes, sources, questions, and early ideas as you go. It
-                connects new material to what came before and helps your thesis
-                develop over days, weeks, or months.
-              </p>
-              <p className="mt-4 text-sm font-medium text-foreground/75">
-                Drop notes. Build the thesis. Keep the thread.
+                Work solo or with a team, adding unfinished ideas whenever they
+                come. Each Loop connects what you add to what came before,
+                challenges the reasoning, and helps you decide what comes next.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">

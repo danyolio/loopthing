@@ -25,11 +25,11 @@ export const metadata: Metadata = {
     template: "%s · Loop Thing",
   },
   description:
-    "An async workflow for deep thinking and research that helps your thesis develop over time.",
+    "Develop a thesis, strategy, or important decision over time. Add unfinished ideas, challenge the reasoning, and decide what comes next.",
   openGraph: {
     title: "Great work isn't generated. It's developed.",
     description:
-      "Loop Thing is an async workflow for deep thinking and research.",
+      "Develop a thesis, strategy, or important decision over time.",
     url: "/",
     siteName: "Loop Thing",
     type: "website",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Great work isn't generated. It's developed.",
     description:
-      "Loop Thing is an async workflow for deep thinking and research.",
+      "Develop a thesis, strategy, or important decision over time.",
     images: ["/og.png"],
   },
 };
