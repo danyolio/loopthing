@@ -1,0 +1,68 @@
+.flowPath {
+  animation: thread-flow 2.8s linear infinite;
+  filter: drop-shadow(0 0 3px color-mix(in oklab, currentColor 55%, transparent));
+  stroke-dasharray: 5 17;
+  stroke-linecap: round;
+}
+
+.flowPathDelayed {
+  animation-delay: -1.4s;
+}
+
+.frontierPulse {
+  animation: thread-frontier-pulse 2.4s ease-in-out infinite;
+}
+
+.mobileFlowLine {
+  overflow: hidden;
+}
+
+.mobileFlowLine::after {
+  animation: mobile-thread-flow 2.4s ease-in-out infinite;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgb(139 92 246 / 72%),
+    transparent
+  );
+  content: "";
+  height: 2rem;
+  inset-inline: -1px;
+  position: absolute;
+  top: -2rem;
+}
+
+@keyframes thread-flow {
+  to {
+    stroke-dashoffset: -44;
+  }
+}
+
+@keyframes mobile-thread-flow {
+  to {
+    transform: translateY(calc(100% + 4rem));
+  }
+}
+
+@keyframes thread-frontier-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 10px 30px rgb(28 25 23 / 7%),
+      0 0 0 0 rgb(139 92 246 / 0%);
+  }
+
+  50% {
+    box-shadow:
+      0 12px 34px rgb(76 29 149 / 13%),
+      0 0 0 7px rgb(139 92 246 / 9%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flowPath,
+  .frontierPulse,
+  .mobileFlowLine::after {
+    animation: none;
+  }
+}

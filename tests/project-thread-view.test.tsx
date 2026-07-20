@@ -120,12 +120,17 @@ describe("Project Thread view", () => {
     expect(
       screen.getByText("Opening this view uses 0 model calls"),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("group", { name: "Project workflow over time" }),
+    ).toHaveAttribute("data-flow-direction", "top-to-bottom");
     expect(screen.getAllByText("Before Dream").length).toBeGreaterThan(0);
     expect(screen.getAllByText("After Dream").length).toBeGreaterThan(0);
-    expect(screen.getByText("Tonight’s Dream")).toBeInTheDocument();
+    expect(screen.getAllByText("Tonight’s Dream").length).toBeGreaterThan(0);
 
     fireEvent.click(
-      screen.getByRole("button", { name: /the opening became concrete/i }),
+      screen.getAllByRole("button", {
+        name: /the opening became concrete/i,
+      })[0],
     );
     expect(screen.getByText("Deterministic diff")).toBeInTheDocument();
     expect(

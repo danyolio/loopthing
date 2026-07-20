@@ -67,6 +67,9 @@
   generation. Exact human and Dream change totals come from stored Before and
   After text diffs; stored `change_details.sourceIds` mark inputs cited by the
   Dream. The dotted frontier is the scheduled next Dream, not generated output.
+  The renderer places chronology on the vertical axis and authorship in three
+  horizontal swimlanes. SVG connector pulses are CSS-only, consume no product
+  data or model calls, and stop under `prefers-reduced-motion`.
 - `reasoning_nodes` and `reasoning_edges` are the durable human-approved
   reasoning ledger. Sources, questions, and decisions synchronise into it.
   Each Loop also stores an immutable `reasoning_model` snapshot with its

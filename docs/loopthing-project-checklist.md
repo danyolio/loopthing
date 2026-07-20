@@ -80,6 +80,8 @@ production on 20 July 2026.
   criticism, review outcomes, branches, and a live next-Dream frontier.
 - [x] Derive The Thread's topology, counts, and exact text changes from stored
   project data without spending another model call.
+- [x] Make The Thread read top to bottom, with larger workflow cards, Human /
+  Work / Dream + Review swimlanes, and a reduced-motion-safe directional pulse.
 
 ## Authentication, data, and permissions
 
