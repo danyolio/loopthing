@@ -12,6 +12,7 @@ import {
   ArrowDown,
   Bot,
   Check,
+  ChevronRight,
   CircleDot,
   Clock3,
   FileDiff,
@@ -22,9 +23,9 @@ import {
   MessageSquare,
   Moon,
   Network,
-  PanelRight,
   Sparkles,
   UserRound,
+  X,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -72,20 +73,25 @@ type ThreadSelection =
   | { type: "review"; cycle: ThreadCycle }
   | { type: "frontier"; frontier: ThreadFrontier };
 
-// Time runs downward. Columns only describe who or what acted at each step.
-const canvasWidth = 960;
-const humanX = 20;
-const humanWidth = 270;
-const workX = 345;
-const workWidth = 270;
-const dreamX = 670;
-const dreamWidth = 270;
-const firstVersionY = 104;
-const contributionOffset = 180;
-const beforeDreamOffset = 370;
-const dreamOffset = 550;
-const outputOffset = 782;
-const cycleStep = outputOffset;
+// Time runs downward. Columns describe authorship; grouped bands describe cycles.
+const canvasWidth = 1040;
+const nodeWidth = 236;
+const humanX = 52;
+const workX = 402;
+const dreamX = 752;
+const humanWidth = nodeWidth;
+const workWidth = nodeWidth;
+const dreamWidth = nodeWidth;
+const firstVersionY = 102;
+const standardNodeHeight = 104;
+const contributionHeight = 108;
+const dreamNodeHeight = 144;
+const cycleStartY = 232;
+const contributionOffset = 54;
+const beforeDreamOffset = 190;
+const dreamOffset = 326;
+const outputOffset = 492;
+const cycleStep = 630;
 
 const contextForInput: Record<
   Exclude<ThreadInputKind, "document">,
@@ -154,6 +160,32 @@ function countLabel(count: number, singular: string, plural = `${singular}s`) {
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
+function orthogonalPath(
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+) {
+  if (fromX === toX) return `M ${fromX} ${fromY} V ${toY}`;
+
+  const middleY = fromY + (toY - fromY) / 2;
+  const direction = toX > fromX ? 1 : -1;
+  const radius = Math.min(
+    10,
+    Math.abs(toX - fromX) / 4,
+    Math.abs(toY - fromY) / 4,
+  );
+
+  return [
+    `M ${fromX} ${fromY}`,
+    `V ${middleY - radius}`,
+    `Q ${fromX} ${middleY} ${fromX + direction * radius} ${middleY}`,
+    `H ${toX - direction * radius}`,
+    `Q ${toX} ${middleY} ${toX} ${middleY + radius}`,
+    `V ${toY}`,
+  ].join(" ");
+}
+
 function versionLabel(version: ThinkingItem | undefined, fallback: string) {
   return itemText(version, "label") || fallback;
 }
@@ -213,6 +245,7 @@ function ThreadNode({
   y,
   width,
   height,
+  status = "complete",
   pending = false,
   pulse = false,
   nodeRef,
@@ -228,60 +261,103 @@ function ThreadNode({
   y: number;
   width: number;
   height: number;
+  status?: "complete" | "active" | "pending" | "attention";
   pending?: boolean;
   pulse?: boolean;
   nodeRef?: Ref<HTMLButtonElement>;
   onClick: () => void;
 }) {
-  const toneClass = {
-    human:
-      "border-emerald-500/35 bg-emerald-50/95 hover:border-emerald-500/60",
-    work: "border-neutral-300 bg-white hover:border-neutral-400",
-    dream:
-      "border-violet-500/35 bg-violet-50/95 hover:border-violet-500/60",
-    review:
-      "border-amber-500/30 bg-amber-50/95 hover:border-amber-500/50",
-  }[tone];
-  const iconClass = {
-    human: "bg-emerald-100 text-emerald-800",
-    work: "bg-neutral-100 text-neutral-700",
-    dream: "bg-violet-100 text-violet-800",
-    review: "bg-amber-100 text-amber-800",
-  }[tone];
+  const statusLabel = {
+    complete: "Complete",
+    active: "Live",
+    pending: "Scheduled",
+    attention: "Attention",
+  }[status];
 
   return (
     <button
       ref={nodeRef}
       type="button"
-      className={`absolute overflow-hidden rounded-2xl border text-left shadow-[0_10px_30px_rgba(28,25,23,0.07)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(28,25,23,0.1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-500 ${toneClass} ${pending ? "border-dashed" : ""} ${pulse ? styles.frontierPulse : ""}`}
+      data-status={status}
+      data-tone={tone}
+      className={`${styles.threadNode} ${pending ? styles.pendingNode : ""} ${pulse ? styles.frontierPulse : ""}`}
       style={{ left: x, top: y, width, height }}
       onClick={onClick}
     >
-      <span className="flex h-full flex-col px-4 py-4">
-        <span className="flex items-start justify-between gap-3.5">
-          <span className={`grid size-8 shrink-0 place-items-center rounded-xl ${iconClass}`}>
-            <Icon className="size-4" />
+      <span aria-hidden="true" className={styles.topPort} />
+      <span className="flex h-full flex-col px-3.5 py-3">
+        <span className="flex items-start gap-3">
+          <span className={styles.nodeIcon}>
+            <Icon className="size-3.5" strokeWidth={1.8} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              {eyebrow}
+            <span className="flex items-center justify-between gap-2">
+              <span className="block truncate text-[9px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                {eyebrow}
+              </span>
+              <span className={styles.statusLabel}>
+                <span className={styles.statusDot} />
+                {statusLabel}
+              </span>
             </span>
-            <span className="mt-1 block text-sm font-semibold leading-5">
+            <span className="mt-1 line-clamp-2 block text-[13px] font-semibold leading-[1.05rem] tracking-[-0.01em]">
               {title}
             </span>
           </span>
-          <PanelRight className="mt-1 size-3 shrink-0 text-muted-foreground/60" />
         </span>
-        <span className="mt-2.5 line-clamp-3 block text-xs leading-[1.15rem] text-muted-foreground">
+        <span className="mt-2 line-clamp-2 block text-[11px] leading-[1rem] text-muted-foreground">
           {detail}
         </span>
-        {meta && (
-          <span className="mt-auto block truncate pt-2 font-mono text-[10px] text-muted-foreground">
-            {meta}
-          </span>
-        )}
+        <span className="mt-auto flex items-center justify-between gap-3 pt-2">
+          {meta ? (
+            <span className="block min-w-0 truncate font-mono text-[9px] text-muted-foreground">
+              {meta}
+            </span>
+          ) : (
+            <span />
+          )}
+          <ChevronRight className="size-3 shrink-0 text-muted-foreground/55" />
+        </span>
       </span>
+      <span aria-hidden="true" className={styles.bottomPort} />
     </button>
+  );
+}
+
+function CycleBand({
+  index,
+  top,
+  date,
+  frontier = false,
+}: {
+  index: number;
+  top: number;
+  date: string;
+  frontier?: boolean;
+}) {
+  return (
+    <div
+      aria-hidden="true"
+      className={`${styles.cycleBand} ${frontier ? styles.frontierBand : ""}`}
+      style={{ top }}
+    >
+      <div className={styles.cycleBandHeader}>
+        <span className={styles.cycleIndex}>
+          {frontier ? "NOW" : String(index + 1).padStart(2, "0")}
+        </span>
+        <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-foreground/70">
+          {frontier ? "Current cycle" : "Dream cycle"}
+        </span>
+        <span className="h-px flex-1 bg-border/80" />
+        <span className="font-mono text-[9px] text-muted-foreground">
+          {date}
+        </span>
+        <span className={frontier ? styles.liveBadge : styles.completeBadge}>
+          <span />
+          {frontier ? "In progress" : "Complete"}
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -289,17 +365,17 @@ function ThreadFlowPath({
   d,
   tone,
   pending = false,
-  delayed = false,
+  live = false,
 }: {
   d: string;
   tone: "human" | "work" | "dream";
   pending?: boolean;
-  delayed?: boolean;
+  live?: boolean;
 }) {
   const color = {
-    human: "#4f8f69",
-    work: "#a8a29e",
-    dream: "#8b5cf6",
+    human: "#31956a",
+    work: "#8d8a83",
+    dream: "#7957e8",
   }[tone];
   const marker = {
     human: "url(#thread-arrow-green)",
@@ -313,21 +389,28 @@ function ThreadFlowPath({
         d={d}
         fill="none"
         stroke={color}
-        strokeDasharray={pending ? "7 7" : undefined}
-        strokeOpacity={pending ? 0.38 : 0.45}
-        strokeWidth="1.7"
+        strokeDasharray={pending ? "5 5" : undefined}
+        strokeOpacity={pending ? 0.48 : 0.58}
+        strokeWidth="1.5"
         markerEnd={marker}
       />
-      <path
-        d={d}
-        fill="none"
-        pathLength="100"
-        stroke={color}
-        strokeOpacity={pending ? 0.5 : 0.9}
-        strokeWidth={pending ? "2" : "2.25"}
-        className={`${styles.flowPath} ${delayed ? styles.flowPathDelayed : ""}`}
-        style={{ color }}
-      />
+      {live && (
+        <>
+          <path
+            d={d}
+            fill="none"
+            pathLength="100"
+            stroke={color}
+            strokeOpacity="0.82"
+            strokeWidth="2"
+            className={styles.flowPath}
+            style={{ color }}
+          />
+          <circle r="3" fill={color} className={styles.edgeTracer}>
+            <animateMotion dur="2.4s" path={d} repeatCount="indefinite" />
+          </circle>
+        </>
+      )}
     </g>
   );
 }
@@ -358,16 +441,16 @@ function MobileThreadNode({
   onClick: () => void;
 }) {
   const toneClass = {
-    human: "border-emerald-500/35 bg-emerald-50/95",
-    work: "border-neutral-300 bg-white",
-    dream: "border-violet-500/35 bg-violet-50/95",
-    review: "border-amber-500/30 bg-amber-50/95",
+    human: "border-l-[3px] border-l-emerald-600",
+    work: "border-l-[3px] border-l-neutral-500",
+    dream: "border-l-[3px] border-l-violet-600",
+    review: "border-l-[3px] border-l-amber-500",
   }[tone];
   const iconClass = {
-    human: "border-emerald-300 bg-emerald-100 text-emerald-800",
-    work: "border-neutral-300 bg-neutral-100 text-neutral-700",
-    dream: "border-violet-300 bg-violet-100 text-violet-800",
-    review: "border-amber-300 bg-amber-100 text-amber-800",
+    human: "border-emerald-300 bg-emerald-50 text-emerald-800",
+    work: "border-neutral-300 bg-white text-neutral-700",
+    dream: "border-violet-300 bg-violet-50 text-violet-800",
+    review: "border-amber-300 bg-amber-50 text-amber-800",
   }[tone];
 
   return (
@@ -387,7 +470,7 @@ function MobileThreadNode({
       <button
         ref={nodeRef}
         type="button"
-        className={`w-full rounded-2xl border p-4 text-left shadow-[0_10px_26px_rgba(28,25,23,0.06)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-500 ${toneClass} ${pending ? "border-dashed" : ""} ${pulse ? styles.frontierPulse : ""}`}
+        className={`w-full rounded-xl border bg-white p-3.5 text-left shadow-[0_2px_9px_rgba(28,25,23,0.055)] transition hover:border-neutral-400 hover:shadow-[0_7px_18px_rgba(28,25,23,0.09)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-500 ${toneClass} ${pending ? "border-dashed" : ""} ${pulse ? styles.frontierPulse : ""}`}
         onClick={onClick}
       >
         <span className="flex items-start justify-between gap-3">
@@ -399,7 +482,7 @@ function MobileThreadNode({
               {title}
             </span>
           </span>
-          <PanelRight className="mt-1 size-3 shrink-0 text-muted-foreground/60" />
+          <ChevronRight className="mt-1 size-3 shrink-0 text-muted-foreground/60" />
         </span>
         <span className="mt-2.5 block text-xs leading-[1.15rem] text-muted-foreground">
           {detail}
@@ -425,6 +508,25 @@ function ThreadMetric({
     <div className="min-w-24 rounded-xl border bg-background/80 px-3 py-2.5">
       <p className="font-mono text-lg font-semibold leading-none">{value}</p>
       <p className="mt-1 text-[10px] text-muted-foreground">{label}</p>
+    </div>
+  );
+}
+
+function ThreadSummaryMetric({
+  value,
+  label,
+}: {
+  value: number;
+  label: string;
+}) {
+  return (
+    <div className={styles.summaryMetric}>
+      <p className="font-mono text-[13px] font-semibold leading-none text-foreground">
+        {value}
+      </p>
+      <p className="mt-1 text-[9px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+        {label}
+      </p>
     </div>
   );
 }
@@ -820,11 +922,11 @@ export function ProjectThread({
     };
   }, []);
 
-  const frontierBaseY = firstVersionY + thread.cycles.length * cycleStep;
-  const frontierContributionY = frontierBaseY + contributionOffset;
-  const frontierCurrentY = frontierBaseY + beforeDreamOffset;
-  const frontierDreamY = frontierBaseY + dreamOffset;
-  const canvasHeight = frontierDreamY + 250;
+  const frontierCycleTop = cycleStartY + thread.cycles.length * cycleStep;
+  const frontierContributionY = frontierCycleTop + contributionOffset;
+  const frontierCurrentY = frontierCycleTop + beforeDreamOffset;
+  const frontierDreamY = frontierCycleTop + dreamOffset;
+  const canvasHeight = frontierCycleTop + 530;
   const currentVersionTitle =
     versionLabel(thread.frontier.baseVersion, "Current project state");
   const frontierInputSummary = thread.frontier.inputs.length
@@ -834,8 +936,8 @@ export function ProjectThread({
     : "No new activity yet";
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-[#f7f7f4]">
-      <div className="border-b bg-background px-4 py-4 sm:px-6">
+    <div className="flex h-full min-h-0 flex-col bg-[#f4f3ef]">
+      <div className="border-b bg-[#fffefa] px-4 py-3.5 sm:px-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -844,18 +946,21 @@ export function ProjectThread({
                 The Thread
               </p>
             </div>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight">
+            <h2 className="mt-1.5 text-xl font-semibold tracking-[-0.025em]">
               See how the work got here.
             </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Time runs down through human work, Dreams, reviews, and the next
-              version.
+            <p className="mt-1 text-xs text-muted-foreground">
+              Every input, version, Dream, and review in one inspectable workflow.
             </p>
           </div>
           <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap">
-            <Badge variant="outline" className="h-8 gap-1.5 bg-background px-3">
+            <Badge
+              variant="outline"
+              aria-label="Opening this view uses 0 model calls"
+              className="h-8 gap-1.5 bg-white px-3 font-mono text-[9px]"
+            >
               <Check className="size-3 text-emerald-700" />
-              Opening this view uses 0 model calls
+              0 model calls
             </Badge>
             {view === "thread" && (
               <Button
@@ -890,12 +995,12 @@ export function ProjectThread({
             </div>
           </div>
         </div>
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-          <ThreadMetric value={thread.totals.dreams} label="Dreams" />
-          <ThreadMetric value={thread.totals.inputs} label="human inputs" />
-          <ThreadMetric value={thread.totals.dreamChanges} label="Dream changes" />
-          <ThreadMetric value={thread.totals.critiques} label="Dream comments" />
-          <ThreadMetric value={thread.totals.reviewActions} label="review actions" />
+        <div className={styles.summaryStrip}>
+          <ThreadSummaryMetric value={thread.totals.dreams} label="Dreams" />
+          <ThreadSummaryMetric value={thread.totals.inputs} label="Human inputs" />
+          <ThreadSummaryMetric value={thread.totals.dreamChanges} label="Dream changes" />
+          <ThreadSummaryMetric value={thread.totals.critiques} label="Dream comments" />
+          <ThreadSummaryMetric value={thread.totals.reviewActions} label="Review actions" />
         </div>
       </div>
 
@@ -913,9 +1018,9 @@ export function ProjectThread({
           </div>
         </div>
       ) : (
-        <div className="flex min-h-0 flex-1 flex-col lg:grid lg:grid-cols-4 lg:grid-rows-[minmax(0,1fr)]">
-          <div className="min-h-0 flex-1 overflow-auto lg:col-span-3">
-            <div className="mx-auto max-w-lg px-4 py-6 md:hidden">
+        <div className="relative flex min-h-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 overflow-auto">
+            <div className={`${styles.mobileTimeline} ${styles.mobileOnly} mx-auto max-w-lg px-4 py-6`}>
               <MobileThreadNode
                 tone="work"
                 icon={FileText}
@@ -1143,144 +1248,239 @@ export function ProjectThread({
             </div>
 
             <div
-              className="relative mx-auto hidden md:block"
+              className={`${styles.canvasViewport} ${styles.canvas} ${styles.desktopOnly} relative mx-auto`}
               data-flow-direction="top-to-bottom"
               role="group"
               aria-label="Project workflow over time"
               style={{ width: canvasWidth, height: canvasHeight }}
             >
-              <div className="absolute inset-x-0 top-0 grid grid-cols-[270px_270px_270px] gap-[55px] px-5 pt-5">
-                <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
-                  <UserRound className="size-3" />
-                  Human
-                </p>
-                <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-600">
-                  <FileText className="size-3" />
-                  Work
-                </p>
-                <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-violet-800">
-                  <Moon className="size-3" />
-                  Dream + review
-                </p>
+              <div
+                className={styles.laneHeader}
+                data-tone="human"
+                style={{ left: humanX }}
+              >
+                <UserRound className="size-3" />
+                Human input
+              </div>
+              <div className={styles.laneHeader} style={{ left: workX }}>
+                <FileText className="size-3" />
+                Document state
+              </div>
+              <div
+                className={styles.laneHeader}
+                data-tone="dream"
+                style={{ left: dreamX }}
+              >
+                <Moon className="size-3" />
+                Dream + review
               </div>
 
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute bottom-6 top-16 rounded-[1.75rem] border border-emerald-200/45 bg-emerald-50/35"
-                style={{ left: humanX - 12, width: humanWidth + 24 }}
-              />
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute bottom-6 top-16 rounded-[1.75rem] border border-neutral-200/70 bg-white/45"
-                style={{ left: workX - 12, width: workWidth + 24 }}
-              />
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute bottom-6 top-16 rounded-[1.75rem] border border-violet-200/45 bg-violet-50/35"
-                style={{ left: dreamX - 12, width: dreamWidth + 24 }}
+              {[humanX, workX, dreamX].map((left) => (
+                <span
+                  key={`guide:${left}`}
+                  aria-hidden="true"
+                  className={styles.laneGuide}
+                  style={{ left: left + nodeWidth / 2 }}
+                />
+              ))}
+
+              {thread.cycles.map((cycle, index) => (
+                <CycleBand
+                  key={`band:${cycle.id}`}
+                  index={index}
+                  top={cycleStartY + index * cycleStep}
+                  date={formatThreadDate(cycle.run.created_at)}
+                />
+              ))}
+              <CycleBand
+                index={thread.cycles.length}
+                top={frontierCycleTop}
+                date={formatThreadDate(thread.frontier.nextDreamAt)}
+                frontier
               />
 
               <svg
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0"
+                className="pointer-events-none absolute inset-0 z-[1]"
                 width={canvasWidth}
                 height={canvasHeight}
               >
                 <defs>
                   <marker
                     id="thread-arrow-green"
-                    markerWidth="7"
-                    markerHeight="7"
-                    refX="6"
-                    refY="3.5"
+                    markerWidth="6"
+                    markerHeight="6"
+                    refX="5.5"
+                    refY="3"
                     orient="auto"
                   >
-                    <path d="M0,0 L7,3.5 L0,7 z" fill="#4f8f69" />
+                    <path d="M0,0 L6,3 L0,6 z" fill="#31956a" />
                   </marker>
                   <marker
                     id="thread-arrow-violet"
-                    markerWidth="7"
-                    markerHeight="7"
-                    refX="6"
-                    refY="3.5"
+                    markerWidth="6"
+                    markerHeight="6"
+                    refX="5.5"
+                    refY="3"
                     orient="auto"
                   >
-                    <path d="M0,0 L7,3.5 L0,7 z" fill="#8b5cf6" />
+                    <path d="M0,0 L6,3 L0,6 z" fill="#7957e8" />
                   </marker>
                   <marker
                     id="thread-arrow-neutral"
-                    markerWidth="7"
-                    markerHeight="7"
-                    refX="6"
-                    refY="3.5"
+                    markerWidth="6"
+                    markerHeight="6"
+                    refX="5.5"
+                    refY="3"
                     orient="auto"
                   >
-                    <path d="M0,0 L7,3.5 L0,7 z" fill="#a8a29e" />
+                    <path d="M0,0 L6,3 L0,6 z" fill="#8d8a83" />
                   </marker>
                 </defs>
 
                 {thread.cycles.map((cycle, index) => {
-                  const baseY = firstVersionY + index * cycleStep;
-                  const contributionY = baseY + contributionOffset;
-                  const beforeY = baseY + beforeDreamOffset;
-                  const dreamY = baseY + dreamOffset;
-                  const outputY = baseY + cycleStep;
-                  const nextContributionY = outputY + contributionOffset;
+                  const cycleTop = cycleStartY + index * cycleStep;
+                  const contributionY = cycleTop + contributionOffset;
+                  const beforeY = cycleTop + beforeDreamOffset;
+                  const dreamY = cycleTop + dreamOffset;
+                  const outputY = cycleTop + outputOffset;
+                  const sourceY =
+                    index === 0
+                      ? firstVersionY + standardNodeHeight
+                      : cycleStartY +
+                        (index - 1) * cycleStep +
+                        outputOffset +
+                        standardNodeHeight;
+                  const previousReviewY =
+                    cycleStartY +
+                    (index - 1) * cycleStep +
+                    outputOffset +
+                    standardNodeHeight;
                   const workCenter = workX + workWidth / 2;
                   const humanCenter = humanX + humanWidth / 2;
                   const dreamCenter = dreamX + dreamWidth / 2;
+
                   return (
                     <g key={`edges:${cycle.id}`}>
                       <ThreadFlowPath
-                        d={`M ${workCenter} ${baseY + 136} C ${workCenter} ${baseY + 150}, ${humanCenter} ${contributionY - 34}, ${humanCenter} ${contributionY - 9}`}
+                        d={orthogonalPath(
+                          workCenter,
+                          sourceY,
+                          humanCenter,
+                          contributionY,
+                        )}
+                        tone="human"
+                      />
+                      {index > 0 && (
+                        <ThreadFlowPath
+                          d={orthogonalPath(
+                            dreamCenter,
+                            previousReviewY,
+                            humanCenter,
+                            contributionY,
+                          )}
+                          tone="work"
+                        />
+                      )}
+                      <ThreadFlowPath
+                        d={orthogonalPath(
+                          humanCenter,
+                          contributionY + contributionHeight,
+                          workCenter,
+                          beforeY,
+                        )}
                         tone="human"
                       />
                       <ThreadFlowPath
-                        d={`M ${humanCenter} ${contributionY + 150} C ${humanCenter} ${contributionY + 166}, ${workCenter} ${beforeY - 34}, ${workCenter} ${beforeY - 9}`}
-                        tone="human"
-                        delayed
-                      />
-                      <ThreadFlowPath
-                        d={`M ${workCenter} ${beforeY + 144} C ${workCenter} ${beforeY + 160}, ${dreamCenter} ${dreamY - 34}, ${dreamCenter} ${dreamY - 9}`}
+                        d={orthogonalPath(
+                          workCenter,
+                          beforeY + standardNodeHeight,
+                          dreamCenter,
+                          dreamY,
+                        )}
                         tone="dream"
                       />
                       <ThreadFlowPath
-                        d={`M ${dreamCenter} ${dreamY + 190} C ${dreamCenter} ${dreamY + 206}, ${workCenter} ${outputY - 34}, ${workCenter} ${outputY - 9}`}
+                        d={orthogonalPath(
+                          dreamCenter,
+                          dreamY + dreamNodeHeight,
+                          workCenter,
+                          outputY,
+                        )}
                         tone="dream"
-                        delayed
                       />
                       <ThreadFlowPath
-                        d={`M ${dreamCenter} ${dreamY + 190} L ${dreamCenter} ${outputY - 9}`}
+                        d={orthogonalPath(
+                          dreamCenter,
+                          dreamY + dreamNodeHeight,
+                          dreamCenter,
+                          outputY,
+                        )}
                         tone="work"
-                      />
-                      <ThreadFlowPath
-                        d={`M ${workCenter} ${outputY + 136} C ${workCenter} ${outputY + 150}, ${humanCenter} ${nextContributionY - 32}, ${humanCenter} ${nextContributionY - 9}`}
-                        tone="human"
-                      />
-                      <ThreadFlowPath
-                        d={`M ${dreamCenter} ${outputY + 146} C ${dreamCenter} ${outputY + 158}, ${humanCenter + 72} ${nextContributionY - 26}, ${humanCenter + 22} ${nextContributionY - 8}`}
-                        tone="human"
-                        pending
-                        delayed
                       />
                     </g>
                   );
                 })}
 
-                <ThreadFlowPath
-                  d={`M ${workX + workWidth / 2} ${frontierBaseY + 136} C ${workX + workWidth / 2} ${frontierBaseY + 150}, ${humanX + humanWidth / 2} ${frontierContributionY - 34}, ${humanX + humanWidth / 2} ${frontierContributionY - 9}`}
-                  tone="human"
-                />
-                <ThreadFlowPath
-                  d={`M ${humanX + humanWidth / 2} ${frontierContributionY + 150} C ${humanX + humanWidth / 2} ${frontierContributionY + 166}, ${workX + workWidth / 2} ${frontierCurrentY - 34}, ${workX + workWidth / 2} ${frontierCurrentY - 9}`}
-                  tone="human"
-                  delayed
-                />
-                <ThreadFlowPath
-                  d={`M ${workX + workWidth / 2} ${frontierCurrentY + 144} C ${workX + workWidth / 2} ${frontierCurrentY + 160}, ${dreamX + dreamWidth / 2} ${frontierDreamY - 34}, ${dreamX + dreamWidth / 2} ${frontierDreamY - 9}`}
-                  tone="dream"
-                  pending={!thread.frontier.activeRun}
-                />
+                {(() => {
+                  const workCenter = workX + workWidth / 2;
+                  const humanCenter = humanX + humanWidth / 2;
+                  const dreamCenter = dreamX + dreamWidth / 2;
+                  const sourceY = thread.cycles.length
+                    ? cycleStartY +
+                      (thread.cycles.length - 1) * cycleStep +
+                      outputOffset +
+                      standardNodeHeight
+                    : firstVersionY + standardNodeHeight;
+
+                  return (
+                    <g>
+                      <ThreadFlowPath
+                        d={orthogonalPath(
+                          workCenter,
+                          sourceY,
+                          humanCenter,
+                          frontierContributionY,
+                        )}
+                        tone="human"
+                        live
+                      />
+                      {thread.cycles.length > 0 && (
+                        <ThreadFlowPath
+                          d={orthogonalPath(
+                            dreamCenter,
+                            sourceY,
+                            humanCenter,
+                            frontierContributionY,
+                          )}
+                          tone="work"
+                          live
+                        />
+                      )}
+                      <ThreadFlowPath
+                        d={orthogonalPath(
+                          humanCenter,
+                          frontierContributionY + contributionHeight,
+                          workCenter,
+                          frontierCurrentY,
+                        )}
+                        tone="human"
+                        live
+                      />
+                      <ThreadFlowPath
+                        d={orthogonalPath(
+                          workCenter,
+                          frontierCurrentY + standardNodeHeight,
+                          dreamCenter,
+                          frontierDreamY,
+                        )}
+                        tone="dream"
+                        pending={!thread.frontier.activeRun}
+                        live
+                      />
+                    </g>
+                  );
+                })()}
               </svg>
 
               <ThreadNode
@@ -1294,14 +1494,14 @@ export function ProjectThread({
                 }
                 detail={
                   thread.cycles.length
-                    ? "The recorded state before this visible part of the Thread."
+                    ? "Recorded state before the first visible cycle."
                     : "The project’s current working document."
                 }
                 meta={formatThreadDate(project.created_at)}
                 x={workX}
                 y={firstVersionY}
                 width={workWidth}
-                height={136}
+                height={standardNodeHeight}
                 onClick={() =>
                   setSelection({
                     type: "version",
@@ -1316,11 +1516,11 @@ export function ProjectThread({
               />
 
               {thread.cycles.map((cycle, index) => {
-                const baseY = firstVersionY + index * cycleStep;
-                const contributionY = baseY + contributionOffset;
-                const beforeY = baseY + beforeDreamOffset;
-                const dreamY = baseY + dreamOffset;
-                const outputY = baseY + cycleStep;
+                const cycleTop = cycleStartY + index * cycleStep;
+                const contributionY = cycleTop + contributionOffset;
+                const beforeY = cycleTop + beforeDreamOffset;
+                const dreamY = cycleTop + dreamOffset;
+                const outputY = cycleTop + outputOffset;
                 const inputSummary = cycle.inputs.length
                   ? inputBreakdown(cycle.inputs)
                       .map(([kind, count]) => `${count} ${kind}`)
@@ -1332,17 +1532,9 @@ export function ProjectThread({
                     : cycle.afterVersion
                       ? `${changeLabel(cycle.dreamChanges)} · +${cycle.dreamChanges.addedLines} −${cycle.dreamChanges.removedLines} lines`
                       : `${cycle.critiques.length} comments · no rewrite`;
+
                 return (
                   <div key={cycle.id}>
-                    <div
-                      className="absolute flex items-center gap-2 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground"
-                      style={{ left: humanX, top: contributionY - 31 }}
-                    >
-                      <span className="inline-flex size-5 items-center justify-center rounded-full border border-emerald-300 bg-emerald-50 text-[9px] text-emerald-800">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-                      Dream cycle · {formatThreadDate(cycle.run.created_at)}
-                    </div>
                     <ThreadNode
                       tone="human"
                       icon={UserRound}
@@ -1353,7 +1545,7 @@ export function ProjectThread({
                       x={humanX}
                       y={contributionY}
                       width={humanWidth}
-                      height={150}
+                      height={contributionHeight}
                       onClick={() =>
                         setSelection({
                           type: "inputs",
@@ -1375,7 +1567,7 @@ export function ProjectThread({
                       x={workX}
                       y={beforeY}
                       width={workWidth}
-                      height={144}
+                      height={standardNodeHeight}
                       onClick={() =>
                         setSelection({
                           type: "version",
@@ -1408,8 +1600,48 @@ export function ProjectThread({
                       x={dreamX}
                       y={dreamY}
                       width={dreamWidth}
-                      height={190}
+                      height={dreamNodeHeight}
+                      status={
+                        cycle.run.status === "failed" ? "attention" : "complete"
+                      }
                       onClick={() => setSelection({ type: "dream", cycle })}
+                    />
+                    <ThreadNode
+                      tone="work"
+                      icon={cycle.afterVersion ? FileText : Check}
+                      eyebrow={cycle.afterVersion ? "Next version" : "Work"}
+                      title={
+                        cycle.afterVersion
+                          ? versionLabel(cycle.afterVersion, "After Dream")
+                          : "Document unchanged"
+                      }
+                      detail={
+                        cycle.afterVersion
+                          ? "Restorable output linked to this Dream."
+                          : "Criticism was added without a forced rewrite."
+                      }
+                      meta={formatThreadDate(
+                        cycle.afterVersion?.created_at ??
+                          cycle.run.completed_at ??
+                          cycle.run.created_at,
+                      )}
+                      x={workX}
+                      y={outputY}
+                      width={workWidth}
+                      height={standardNodeHeight}
+                      onClick={() =>
+                        setSelection({
+                          type: "version",
+                          title: cycle.afterVersion
+                            ? versionLabel(cycle.afterVersion, "After Dream")
+                            : "Document unchanged",
+                          version: cycle.afterVersion ?? cycle.beforeVersion,
+                          note: cycle.afterVersion
+                            ? "The restorable document version produced by this Dream."
+                            : "This Dream added commentary but did not replace the document.",
+                          changes: cycle.dreamChanges,
+                        })
+                      }
                     />
                     <ThreadNode
                       tone="review"
@@ -1425,59 +1657,14 @@ export function ProjectThread({
                       x={dreamX}
                       y={outputY}
                       width={dreamWidth}
-                      height={146}
+                      height={standardNodeHeight}
+                      status={cycle.reviewActions ? "complete" : "pending"}
                       onClick={() => setSelection({ type: "review", cycle })}
-                    />
-                    <ThreadNode
-                      tone="work"
-                      icon={cycle.afterVersion ? FileText : Check}
-                      eyebrow={cycle.afterVersion ? "Next version" : "Work"}
-                      title={
-                        cycle.afterVersion
-                          ? versionLabel(cycle.afterVersion, "After Dream")
-                          : "Document unchanged"
-                      }
-                      detail={
-                        cycle.afterVersion
-                          ? "A linked, restorable result of the Dream."
-                          : "The Dream left criticism without forcing a rewrite."
-                      }
-                      meta={formatThreadDate(
-                        cycle.afterVersion?.created_at ??
-                          cycle.run.completed_at ??
-                          cycle.run.created_at,
-                      )}
-                      x={workX}
-                      y={outputY}
-                      width={workWidth}
-                      height={136}
-                      onClick={() =>
-                        setSelection({
-                          type: "version",
-                          title: cycle.afterVersion
-                            ? versionLabel(cycle.afterVersion, "After Dream")
-                            : "Document unchanged",
-                          version: cycle.afterVersion ?? cycle.beforeVersion,
-                          note: cycle.afterVersion
-                            ? "The restorable document version produced by this Dream."
-                            : "This Dream added commentary but did not replace the document.",
-                          changes: cycle.dreamChanges,
-                        })
-                      }
                     />
                   </div>
                 );
               })}
 
-              <div
-                className="absolute flex items-center gap-2 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-violet-800"
-                style={{ left: humanX, top: frontierContributionY - 31 }}
-              >
-                <span className="inline-flex h-5 items-center rounded-full border border-violet-300 bg-violet-50 px-2 text-[9px]">
-                  Now
-                </span>
-                Current activity
-              </div>
               <ThreadNode
                 tone="human"
                 icon={UserRound}
@@ -1488,7 +1675,8 @@ export function ProjectThread({
                 x={humanX}
                 y={frontierContributionY}
                 width={humanWidth}
-                height={150}
+                height={contributionHeight}
+                status="active"
                 onClick={() =>
                   setSelection({
                     type: "inputs",
@@ -1508,7 +1696,8 @@ export function ProjectThread({
                 x={workX}
                 y={frontierCurrentY}
                 width={workWidth}
-                height={144}
+                height={standardNodeHeight}
+                status="active"
                 onClick={() =>
                   setSelection({
                     type: "version",
@@ -1545,7 +1734,8 @@ export function ProjectThread({
                 x={dreamX}
                 y={frontierDreamY}
                 width={dreamWidth}
-                height={190}
+                height={dreamNodeHeight}
+                status={thread.frontier.activeRun ? "active" : "pending"}
                 pending={!thread.frontier.activeRun}
                 pulse
                 nodeRef={desktopFrontierNode}
@@ -1555,18 +1745,33 @@ export function ProjectThread({
               />
 
               <div
-                className="absolute flex items-center gap-2 text-[10px] text-muted-foreground"
-                style={{ left: workX + 78, top: canvasHeight - 48 }}
+                className="absolute flex items-center gap-2 font-mono text-[9px] text-muted-foreground"
+                style={{ left: workX + 48, top: canvasHeight - 34 }}
               >
                 <ArrowDown className="size-3" />
-                The Thread continues when new work arrives
+                Waiting for the next contribution
               </div>
             </div>
           </div>
 
           <aside
-            className={`${selection ? "block" : "hidden"} max-h-[42vh] min-h-0 overflow-y-auto border-t bg-background p-5 lg:block lg:max-h-none lg:border-l lg:border-t-0`}
+            aria-label="Node inspector"
+            className={`${selection ? "block" : "hidden"} ${styles.inspector} max-h-[48vh] min-h-0 overflow-y-auto border-t p-5 lg:absolute lg:inset-y-0 lg:right-0 lg:z-30 lg:max-h-none lg:w-[340px] lg:border-l lg:border-t-0`}
           >
+            <div className="mb-5 flex items-center justify-between border-b pb-3">
+              <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                Node inspector
+              </p>
+              <Button
+                type="button"
+                size="icon-sm"
+                variant="ghost"
+                aria-label="Close node inspector"
+                onClick={() => setSelection(null)}
+              >
+                <X className="size-3.5" />
+              </Button>
+            </div>
             <ThreadInspector
               selection={selection}
               now={now}

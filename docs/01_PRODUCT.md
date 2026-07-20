@@ -69,9 +69,10 @@ reflection, and revision:
 - History must show what changed, when, by whom, and why.
 - The Thread is a deterministic view of stored project history. Opening,
   filtering, or inspecting it must not spend another model call.
-- The Thread reads from top to bottom. Human, Work, and Dream + Review
-  swimlanes preserve authorship without turning chronology into a horizontal
-  maze.
+- The Thread reads from top to bottom. Compact port-to-port nodes, orthogonal
+  dependencies, and bounded Dream-cycle groups make the workflow legible at a
+  glance. Human input is green, Dream work is purple, and document state stays
+  neutral.
 - Material deleted or rewritten after a Dream stays out of the canonical
   document but remains visible as a redline beneath it. A later Dream must
   treat that removal as human direction instead of casually restoring it.

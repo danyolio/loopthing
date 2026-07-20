@@ -80,8 +80,10 @@ production on 20 July 2026.
   criticism, review outcomes, branches, and a live next-Dream frontier.
 - [x] Derive The Thread's topology, counts, and exact text changes from stored
   project data without spending another model call.
-- [x] Make The Thread read top to bottom, with larger workflow cards, Human /
-  Work / Dream + Review swimlanes, and a reduced-motion-safe directional pulse.
+- [x] Make The Thread read top to bottom as a professional workflow canvas:
+  compact status nodes, visible ports, orthogonal dependencies, bounded Dream
+  cycles, Human / Document / Dream authorship, and a reduced-motion-safe live
+  frontier.
 
 ## Authentication, data, and permissions
 
@@ -224,6 +226,11 @@ production on 20 July 2026.
   owner mutations for a ledger node, graph edge, Dream review, and decision
   memory passed inside a rolled-back transaction; an unaffiliated identity saw
   zero projects; and no verification rows persisted.
+- Thread workflow canvas: the deterministic graph passed component tests and
+  visual verification at 1280px and 390px. Desktop uses compact status nodes,
+  explicit ports, orthogonal dependencies, cycle boundaries, and a live
+  frontier; mobile collapses the same chronology into an accessible vertical
+  execution log.
 - Reasoning backfill: the live ledger contains existing evidence, questions,
   and decisions. New typed entries count as activity for the next Dream.
 - Supabase advisor after the reasoning migration: no critical findings and no

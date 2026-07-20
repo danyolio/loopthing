@@ -117,12 +117,12 @@ describe("Project Thread view", () => {
     );
 
     expect(screen.getByText("See how the work got here.")).toBeInTheDocument();
-    expect(
-      screen.getByText("Opening this view uses 0 model calls"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("0 model calls")).toBeInTheDocument();
     expect(
       screen.getByRole("group", { name: "Project workflow over time" }),
     ).toHaveAttribute("data-flow-direction", "top-to-bottom");
+    expect(screen.getAllByText("Document state").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Current cycle").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Before Dream").length).toBeGreaterThan(0);
     expect(screen.getAllByText("After Dream").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Tonight’s Dream").length).toBeGreaterThan(0);
@@ -136,5 +136,12 @@ describe("Project Thread view", () => {
     expect(
       screen.getByText("Computed from the linked Before and After versions. No model call."),
     ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Close node inspector" }),
+    );
+    expect(
+      screen.queryByText("Deterministic diff"),
+    ).not.toBeInTheDocument();
   });
 });

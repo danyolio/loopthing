@@ -36,8 +36,10 @@
 15. The Thread shows document versions as the workflow spine, with human
     contributions, the exact pre-Dream state, Dream output, review outcomes,
     and the next scheduled Dream connected in a top-to-bottom chronology.
-    Horizontal swimlanes identify Human, Work, and Dream + Review activity,
-    while a reduced-motion-safe pulse makes the downward flow legible.
+    Compact status nodes and bounded cycle groups identify Human Input,
+    Document State, and Dream + Review activity. Explicit ports and orthogonal
+    dependencies make the topology legible, while a reduced-motion-safe pulse
+    marks only the live frontier.
 16. Selecting a Thread node reveals the stored records and exact deterministic
     counts behind it without making a model call.
 17. A reasoning ledger separates facts, evidence, claims, assumptions,
@@ -103,9 +105,10 @@
   criticism, review dispositions, branches, and the scheduled frontier.
   Opening and inspecting it makes zero new model calls. Document change totals
   are computed from linked text versions rather than generated descriptions.
-  Time runs downward through readable Human, Work, and Dream + Review
-  swimlanes; connector animation is purely presentational and respects reduced
-  motion.
+  Time runs downward through compact Human Input, Document State, and Dream +
+  Review nodes grouped by cycle. Dependencies use explicit ports and
+  orthogonal connectors; only the live frontier animates, and that animation
+  is purely presentational and respects reduced motion.
 - Reasoning ledger: typed reasoning objects and their directed relationships
   are durable project context, protected by project RLS, and supplied to both
   manual and scheduled Loops.
