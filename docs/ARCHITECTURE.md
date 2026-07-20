@@ -61,10 +61,17 @@
   post-Dream versions. A disposition is stored in `dream_change_reviews`.
   Reverts create a new canonical checkpoint, feedback becomes green project
   input for the next Dream, and branches preserve the full Dream version.
+- The Thread is a client-side deterministic projection over versions, Loop
+  runs, insights, sources, questions, decisions, comments, branches, and review
+  records already loaded under project RLS. Its topology and counts require no
+  generation. Exact human and Dream change totals come from stored Before and
+  After text diffs; stored `change_details.sourceIds` mark inputs cited by the
+  Dream. The dotted frontier is the scheduled next Dream, not generated output.
 - `reasoning_nodes` and `reasoning_edges` are the durable human-approved
   reasoning ledger. Sources, questions, and decisions synchronise into it.
   Each Loop also stores an immutable `reasoning_model` snapshot with its
-  insight. The interface renders both through one directed-graph model.
+  insight. The secondary Argument view renders both through one directed-graph
+  model.
 - Decisions retain rejected alternatives, assumptions, reconsideration
   conditions, and review dates. Each Loop can store a `decision_alerts`
   snapshot when supplied evidence undermines one of those conditions.

@@ -18,6 +18,7 @@ import {
   CircleDot,
   Cloud,
   CloudOff,
+  FileText,
   GitBranch,
   History,
   Lightbulb,
@@ -44,6 +45,7 @@ import { HumanCommentsPanel } from "@/components/human-comments-panel";
 import { InlineCommentComposer } from "@/components/inline-comment-composer";
 import { InviteDialog } from "@/components/invite-dialog";
 import { MorningReview } from "@/components/morning-review";
+import { ProjectThread } from "@/components/project-thread";
 import { ReasoningWorkspace } from "@/components/reasoning-workspace";
 import { VersionHistory } from "@/components/version-history";
 import {
@@ -201,6 +203,10 @@ function normalizeVersion(version: Record<string, unknown>): ThinkingItem {
 }
 
 export function Workspace({ initialData }: { initialData: WorkspaceData }) {
+  const [workspaceView, setWorkspaceView] = useState<"document" | "thread">(
+    "document",
+  );
+  const workspaceViewRef = useRef(workspaceView);
   const [ydoc] = useState(() => new Y.Doc());
   const [provider, setProvider] = useState<HocuspocusProvider | null>(null);
   const [syncState, setSyncState] = useState<"offline" | "connecting" | "synced">(
@@ -221,6 +227,9 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
   );
   const [currentCheckpointId, setCurrentCheckpointId] = useState(
     initialData.document.current_checkpoint_id,
+  );
+  const [currentDocumentText, setCurrentDocumentText] = useState(
+    initialData.document.content_text,
   );
   const [hiddenDreamVersionId, setHiddenDreamVersionId] = useState<
     string | null
@@ -286,6 +295,10 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
     () => parseHumanComments(items.comments),
     [items.comments],
   );
+
+  useEffect(() => {
+    workspaceViewRef.current = workspaceView;
+  }, [workspaceView]);
 
   const openCritique = useCallback((commentKey?: string) => {
     setSelectedCritiqueKey(commentKey ?? null);
@@ -397,6 +410,9 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
       ],
       onUpdate: ({ editor: activeEditor }) => {
         const plainText = activeEditor.getText({ blockSeparator: "\n\n" });
+        if (workspaceViewRef.current === "thread") {
+          setCurrentDocumentText(plainText);
+        }
         const text = ydoc.getText("plainText");
         ydoc.transact(() => {
           text.delete(0, text.length);
@@ -481,6 +497,9 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
       replaceCanonicalDocument(editor, initialData.document.content_text);
     }
     seeded.current = true;
+    setCurrentDocumentText(
+      editor.getText({ blockSeparator: "\n\n" }),
+    );
     setWorkspaceReady(true);
   }, [
     editor,
@@ -852,6 +871,27 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
     }
   }
 
+  function openThreadContext(target: RailTab, id?: string) {
+    setWorkspaceView("document");
+    setTab(target);
+    if (target === "comments" && id) setSelectedHumanCommentId(id);
+    if (target === "critique" && id) setSelectedCritiqueKey(id);
+    if (window.matchMedia("(min-width: 1024px)").matches) {
+      setRailOpen(true);
+    } else {
+      setMobileRail(true);
+    }
+  }
+
+  function openThreadView() {
+    if (editor) {
+      setCurrentDocumentText(
+        editor.getText({ blockSeparator: "\n\n" }),
+      );
+    }
+    setWorkspaceView("thread");
+  }
+
   async function revertDreamChange(change: DreamBlockChange) {
     if (!editor || !editable) return;
     const currentBlocks = textBlocks(
@@ -995,6 +1035,28 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
                 {syncState === "synced" ? "everyone is in sync" : syncState}
               </p>
             </div>
+            <div className="ml-1 flex rounded-lg border bg-muted/35 p-1 sm:ml-2">
+              <Button
+                variant={workspaceView === "document" ? "secondary" : "ghost"}
+                size="sm"
+                className="h-7 px-2.5 text-xs"
+                onClick={() => setWorkspaceView("document")}
+                aria-label="Open document view"
+              >
+                <FileText />
+                <span className="hidden sm:inline">Document</span>
+              </Button>
+              <Button
+                variant={workspaceView === "thread" ? "secondary" : "ghost"}
+                size="sm"
+                className="h-7 px-2.5 text-xs"
+                onClick={openThreadView}
+                aria-label="Open Thread view"
+              >
+                <Network />
+                <span className="hidden sm:inline">Thread</span>
+              </Button>
+            </div>
           </div>
           <div className="flex items-center gap-1.5">
             {initialData.role === "owner" && (
@@ -1034,7 +1096,7 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
             <Button
               variant="outline"
               size="icon-sm"
-              className="lg:hidden"
+              className={workspaceView === "document" ? "lg:hidden" : "hidden"}
               onClick={() => setMobileRail(true)}
               aria-label="Open project context"
             >
@@ -1043,7 +1105,9 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
             <Button
               variant="ghost"
               size="icon-sm"
-              className="hidden lg:inline-flex"
+              className={
+                workspaceView === "document" ? "hidden lg:inline-flex" : "hidden"
+              }
               onClick={() => setRailOpen((current) => !current)}
               aria-label="Toggle project context"
             >
@@ -1053,7 +1117,17 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
         </div>
 
         <div className="flex min-h-11 items-center justify-between gap-4 border-b bg-background px-3 sm:px-5">
-          <EditorToolbar editor={editor} disabled={!editable} />
+          {workspaceView === "document" ? (
+            <EditorToolbar editor={editor} disabled={!editable} />
+          ) : (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Network className="size-3.5 text-violet-700" />
+              Deterministic project history
+              <Badge variant="outline" className="hidden sm:inline-flex">
+                0 model calls
+              </Badge>
+            </div>
+          )}
           <div className="flex shrink-0 items-center gap-1.5 text-[11px] text-muted-foreground">
             {syncState === "synced" ? (
               <Cloud className="size-3.5 text-[var(--signal-strong)]" />
@@ -1070,75 +1144,98 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
           </div>
         </div>
 
-        <ScrollArea className="min-h-0 flex-1 bg-background">
-          <div className="mx-auto max-w-3xl px-6 py-12 sm:px-10 sm:py-16 lg:px-14">
-            {!localReady || !remoteReady || !editor ? (
-              <div className="space-y-5">
-                <Skeleton className="h-14 w-4/5" />
-                <Skeleton className="h-5 w-full" />
-                <Skeleton className="h-5 w-11/12" />
-                <Skeleton className="mt-12 h-8 w-2/5" />
-              </div>
-            ) : (
-              <>
-                <CritiqueNotice
-                  comments={critiqueComments}
-                  onOpen={() => openCritique()}
-                />
-                <DreamChangeNotice
-                  changedSections={dreamChangedSections}
-                  highlightsVisible={highlightsVisible}
-                  onToggleHighlights={() =>
-                    setHiddenDreamVersionId(
-                      highlightsVisible ? latestDream?.after.id ?? null : null,
-                    )
-                  }
-                  onOpenReview={() => setMorningReviewOpen(true)}
-                  onOpenVersions={openVersions}
-                />
-                {latestDream && (
-                  <MorningReview
-                    open={morningReviewOpen}
-                    onOpenChange={setMorningReviewOpen}
-                    projectId={initialData.project.id}
-                    userId={initialData.user.id}
-                    dreamVersion={latestDream.after}
-                    beforeText={latestDreamBefore}
-                    afterText={latestDreamAfter}
-                    insight={insights.find(
-                      (insight) =>
-                        insight.id === getText(latestDream.after, "insight_id") ||
-                        insight.loop_run_id ===
-                          getText(latestDream.after, "loop_run_id"),
-                    )}
-                    initialReviews={dreamChangeReviews}
-                    editable={editable}
-                    onRevert={revertDreamChange}
-                    onComment={addMorningReviewComment}
-                    onBranch={branchDreamChange}
-                    onReviewSaved={onDreamReviewSaved}
-                  />
-                )}
-                <div className="relative">
-                  <InlineCommentComposer
-                    editor={editor}
-                    onSubmit={addInlineComment}
-                  />
-                  <EditorContent editor={editor} />
+        {workspaceView === "document" ? (
+          <ScrollArea className="min-h-0 flex-1 bg-background">
+            <div className="mx-auto max-w-3xl px-6 py-12 sm:px-10 sm:py-16 lg:px-14">
+              {!localReady || !remoteReady || !editor ? (
+                <div className="space-y-5">
+                  <Skeleton className="h-14 w-4/5" />
+                  <Skeleton className="h-5 w-full" />
+                  <Skeleton className="h-5 w-11/12" />
+                  <Skeleton className="mt-12 h-8 w-2/5" />
                 </div>
-                {workspaceReady && latestDreamAfter && (
-                  <DeletedMaterialTray
-                    editor={editor}
-                    dreamAfter={latestDreamAfter}
+              ) : (
+                <>
+                  <CritiqueNotice
+                    comments={critiqueComments}
+                    onOpen={() => openCritique()}
                   />
-                )}
-              </>
-            )}
+                  <DreamChangeNotice
+                    changedSections={dreamChangedSections}
+                    highlightsVisible={highlightsVisible}
+                    onToggleHighlights={() =>
+                      setHiddenDreamVersionId(
+                        highlightsVisible ? latestDream?.after.id ?? null : null,
+                      )
+                    }
+                    onOpenReview={() => setMorningReviewOpen(true)}
+                    onOpenVersions={openVersions}
+                  />
+                  {latestDream && (
+                    <MorningReview
+                      open={morningReviewOpen}
+                      onOpenChange={setMorningReviewOpen}
+                      projectId={initialData.project.id}
+                      userId={initialData.user.id}
+                      dreamVersion={latestDream.after}
+                      beforeText={latestDreamBefore}
+                      afterText={latestDreamAfter}
+                      insight={insights.find(
+                        (insight) =>
+                          insight.id === getText(latestDream.after, "insight_id") ||
+                          insight.loop_run_id ===
+                            getText(latestDream.after, "loop_run_id"),
+                      )}
+                      initialReviews={dreamChangeReviews}
+                      editable={editable}
+                      onRevert={revertDreamChange}
+                      onComment={addMorningReviewComment}
+                      onBranch={branchDreamChange}
+                      onReviewSaved={onDreamReviewSaved}
+                    />
+                  )}
+                  <div className="relative">
+                    <InlineCommentComposer
+                      editor={editor}
+                      onSubmit={addInlineComment}
+                    />
+                    <EditorContent editor={editor} />
+                  </div>
+                  {workspaceReady && latestDreamAfter && (
+                    <DeletedMaterialTray
+                      editor={editor}
+                      dreamAfter={latestDreamAfter}
+                    />
+                  )}
+                </>
+              )}
+            </div>
+          </ScrollArea>
+        ) : (
+          <div className="min-h-0 flex-1">
+            <ProjectThread
+              project={initialData.project}
+              currentCheckpointId={currentCheckpointId}
+              currentDocumentText={currentDocumentText}
+              versions={items.history}
+              runs={runs}
+              insights={insights}
+              sources={items.sources}
+              questions={items.questions}
+              decisions={items.decisions}
+              comments={items.comments}
+              branches={items.branches}
+              dreamChangeReviews={dreamChangeReviews}
+              critiqueReviews={critiqueReviews}
+              reasoningNodes={initialData.reasoningNodes}
+              reasoningEdges={initialData.reasoningEdges}
+              onOpenContext={openThreadContext}
+            />
           </div>
-        </ScrollArea>
+        )}
       </section>
 
-      {railOpen && (
+      {workspaceView === "document" && railOpen && (
         <aside className="hidden w-[390px] shrink-0 border-l bg-background lg:block">
           {rail}
         </aside>

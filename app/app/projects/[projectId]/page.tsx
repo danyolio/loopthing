@@ -92,7 +92,7 @@ export default async function ProjectPage({
       )
       .eq("project_id", projectId)
       .order("created_at", { ascending: false })
-      .limit(30),
+      .limit(60),
     supabase
       .from("loop_runs")
       .select("*")

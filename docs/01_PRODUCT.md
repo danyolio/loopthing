@@ -46,7 +46,9 @@ reflection, and revision:
    material for the next Dream.
 7. When a Dream proposes a revision, review each overnight change: keep it,
    revert it, respond with feedback, or preserve the Dream as a branch.
-8. Revisit the reasoning ledger to see facts, claims, assumptions,
+8. Open The Thread to see how versions, human contributions, Dreams, reviews,
+   and the next scheduled Dream connect over time.
+9. Revisit the reasoning ledger to see facts, claims, assumptions,
    hypotheses, questions, risks, and decisions as distinct objects.
 
 ## Product principles
@@ -65,14 +67,16 @@ reflection, and revision:
 - Human edits remain canonical until a person explicitly accepts a proposal.
 - Significant alternatives become branches rather than silent rewrites.
 - History must show what changed, when, by whom, and why.
+- The Thread is a deterministic view of stored project history. Opening,
+  filtering, or inspecting it must not spend another model call.
 - Material deleted or rewritten after a Dream stays out of the canonical
   document but remains visible as a redline beneath it. A later Dream must
   treat that removal as human direction instead of casually restoring it.
 - Decisions must retain their rationale, rejected alternatives, assumptions,
   and the evidence that should cause the team to reconsider.
-- The reasoning map must show how evidence supports or challenges claims and
-  how those claims lead to decisions. Human contributions are green; Dream
-  development is purple.
+- The Thread is the primary workflow graph. A secondary Argument view shows how
+  evidence supports or challenges claims and how those claims lead to
+  decisions. Human contributions are green; Dream development is purple.
 - The AI is a persistent collaborator, not an answer box.
 
 ## Initial scope

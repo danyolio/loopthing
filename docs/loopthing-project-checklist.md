@@ -75,6 +75,11 @@ production on 20 July 2026.
 - [x] Let every project member highlight exact document text, attach a durable
   human comment, move between its green marker and Comments rail, and resolve
   it without deleting its value to the next Dream.
+- [x] Add The Thread as a top-level workflow view with document-version
+  lineage, human input bundles, pre-Dream snapshots, Dream changes and
+  criticism, review outcomes, branches, and a live next-Dream frontier.
+- [x] Derive The Thread's topology, counts, and exact text changes from stored
+  project data without spending another model call.
 
 ## Authentication, data, and permissions
 
@@ -112,8 +117,9 @@ production on 20 July 2026.
   beneath the canonical document and treat their removal as human direction.
 - [x] Add a persistent Morning Review for keeping, reverting, commenting on, or
   branching each Dream change.
-- [x] Add a durable typed reasoning ledger and an Argo-style DAG using green
-  for human contributions and purple for Dream development.
+- [x] Add a durable typed reasoning ledger and preserve its directed graph as a
+  secondary Argument view using green for human contributions and purple for
+  Dream development.
 - [x] Add decision memory for rationale, rejected alternatives, assumptions,
   review dates, reconsideration conditions, evidence alerts, and the smallest
   useful test.

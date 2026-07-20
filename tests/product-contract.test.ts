@@ -261,6 +261,22 @@ describe("product invariants", () => {
     expect(reasoning).toContain("<ReasoningGraph");
   });
 
+  it("makes the deterministic Thread the primary workflow graph", () => {
+    const workspace = readFileSync("components/workspace.tsx", "utf8");
+    const threadView = readFileSync("components/project-thread.tsx", "utf8");
+    const threadModel = readFileSync("lib/project-thread.ts", "utf8");
+
+    expect(workspace).toContain("<ProjectThread");
+    expect(workspace).toContain('setWorkspaceView("thread")');
+    expect(threadView).toContain("See how the work got here.");
+    expect(threadView).toContain("Opening this view uses 0 model calls");
+    expect(threadView).toContain("Tonight’s Dream");
+    expect(threadView).toContain("<ReasoningGraph");
+    expect(threadModel).toContain("countThreadChanges");
+    expect(threadModel).toContain("referencedSourceIds");
+    expect(threadModel).not.toContain("generateText");
+  });
+
   it("explains the day, Dream, and morning rhythm on the landing page", () => {
     const landing = readFileSync("app/page.tsx", "utf8");
 

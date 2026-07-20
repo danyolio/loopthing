@@ -33,14 +33,19 @@
     open the full version diff.
 14. Morning Review lets a person keep, revert, comment on, or branch each
     overnight change. Every action is recorded against the Dream version.
-15. A reasoning ledger separates facts, evidence, claims, assumptions,
+15. The Thread shows document versions as the workflow spine, with human
+    contributions, the exact pre-Dream state, Dream output, review outcomes,
+    and the next scheduled Dream connected visually.
+16. Selecting a Thread node reveals the stored records and exact deterministic
+    counts behind it without making a model call.
+17. A reasoning ledger separates facts, evidence, claims, assumptions,
     hypotheses, preferences, questions, risks, proposals, experiments, and
     decisions.
-16. A reasoning map renders the same ledger as a directed graph. Human input is
-    green and Dream development is purple.
-17. Decisions retain rationale, rejected alternatives, assumptions, a review
+18. An Argument view renders the same ledger as a directed graph. Human input
+    is green and Dream development is purple.
+19. Decisions retain rationale, rejected alternatives, assumptions, a review
     date, and an explicit condition for reconsideration.
-18. Weekly Loops use the same durable workflow for broader review.
+20. Weekly Loops use the same durable workflow for broader review.
 
 ## Measurable acceptance criteria
 
@@ -91,14 +96,20 @@
 - Morning Review: each Dream block can be kept, reverted, turned into feedback
   for the next Dream, or preserved as a branch; the chosen disposition
   survives reload.
+- Thread: the workspace exposes a top-level Document / Thread switch. The
+  Thread joins stored version lineage, contribution windows, Dream results,
+  criticism, review dispositions, branches, and the scheduled frontier.
+  Opening and inspecting it makes zero new model calls. Document change totals
+  are computed from linked text versions rather than generated descriptions.
 - Reasoning ledger: typed reasoning objects and their directed relationships
   are durable project context, protected by project RLS, and supplied to both
   manual and scheduled Loops.
 - Decision memory: each decision can record rejected alternatives, assumptions,
   reconsideration conditions, and a review date. A Loop can flag genuinely
   conflicting new evidence and propose the smallest useful test.
-- Reasoning map: the ledger and the latest immutable Dream reasoning snapshot
-  render as an Argo-style DAG with clear source colour and labelled edges.
+- Argument view: the ledger and the latest immutable Dream reasoning snapshot
+  remain available as a secondary directed graph with clear source colour and
+  labelled edges.
 - Invitations: an Owner can create or refresh up to 20 email-bound invitation
   links in one request without weakening the existing project-level RLS rules.
 - Security: secrets remain server-only, uploads use a private bucket, cron
