@@ -89,7 +89,7 @@ const insight: LoopInsight = {
 
 describe("Project Thread view", () => {
   it("renders the workflow graph and explains its deterministic cost", () => {
-    render(
+    const { container } = render(
       <ProjectThread
         project={project}
         currentCheckpointId="after-checkpoint"
@@ -127,11 +127,18 @@ describe("Project Thread view", () => {
     expect(screen.getAllByText("After Dream").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Tonight’s Dream").length).toBeGreaterThan(0);
 
-    fireEvent.click(
-      screen.getAllByRole("button", {
-        name: /the opening became concrete/i,
-      })[0],
+    const dreamNode = container.querySelector<HTMLButtonElement>(
+      'button[data-tone="dream"]',
     );
+    if (!dreamNode) throw new Error("Desktop Dream node did not render");
+    expect(dreamNode).toHaveTextContent("Overnight Dream");
+    expect(dreamNode).not.toHaveTextContent("The opening became concrete.");
+    expect(dreamNode).toHaveAttribute("data-tone", "dream");
+
+    fireEvent.click(dreamNode);
+    expect(
+      screen.getByRole("complementary", { name: "Node inspector" }),
+    ).toHaveTextContent("The opening became concrete.");
     expect(screen.getByText("Deterministic diff")).toBeInTheDocument();
     expect(
       screen.getByText("Computed from the linked Before and After versions. No model call."),

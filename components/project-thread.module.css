@@ -80,7 +80,7 @@
   background: rgb(255 255 255 / 52%);
   border: 1px solid rgb(126 122 113 / 19%);
   border-radius: 14px;
-  height: 606px;
+  height: 464px;
   left: 20px;
   pointer-events: none;
   position: absolute;
@@ -102,7 +102,7 @@
     rgb(255 255 255 / 58%);
   border-color: rgb(124 91 237 / 30%);
   border-style: dashed;
-  height: 474px;
+  height: 356px;
 }
 
 .cycleBandHeader {
@@ -169,10 +169,12 @@
 
 .threadNode {
   --node-accent: #77736c;
-  --node-accent-soft: #f1f0ed;
-  background: rgb(255 255 254 / 98%);
-  border: 1px solid #d9d6cf;
-  border-radius: 11px;
+  --node-accent-soft: #e9ecef;
+  --node-border: #c9cdd1;
+  --node-fill: #f6f7f8;
+  background: var(--node-fill);
+  border: 1px solid var(--node-border);
+  border-radius: 10px;
   box-shadow:
     0 1px 1px rgb(40 37 32 / 4%),
     0 4px 12px rgb(40 37 32 / 5%);
@@ -189,7 +191,7 @@
 
 .threadNode::before {
   background: var(--node-accent);
-  border-radius: 10px 0 0 10px;
+  border-radius: 9px 0 0 9px;
   content: "";
   inset: -1px auto -1px -1px;
   opacity: 0.9;
@@ -199,17 +201,23 @@
 
 .threadNode[data-tone="human"] {
   --node-accent: #31956a;
-  --node-accent-soft: #e8f7ef;
+  --node-accent-soft: #dff3e9;
+  --node-border: #a8d8c0;
+  --node-fill: #eff9f3;
 }
 
 .threadNode[data-tone="dream"] {
   --node-accent: #7957e8;
-  --node-accent-soft: #f0ecff;
+  --node-accent-soft: #e8e0ff;
+  --node-border: #c8b8fa;
+  --node-fill: #f5f1ff;
 }
 
 .threadNode[data-tone="review"] {
   --node-accent: #c18825;
-  --node-accent-soft: #fff5dc;
+  --node-accent-soft: #f9e9bd;
+  --node-border: #e5cd91;
+  --node-fill: #fff8e8;
 }
 
 .threadNode:hover {
@@ -234,13 +242,33 @@
   align-items: center;
   background: var(--node-accent-soft);
   border: 1px solid color-mix(in srgb, var(--node-accent) 22%, transparent);
-  border-radius: 7px;
+  border-radius: 6px;
   color: var(--node-accent);
   display: inline-flex;
   flex: 0 0 auto;
-  height: 27px;
+  height: 25px;
   justify-content: center;
-  width: 27px;
+  width: 25px;
+}
+
+.nodeBody {
+  border-radius: inherit;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding: 10px 12px 9px;
+}
+
+.nodeTitle {
+  display: block;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 16px;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .topPort,
@@ -305,7 +333,7 @@
 .pendingNode {
   background:
     linear-gradient(135deg, rgb(124 91 237 / 5%), transparent 55%),
-    rgb(255 255 254 / 98%);
+    var(--node-fill);
   border-style: dashed;
 }
 

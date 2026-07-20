@@ -39,7 +39,8 @@
     Compact status nodes and bounded cycle groups identify Human Input,
     Document State, and Dream + Review activity. Explicit ports and orthogonal
     dependencies make the topology legible, while a reduced-motion-safe pulse
-    marks only the live frontier.
+    marks only the live frontier. Nodes remain fixed-height and show no prose;
+    selecting one opens its complete detail in a non-overlapping inspector.
 16. Selecting a Thread node reveals the stored records and exact deterministic
     counts behind it without making a model call.
 17. A reasoning ledger separates facts, evidence, claims, assumptions,

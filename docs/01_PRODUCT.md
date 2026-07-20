@@ -71,8 +71,9 @@ reflection, and revision:
   filtering, or inspecting it must not spend another model call.
 - The Thread reads from top to bottom. Compact port-to-port nodes, orthogonal
   dependencies, and bounded Dream-cycle groups make the workflow legible at a
-  glance. Human input is green, Dream work is purple, and document state stays
-  neutral.
+  glance. Nodes show identity, status, and one useful metric; their prose and
+  records open in the inspector. Human input is green, Dream work is purple,
+  review is amber, and document state stays neutral.
 - Material deleted or rewritten after a Dream stays out of the canonical
   document but remains visible as a redline beneath it. A later Dream must
   treat that removal as human direction instead of casually restoring it.

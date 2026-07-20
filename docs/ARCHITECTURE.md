@@ -69,9 +69,11 @@
   Dream. The dotted frontier is the scheduled next Dream, not generated output.
   The renderer places chronology on the vertical axis and authorship in three
   columns. Each Dream is a bounded execution group containing compact status
-  nodes with explicit ports and orthogonal SVG dependencies. Only the live
-  frontier is animated; its pulse is CSS/SVG-only, consumes no product data or
-  model calls, and stops under `prefers-reduced-motion`.
+  nodes with explicit ports and orthogonal SVG dependencies. Node bodies render
+  only a type, short identity, status, and deterministic metric; full stored
+  detail is selected into a separate inspector column. Only the live frontier
+  is animated; its pulse is CSS/SVG-only, consumes no product data or model
+  calls, and stops under `prefers-reduced-motion`.
 - `reasoning_nodes` and `reasoning_edges` are the durable human-approved
   reasoning ledger. Sources, questions, and decisions synchronise into it.
   Each Loop also stores an immutable `reasoning_model` snapshot with its

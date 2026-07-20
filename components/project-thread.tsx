@@ -75,23 +75,23 @@ type ThreadSelection =
 
 // Time runs downward. Columns describe authorship; grouped bands describe cycles.
 const canvasWidth = 1040;
-const nodeWidth = 236;
-const humanX = 52;
-const workX = 402;
-const dreamX = 752;
+const nodeWidth = 220;
+const humanX = 60;
+const workX = 410;
+const dreamX = 760;
 const humanWidth = nodeWidth;
 const workWidth = nodeWidth;
 const dreamWidth = nodeWidth;
-const firstVersionY = 102;
-const standardNodeHeight = 104;
-const contributionHeight = 108;
-const dreamNodeHeight = 144;
-const cycleStartY = 232;
-const contributionOffset = 54;
-const beforeDreamOffset = 190;
-const dreamOffset = 326;
-const outputOffset = 492;
-const cycleStep = 630;
+const firstVersionY = 92;
+const standardNodeHeight = 76;
+const contributionHeight = standardNodeHeight;
+const dreamNodeHeight = standardNodeHeight;
+const cycleStartY = 200;
+const contributionOffset = 56;
+const beforeDreamOffset = 164;
+const dreamOffset = 272;
+const outputOffset = 380;
+const cycleStep = 488;
 
 const contextForInput: Record<
   Exclude<ThreadInputKind, "document">,
@@ -278,6 +278,7 @@ function ThreadNode({
     <button
       ref={nodeRef}
       type="button"
+      aria-label={`${eyebrow}: ${title}. ${detail}`}
       data-status={status}
       data-tone={tone}
       className={`${styles.threadNode} ${pending ? styles.pendingNode : ""} ${pulse ? styles.frontierPulse : ""}`}
@@ -285,14 +286,14 @@ function ThreadNode({
       onClick={onClick}
     >
       <span aria-hidden="true" className={styles.topPort} />
-      <span className="flex h-full flex-col px-3.5 py-3">
-        <span className="flex items-start gap-3">
+      <span className={styles.nodeBody}>
+        <span className="flex min-w-0 items-center gap-2.5">
           <span className={styles.nodeIcon}>
-            <Icon className="size-3.5" strokeWidth={1.8} />
+            <Icon className="size-3" strokeWidth={1.9} />
           </span>
           <span className="min-w-0 flex-1">
             <span className="flex items-center justify-between gap-2">
-              <span className="block truncate text-[9px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+              <span className="block truncate text-[8px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                 {eyebrow}
               </span>
               <span className={styles.statusLabel}>
@@ -300,15 +301,12 @@ function ThreadNode({
                 {statusLabel}
               </span>
             </span>
-            <span className="mt-1 line-clamp-2 block text-[13px] font-semibold leading-[1.05rem] tracking-[-0.01em]">
+            <span className={styles.nodeTitle}>
               {title}
             </span>
           </span>
         </span>
-        <span className="mt-2 line-clamp-2 block text-[11px] leading-[1rem] text-muted-foreground">
-          {detail}
-        </span>
-        <span className="mt-auto flex items-center justify-between gap-3 pt-2">
+        <span className="mt-auto flex min-w-0 items-center justify-between gap-3 pt-1.5">
           {meta ? (
             <span className="block min-w-0 truncate font-mono text-[9px] text-muted-foreground">
               {meta}
@@ -926,7 +924,7 @@ export function ProjectThread({
   const frontierContributionY = frontierCycleTop + contributionOffset;
   const frontierCurrentY = frontierCycleTop + beforeDreamOffset;
   const frontierDreamY = frontierCycleTop + dreamOffset;
-  const canvasHeight = frontierCycleTop + 530;
+  const canvasHeight = frontierCycleTop + 404;
   const currentVersionTitle =
     versionLabel(thread.frontier.baseVersion, "Current project state");
   const frontierInputSummary = thread.frontier.inputs.length
@@ -1018,8 +1016,8 @@ export function ProjectThread({
           </div>
         </div>
       ) : (
-        <div className="relative flex min-h-0 flex-1 flex-col">
-          <div className="min-h-0 flex-1 overflow-auto">
+        <div className="relative flex min-h-0 flex-1 flex-col lg:flex-row">
+          <div className="min-h-0 min-w-0 flex-1 overflow-auto">
             <div className={`${styles.mobileTimeline} ${styles.mobileOnly} mx-auto max-w-lg px-4 py-6`}>
               <MobileThreadNode
                 tone="work"
@@ -1538,10 +1536,10 @@ export function ProjectThread({
                     <ThreadNode
                       tone="human"
                       icon={UserRound}
-                      eyebrow="Contributions"
-                      title={countLabel(cycle.inputs.length, "input")}
+                      eyebrow="Human input"
+                      title={countLabel(cycle.inputs.length, "contribution")}
                       detail={inputSummary}
-                      meta={`${changeLabel(cycle.humanChanges)} in document`}
+                      meta={`${changeLabel(cycle.humanChanges)} to document`}
                       x={humanX}
                       y={contributionY}
                       width={humanWidth}
@@ -1558,9 +1556,9 @@ export function ProjectThread({
                     <ThreadNode
                       tone="work"
                       icon={FileDiff}
-                      eyebrow="Before Dream"
-                      title={versionLabel(cycle.beforeVersion, "Pre-Dream snapshot")}
-                      detail="The exact document the Dream read."
+                      eyebrow="Snapshot"
+                      title="Before Dream"
+                      detail={`The exact document the Dream read: ${versionLabel(cycle.beforeVersion, "Pre-Dream snapshot")}.`}
                       meta={formatThreadDate(
                         cycle.beforeVersion?.created_at ?? cycle.run.created_at,
                       )}
@@ -1584,19 +1582,18 @@ export function ProjectThread({
                     <ThreadNode
                       tone="dream"
                       icon={cycle.run.status === "failed" ? Bot : Moon}
-                      eyebrow={
+                      eyebrow="Dream"
+                      title={
                         cycle.run.status === "failed"
                           ? "Dream stopped"
                           : "Overnight Dream"
                       }
-                      title={
-                        cycle.insight?.summary ||
-                        (cycle.run.status === "failed"
-                          ? "Stopped safely"
-                          : "Dream report")
+                      detail={
+                        cycle.insight?.summary
+                          ? `${cycle.insight.summary} ${dreamDetail}`
+                          : dreamDetail
                       }
-                      detail={dreamDetail}
-                      meta={`${cycle.critiques.length} comments · ${cycle.changeDetails.length} explained`}
+                      meta={`${changeLabel(cycle.dreamChanges)} · ${countLabel(cycle.critiques.length, "comment")}`}
                       x={dreamX}
                       y={dreamY}
                       width={dreamWidth}
@@ -1609,15 +1606,15 @@ export function ProjectThread({
                     <ThreadNode
                       tone="work"
                       icon={cycle.afterVersion ? FileText : Check}
-                      eyebrow={cycle.afterVersion ? "Next version" : "Work"}
+                      eyebrow={cycle.afterVersion ? "Version" : "Document"}
                       title={
                         cycle.afterVersion
-                          ? versionLabel(cycle.afterVersion, "After Dream")
+                          ? "After Dream"
                           : "Document unchanged"
                       }
                       detail={
                         cycle.afterVersion
-                          ? "Restorable output linked to this Dream."
+                          ? `Restorable output linked to this Dream: ${versionLabel(cycle.afterVersion, "After Dream")}.`
                           : "Criticism was added without a forced rewrite."
                       }
                       meta={formatThreadDate(
@@ -1646,14 +1643,14 @@ export function ProjectThread({
                     <ThreadNode
                       tone="review"
                       icon={MessageSquare}
-                      eyebrow="Morning review"
-                      title={`${countLabel(cycle.reviewActions, "action")} · ${cycle.openCritiques} open`}
+                      eyebrow="Review"
+                      title="Morning review"
                       detail={
                         cycle.reviewActions
                           ? "Kept, reverted, answered, dismissed, or branched."
                           : "Waiting for a human response."
                       }
-                      meta="Feeds the next Dream"
+                      meta={`${countLabel(cycle.reviewActions, "action")} · ${cycle.openCritiques} open`}
                       x={dreamX}
                       y={outputY}
                       width={dreamWidth}
@@ -1668,10 +1665,10 @@ export function ProjectThread({
               <ThreadNode
                 tone="human"
                 icon={UserRound}
-                eyebrow="Since the last Dream"
-                title={`${countLabel(thread.frontier.inputs.length, "input")} waiting`}
+                eyebrow="Human input"
+                title={`${countLabel(thread.frontier.inputs.length, "contribution")} waiting`}
                 detail={frontierInputSummary}
-                meta={`${changeLabel(thread.frontier.humanChanges)} in document`}
+                meta={`${changeLabel(thread.frontier.humanChanges)} to document`}
                 x={humanX}
                 y={frontierContributionY}
                 width={humanWidth}
@@ -1689,10 +1686,10 @@ export function ProjectThread({
               <ThreadNode
                 tone="work"
                 icon={FileText}
-                eyebrow="Current draft"
-                title={currentVersionTitle}
+                eyebrow="Document"
+                title="Current draft"
                 detail="What the next Dream will read, including today’s edits."
-                meta={`+${thread.frontier.humanChanges.addedLines} −${thread.frontier.humanChanges.removedLines} lines`}
+                meta={`${currentVersionTitle} · +${thread.frontier.humanChanges.addedLines} −${thread.frontier.humanChanges.removedLines}`}
                 x={workX}
                 y={frontierCurrentY}
                 width={workWidth}
@@ -1711,13 +1708,11 @@ export function ProjectThread({
               <ThreadNode
                 tone="dream"
                 icon={thread.frontier.activeRun ? Sparkles : Clock3}
-                eyebrow={
-                  thread.frontier.activeRun ? "Dreaming now" : "Tonight’s Dream"
-                }
+                eyebrow="Next Dream"
                 title={
                   thread.frontier.activeRun
                     ? thread.frontier.activeRun.progress_stage
-                    : countdownLabel(thread.frontier.nextDreamAt, now)
+                    : "Tonight’s Dream"
                 }
                 detail={
                   thread.frontier.activeRun
@@ -1728,8 +1723,8 @@ export function ProjectThread({
                 }
                 meta={
                   thread.frontier.activeRun
-                    ? "Durable workflow running"
-                    : formatThreadDate(thread.frontier.nextDreamAt)
+                    ? `${thread.frontier.activeRun.progress_percent}% · workflow running`
+                    : `${formatThreadDate(thread.frontier.nextDreamAt)} · ${countdownLabel(thread.frontier.nextDreamAt, now)}`
                 }
                 x={dreamX}
                 y={frontierDreamY}
@@ -1755,8 +1750,9 @@ export function ProjectThread({
           </div>
 
           <aside
+            id="thread-node-inspector"
             aria-label="Node inspector"
-            className={`${selection ? "block" : "hidden"} ${styles.inspector} max-h-[48vh] min-h-0 overflow-y-auto border-t p-5 lg:absolute lg:inset-y-0 lg:right-0 lg:z-30 lg:max-h-none lg:w-[340px] lg:border-l lg:border-t-0`}
+            className={`${selection ? "block" : "hidden"} ${styles.inspector} max-h-[48vh] min-h-0 overflow-y-auto border-t p-5 lg:relative lg:z-30 lg:max-h-none lg:w-[340px] lg:shrink-0 lg:border-l lg:border-t-0`}
           >
             <div className="mb-5 flex items-center justify-between border-b pb-3">
               <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">

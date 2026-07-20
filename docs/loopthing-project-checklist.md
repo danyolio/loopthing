@@ -84,6 +84,9 @@ production on 20 July 2026.
   compact status nodes, visible ports, orthogonal dependencies, bounded Dream
   cycles, Human / Document / Dream authorship, and a reduced-motion-safe live
   frontier.
+- [x] Keep graph nodes fixed-height and scannable with distinct Human,
+  Document, Dream, and Review fills; move prose and records into a click
+  inspector that does not overlap the desktop canvas.
 
 ## Authentication, data, and permissions
 
@@ -228,9 +231,11 @@ production on 20 July 2026.
   zero projects; and no verification rows persisted.
 - Thread workflow canvas: the deterministic graph passed component tests and
   visual verification at 1280px and 390px. Desktop uses compact status nodes,
-  explicit ports, orthogonal dependencies, cycle boundaries, and a live
-  frontier; mobile collapses the same chronology into an accessible vertical
-  execution log.
+  distinct type fills, explicit ports, orthogonal dependencies, cycle
+  boundaries, a separate detail inspector, and a live frontier. Every rendered
+  node had equal client and scroll heights, confirming no content overflow.
+  Mobile collapses the same chronology into an accessible vertical execution
+  log.
 - Reasoning backfill: the live ledger contains existing evidence, questions,
   and decisions. New typed entries count as activity for the next Dream.
 - Supabase advisor after the reasoning migration: no critical findings and no
