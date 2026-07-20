@@ -4,6 +4,10 @@ import {
   collectionForItemKind,
   itemKindForCollection,
 } from "@/lib/workspace-items";
+import {
+  dreamChangedAfterBlockIndexes,
+  dreamChangedCurrentBlockIndexes,
+} from "@/lib/dream-highlights";
 import { diffTextByLine } from "@/lib/text-diff";
 
 describe("workspace contracts", () => {
@@ -39,5 +43,30 @@ describe("workspace contracts", () => {
       ["removed", "Remove this line."],
       ["added", "Add this line."],
     ]);
+  });
+
+  it("maps the latest Dream changes onto the current document blocks", () => {
+    const before = "Thesis\n\nKeep this.\n\nAn abstract opening.";
+    const after = "Thesis\n\nKeep this.\n\nOpen with a concrete example.";
+
+    expect(dreamChangedAfterBlockIndexes(before, after)).toEqual([2]);
+    expect(
+      dreamChangedCurrentBlockIndexes(before, after, [
+        "A new human note.",
+        "Thesis",
+        "Keep this.",
+        "Open with a concrete example.",
+      ]),
+    ).toEqual([3]);
+  });
+
+  it("does not mislabel a Dream section after a person rewrites it", () => {
+    expect(
+      dreamChangedCurrentBlockIndexes(
+        "Thesis\n\nAn abstract opening.",
+        "Thesis\n\nOpen with a concrete example.",
+        ["Thesis", "I rewrote the opening myself."],
+      ),
+    ).toEqual([]);
   });
 });

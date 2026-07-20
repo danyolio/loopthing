@@ -129,6 +129,18 @@ describe("product invariants", () => {
     );
   });
 
+  it("highlights the latest Dream changes in the main document", () => {
+    const workspace = readFileSync("components/workspace.tsx", "utf8");
+    const plugin = readFileSync("lib/dream-highlight-plugin.ts", "utf8");
+    const styles = readFileSync("app/globals.css", "utf8");
+
+    expect(workspace).toContain("<DreamChangeNotice");
+    expect(workspace).toContain("createDreamHighlightPlugin");
+    expect(plugin).toContain('class: "dream-change-highlight"');
+    expect(styles).toContain(".tiptap .dream-change-highlight");
+    expect(styles).toContain("#bbf7d0");
+  });
+
   it("explains the day, Dream, and morning rhythm on the landing page", () => {
     const landing = readFileSync("app/page.tsx", "utf8");
 

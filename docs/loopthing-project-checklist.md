@@ -95,6 +95,8 @@ production on 20 July 2026.
 - [x] Preserve each Dream rewrite as a version linked to its Loop and insight.
 - [x] Present every Dream as a restorable Before → After change set with a
   line-by-line diff and explicit change attribution.
+- [x] Highlight the latest Dream's changed sections directly in the main
+  document, with controls to hide them or open the full version diff.
 - [ ] Add shared Redis before relying on realtime collaboration across multiple
   simultaneous Vercel instances.
 
@@ -166,5 +168,8 @@ production on 20 July 2026.
   addresses, the API and Owner-only database function create separate
   email-bound links atomically, and a two-address database verification was
   rolled back without leaving test invitations.
+- Main-document Dream highlighting: passed in production on a real 47-section
+  Dream. Changed sections render with a soft green fill and edge; hide/show
+  removes and restores the decorations without changing canonical content.
 - npm audit: no high or critical findings; two moderate PostCSS findings in the
   installed Next.js release.

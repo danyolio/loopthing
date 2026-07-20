@@ -201,6 +201,22 @@
   pointer-events: none;
 }
 
+.tiptap .dream-change-highlight {
+  border-radius: 0.35rem;
+  background: color-mix(in oklab, #bbf7d0 62%, transparent);
+  box-shadow: -3px 0 0 color-mix(in oklab, #16a34a 76%, transparent);
+  margin-inline: -0.45rem;
+  padding-inline: 0.45rem;
+  transition:
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.dark .tiptap .dream-change-highlight {
+  background: color-mix(in oklab, #22c55e 15%, transparent);
+  box-shadow: -3px 0 0 color-mix(in oklab, #4ade80 68%, transparent);
+}
+
 .collaboration-cursor__caret {
   border-left: 2px solid;
   border-right: 2px solid;

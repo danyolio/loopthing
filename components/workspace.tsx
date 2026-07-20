@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { DreamChangeNotice } from "@/components/dream-change-notice";
 import { EditorToolbar } from "@/components/editor-toolbar";
 import { InviteDialog } from "@/components/invite-dialog";
 import { VersionHistory } from "@/components/version-history";
@@ -67,6 +68,14 @@ import type {
   ThinkingItem,
   WorkspaceData,
 } from "@/lib/domain";
+import {
+  createDreamHighlightPlugin,
+  dreamHighlightPluginKey,
+} from "@/lib/dream-highlight-plugin";
+import {
+  dreamChangedAfterBlockIndexes,
+  latestDreamChangeSet,
+} from "@/lib/dream-highlights";
 import { replaceCanonicalDocument } from "@/lib/canonical-document";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -104,9 +113,9 @@ function bytesToBase64(bytes: Uint8Array) {
   return btoa(binary);
 }
 
-function getText(item: ThinkingItem, ...keys: string[]) {
+function getText(item: ThinkingItem | undefined, ...keys: string[]) {
   for (const key of keys) {
-    const value = item[key];
+    const value = item?.[key];
     if (typeof value === "string" && value) return value;
   }
   return "";
@@ -180,6 +189,9 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
   const [currentCheckpointId, setCurrentCheckpointId] = useState(
     initialData.document.current_checkpoint_id,
   );
+  const [hiddenDreamVersionId, setHiddenDreamVersionId] = useState<
+    string | null
+  >(null);
   const [runs, setRuns] = useState(initialData.runs);
   const [insights, setInsights] = useState(initialData.insights);
   const [items, setItems] = useState({
@@ -197,6 +209,25 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
     "idle" | "applying" | "applied" | "failed"
   >("idle");
   const editable = initialData.role === "owner" || initialData.role === "editor";
+  const latestDream = useMemo(
+    () => latestDreamChangeSet(items.history),
+    [items.history],
+  );
+  const latestDreamBefore = getText(latestDream?.before, "plain_text");
+  const latestDreamAfter = getText(latestDream?.after, "plain_text");
+  const dreamChangedSections = useMemo(
+    () =>
+      latestDream
+        ? dreamChangedAfterBlockIndexes(
+            latestDreamBefore,
+            latestDreamAfter,
+          ).length
+        : 0,
+    [latestDream, latestDreamAfter, latestDreamBefore],
+  );
+  const highlightsVisible =
+    Boolean(latestDream) &&
+    hiddenDreamVersionId !== latestDream?.after.id;
 
   useEffect(() => {
     const persistence = new IndexeddbPersistence(
@@ -280,6 +311,35 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
     },
     [provider],
   );
+
+  useEffect(() => {
+    if (
+      !editor ||
+      !highlightsVisible ||
+      !latestDreamBefore ||
+      !latestDreamAfter
+    ) {
+      return;
+    }
+
+    editor.registerPlugin(
+      createDreamHighlightPlugin({
+        before: latestDreamBefore,
+        after: latestDreamAfter,
+      }),
+    );
+
+    return () => {
+      if (!editor.isDestroyed) {
+        editor.unregisterPlugin(dreamHighlightPluginKey);
+      }
+    };
+  }, [
+    editor,
+    highlightsVisible,
+    latestDreamAfter,
+    latestDreamBefore,
+  ]);
 
   useEffect(() => {
     if (!editor || !localReady || !remoteReady || seeded.current) return;
@@ -593,6 +653,15 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
     }));
   }
 
+  function openVersions() {
+    setTab("history");
+    if (window.matchMedia("(min-width: 1024px)").matches) {
+      setRailOpen(true);
+    } else {
+      setMobileRail(true);
+    }
+  }
+
   const rail = (
     <Rail
       activeTab={tab}
@@ -715,7 +784,19 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
                 <Skeleton className="mt-12 h-8 w-2/5" />
               </div>
             ) : (
-              <EditorContent editor={editor} />
+              <>
+                <DreamChangeNotice
+                  changedSections={dreamChangedSections}
+                  highlightsVisible={highlightsVisible}
+                  onToggleHighlights={() =>
+                    setHiddenDreamVersionId(
+                      highlightsVisible ? latestDream?.after.id ?? null : null,
+                    )
+                  }
+                  onOpenVersions={openVersions}
+                />
+                <EditorContent editor={editor} />
+              </>
             )}
           </div>
         </ScrollArea>
