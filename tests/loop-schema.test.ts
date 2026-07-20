@@ -27,6 +27,42 @@ const validResult = {
     independent: ["Reordered the evidence before the product implication."],
     preserved: ["Kept the continuity-of-judgment framing."],
   },
+  changeDetails: [
+    {
+      afterExcerpt: "active strategy teams",
+      reason: "The strongest evidence came from teams with ongoing strategy work.",
+      provenance: "human_direction",
+      sourceIds: ["source-1"],
+    },
+  ],
+  reasoning: {
+    nodes: [
+      {
+        key: "evidence-continuity",
+        type: "evidence",
+        label: "Teams lose decision context between meetings.",
+        detail: "Reported by three strategy teams.",
+        confidence: 80,
+        status: "active",
+      },
+      {
+        key: "decision-audience",
+        type: "decision",
+        label: "Start with active strategy teams.",
+        detail: "The evidence is strongest for this audience.",
+        confidence: 75,
+        status: "active",
+      },
+    ],
+    edges: [
+      {
+        fromKey: "evidence-continuity",
+        toKey: "decision-audience",
+        relation: "led_to",
+      },
+    ],
+  },
+  decisionAlerts: [],
 };
 
 describe("Loop structured output", () => {

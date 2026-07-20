@@ -23,8 +23,8 @@ const mechanics = [
   },
   {
     icon: Sunrise,
-    title: "Wake up to developed work.",
-    body: "Read the new version, an honest critique, the questions still open, and one thread worth following. Every earlier version remains restorable.",
+    title: "Review what changed.",
+    body: "Keep or revert each Dream change, leave feedback for the next night, or preserve the alternative as a branch. The reasoning and every earlier version remain intact.",
   },
 ];
 

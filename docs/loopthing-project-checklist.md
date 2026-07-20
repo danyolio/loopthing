@@ -98,6 +98,13 @@ production on 20 July 2026.
 - [x] Highlight the latest Dream's changes in purple and later human additions
   in green directly in the main document, with controls to hide them or open
   the full version diff.
+- [x] Add a persistent Morning Review for keeping, reverting, commenting on, or
+  branching each Dream change.
+- [x] Add a durable typed reasoning ledger and an Argo-style DAG using green
+  for human contributions and purple for Dream development.
+- [x] Add decision memory for rationale, rejected alternatives, assumptions,
+  review dates, reconsideration conditions, evidence alerts, and the smallest
+  useful test.
 - [ ] Add shared Redis before relying on realtime collaboration across multiple
   simultaneous Vercel instances.
 
@@ -117,6 +124,8 @@ production on 20 July 2026.
 - [x] Skip daily Dreams when nothing new was contributed.
 - [x] Produce an overnight Dream report with strengths, critique, changes,
   questions, and one thread to follow.
+- [x] Persist per-change rationale and source provenance, a compact reasoning
+  graph, and decision-reconsideration alerts with every Loop.
 - [x] Apply a complete Dream rewrite atomically while preserving the prior Yjs
   state.
 - [ ] Add `OPENAI_API_KEY` to local and production server secrets.
@@ -174,5 +183,17 @@ production on 20 July 2026.
   rewrites render in green, and saved feedback is green in the context rail.
   Hide/show removes and restores the decorations without changing canonical
   content.
+- Morning Review, reasoning ledger, DAG, and decision memory: passed release
+  verification. The production schema, backfill, RLS policies, and matching
+  foreign-key indexes are live; the production build and browser checks pass;
+  owner mutations for a ledger node, graph edge, Dream review, and decision
+  memory passed inside a rolled-back transaction; an unaffiliated identity saw
+  zero projects; and no verification rows persisted.
+- Reasoning backfill: the live ledger contains existing evidence, questions,
+  and decisions. New typed entries count as activity for the next Dream.
+- Supabase advisor after the reasoning migration: no critical findings and no
+  unindexed foreign keys. Newly created indexes are reported as unused until
+  production traffic exercises them. The existing password-protection warning
+  remains inapplicable to the passwordless-only flow.
 - npm audit: no high or critical findings; two moderate PostCSS findings in the
   installed Next.js release.

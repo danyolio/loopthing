@@ -24,6 +24,8 @@ type LoopContext = {
   decisions: Record<string, unknown>[];
   comments?: Record<string, unknown>[];
   branches?: Record<string, unknown>[];
+  reasoning_nodes?: Record<string, unknown>[];
+  reasoning_edges?: Record<string, unknown>[];
   recent_loops: Record<string, unknown>[];
   new_activity?: Record<string, unknown>;
 };
@@ -85,16 +87,47 @@ async function collectContext(input: LoopWorkflowInput): Promise<LoopContext> {
   const supabase = supabaseClient(input.accessToken);
 
   if (input.scheduled) {
-    const { data, error } = await supabase.rpc("get_scheduled_loop_context", {
-      p_secret: process.env.CRON_SECRET!,
-      p_loop_id: input.loopId,
-    });
-    if (error) throw error;
-    return data as LoopContext;
+    const [baseResult, reasoningResult] = await Promise.all([
+      supabase.rpc("get_scheduled_loop_context", {
+        p_secret: process.env.CRON_SECRET!,
+        p_loop_id: input.loopId,
+      }),
+      supabase.rpc("get_scheduled_reasoning_context", {
+        p_secret: process.env.CRON_SECRET!,
+        p_loop_id: input.loopId,
+      }),
+    ]);
+    if (baseResult.error) throw baseResult.error;
+    if (reasoningResult.error) throw reasoningResult.error;
+    const base = baseResult.data as LoopContext;
+    const reasoning = reasoningResult.data as {
+      reasoning_nodes?: Record<string, unknown>[];
+      reasoning_edges?: Record<string, unknown>[];
+      new_reasoning_activity?: Record<string, unknown>[];
+    };
+    return {
+      ...base,
+      reasoning_nodes: reasoning.reasoning_nodes ?? [],
+      reasoning_edges: reasoning.reasoning_edges ?? [],
+      new_activity: {
+        ...(base.new_activity ?? {}),
+        reasoning: reasoning.new_reasoning_activity ?? [],
+      },
+    };
   }
 
-  const [project, document, sources, questions, decisions, recentLoops] =
-    await Promise.all([
+  const [
+    project,
+    document,
+    sources,
+    questions,
+    decisions,
+    comments,
+    branches,
+    reasoningNodes,
+    reasoningEdges,
+    recentLoops,
+  ] = await Promise.all([
       supabase.from("projects").select("*").eq("id", input.projectId).single(),
       supabase
         .from("documents")
@@ -120,6 +153,30 @@ async function collectContext(input: LoopWorkflowInput): Promise<LoopContext> {
         .order("created_at", { ascending: false })
         .limit(30),
       supabase
+        .from("comments")
+        .select("*")
+        .eq("project_id", input.projectId)
+        .order("created_at", { ascending: false })
+        .limit(40),
+      supabase
+        .from("branches")
+        .select("*")
+        .eq("project_id", input.projectId)
+        .order("created_at", { ascending: false })
+        .limit(20),
+      supabase
+        .from("reasoning_nodes")
+        .select("*")
+        .eq("project_id", input.projectId)
+        .order("created_at", { ascending: true })
+        .limit(120),
+      supabase
+        .from("reasoning_edges")
+        .select("*")
+        .eq("project_id", input.projectId)
+        .order("created_at", { ascending: true })
+        .limit(200),
+      supabase
         .from("loop_insights")
         .select("*")
         .eq("project_id", input.projectId)
@@ -133,6 +190,10 @@ async function collectContext(input: LoopWorkflowInput): Promise<LoopContext> {
     sources.error,
     questions.error,
     decisions.error,
+    comments.error,
+    branches.error,
+    reasoningNodes.error,
+    reasoningEdges.error,
     recentLoops.error,
   ].find(Boolean);
   if (firstError) throw firstError;
@@ -143,6 +204,10 @@ async function collectContext(input: LoopWorkflowInput): Promise<LoopContext> {
     sources: sources.data ?? [],
     questions: questions.data ?? [],
     decisions: decisions.data ?? [],
+    comments: comments.data ?? [],
+    branches: branches.data ?? [],
+    reasoning_nodes: reasoningNodes.data ?? [],
+    reasoning_edges: reasoningEdges.data ?? [],
     recent_loops: recentLoops.data ?? [],
   };
 }
@@ -191,8 +256,12 @@ Success means:
 - use changeAttribution.directives only for changes traceable to explicit human notes, feedback, decisions, questions, or direct edits
 - use changeAttribution.independent for editorial or analytical choices you made without an explicit instruction
 - use changeAttribution.preserved for important arguments, passages, or constraints you intentionally left intact
+- use changeDetails to connect each material rewrite to a short excerpt, its reason, its provenance, and the exact source IDs that prompted it
 - use unresolved for open questions that can keep the next day's thinking moving
 - use thinkingEvolution to explain how the thesis or direction developed
+- return a compact reasoning graph of the active goals, evidence, claims, assumptions, contradictions, risks, questions, decisions, and smallest useful experiments
+- use the exact decision id from PROJECT STATE when new evidence puts a recorded decision at risk; otherwise decisionId must be null
+- create decisionAlerts only when supplied evidence genuinely triggers a recorded reconsideration condition or undermines a material assumption
 - choose one compelling next thread as nextAction
 
 Pay particular attention to new_activity, which contains contributions since the
@@ -209,6 +278,9 @@ Success means:
 - leave the canonical document unchanged
 - propose content only when it creates a genuinely clearer next state
 - identify which changes follow explicit human direction, which are your own editorial choices, and what you intentionally preserved
+- use changeDetails to explain the provenance and source IDs behind each material proposed change
+- return a compact reasoning graph rather than a flat summary
+- flag recorded decisions only when new evidence actually undermines their assumptions or reconsideration conditions
 - when proposing content, return the complete revised canonical document in Markdown; do not return a fragment or repeat the proposal title outside the document
 - use a significant branch only for a material alternative
 - choose one smallest useful next action
@@ -278,6 +350,9 @@ async function persistResult(
         next_action: result.nextAction,
         thinking_evolution: result.thinkingEvolution,
         change_attribution: result.changeAttribution,
+        change_details: result.changeDetails,
+        reasoning_model: result.reasoning,
+        decision_alerts: result.decisionAlerts,
       },
       { onConflict: "loop_run_id" },
     );

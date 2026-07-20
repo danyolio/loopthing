@@ -34,7 +34,10 @@ reflection, and revision:
 3. Run a Loop, or let a scheduled Loop review what changed.
 4. Inspect the structured result: what changed, why it matters, unresolved
    issues, evidence, a proposed revision, and one useful next action.
-5. Accept, reject, or preserve the proposal as a branch.
+5. Review each overnight change: keep it, revert it, respond with feedback, or
+   preserve the Dream as a branch.
+6. Revisit the reasoning ledger to see facts, claims, assumptions,
+   hypotheses, questions, risks, and decisions as distinct objects.
 
 ## Product principles
 
@@ -44,6 +47,11 @@ reflection, and revision:
 - Human edits remain canonical until a person explicitly accepts a proposal.
 - Significant alternatives become branches rather than silent rewrites.
 - History must show what changed, when, by whom, and why.
+- Decisions must retain their rationale, rejected alternatives, assumptions,
+  and the evidence that should cause the team to reconsider.
+- The reasoning map must show how evidence supports or challenges claims and
+  how those claims lead to decisions. Human contributions are green; Dream
+  development is purple.
 - The AI is a persistent collaborator, not an answer box.
 
 ## Initial scope

@@ -5,6 +5,15 @@ export type DreamChangeSet = {
   after: ThinkingItem;
 };
 
+export type DreamBlockChange = {
+  blockKey: string;
+  kind: "added" | "changed" | "removed";
+  beforeIndex: number | null;
+  afterIndex: number | null;
+  beforeText: string;
+  afterText: string;
+};
+
 function textOf(item: ThinkingItem | undefined, key: string) {
   const value = item?.[key];
   return typeof value === "string" ? value : "";
@@ -64,6 +73,67 @@ function matchingIndexes(left: string[], right: string[]) {
   }
 
   return matches;
+}
+
+export function dreamBlockChanges(
+  before: string,
+  after: string,
+): DreamBlockChange[] {
+  const beforeBlocks = textBlocks(before);
+  const afterBlocks = textBlocks(after);
+  const anchors = [
+    [-1, -1] as [number, number],
+    ...matchingIndexes(beforeBlocks, afterBlocks),
+    [beforeBlocks.length, afterBlocks.length] as [number, number],
+  ];
+  const changes: DreamBlockChange[] = [];
+
+  for (let anchorIndex = 0; anchorIndex < anchors.length - 1; anchorIndex += 1) {
+    const [beforeStart, afterStart] = anchors[anchorIndex];
+    const [beforeEnd, afterEnd] = anchors[anchorIndex + 1];
+    const removed = beforeBlocks.slice(beforeStart + 1, beforeEnd);
+    const added = afterBlocks.slice(afterStart + 1, afterEnd);
+    const pairedLength = Math.min(removed.length, added.length);
+
+    for (let index = 0; index < pairedLength; index += 1) {
+      const beforeIndex = beforeStart + index + 1;
+      const afterIndex = afterStart + index + 1;
+      changes.push({
+        blockKey: `changed:${beforeIndex}:${afterIndex}`,
+        kind: "changed",
+        beforeIndex,
+        afterIndex,
+        beforeText: removed[index],
+        afterText: added[index],
+      });
+    }
+
+    for (let index = pairedLength; index < removed.length; index += 1) {
+      const beforeIndex = beforeStart + index + 1;
+      changes.push({
+        blockKey: `removed:${beforeIndex}`,
+        kind: "removed",
+        beforeIndex,
+        afterIndex: null,
+        beforeText: removed[index],
+        afterText: "",
+      });
+    }
+
+    for (let index = pairedLength; index < added.length; index += 1) {
+      const afterIndex = afterStart + index + 1;
+      changes.push({
+        blockKey: `added:${afterIndex}`,
+        kind: "added",
+        beforeIndex: null,
+        afterIndex,
+        beforeText: "",
+        afterText: added[index],
+      });
+    }
+  }
+
+  return changes;
 }
 
 export function dreamChangedAfterBlockIndexes(before: string, after: string) {

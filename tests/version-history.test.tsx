@@ -45,6 +45,9 @@ const insight: LoopInsight = {
     independent: ["Moved the thesis ahead of the background."],
     preserved: ["Kept the central incubation argument."],
   },
+  change_details: [],
+  reasoning_model: { nodes: [], edges: [] },
+  decision_alerts: [],
   accepted_at: "2026-07-19T11:57:51.000Z",
   created_at: "2026-07-19T11:57:51.000Z",
 };

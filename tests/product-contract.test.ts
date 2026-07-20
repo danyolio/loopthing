@@ -144,6 +144,44 @@ describe("product invariants", () => {
     expect(styles).toContain("#bbf7d0");
   });
 
+  it("ships durable review, reasoning, and decision-memory primitives", () => {
+    const migration = readFileSync(
+      "supabase/migrations/20260720031422_reasoning_review_system.sql",
+      "utf8",
+    );
+    const workflow = readFileSync("workflows/run-loop.ts", "utf8");
+    const workspace = readFileSync("components/workspace.tsx", "utf8");
+    const morningReview = readFileSync(
+      "components/morning-review.tsx",
+      "utf8",
+    );
+    const reasoning = readFileSync(
+      "components/reasoning-workspace.tsx",
+      "utf8",
+    );
+
+    for (const table of [
+      "reasoning_nodes",
+      "reasoning_edges",
+      "dream_change_reviews",
+    ]) {
+      expect(migration).toContain(`create table public.${table}`);
+      expect(migration).toContain(
+        `alter table public.${table} enable row level security`,
+      );
+    }
+    expect(migration).toContain("add column alternatives text[]");
+    expect(migration).toContain("add column reconsider_when text");
+    expect(migration).toContain("get_scheduled_reasoning_context");
+    expect(workflow).toContain("return a compact reasoning graph");
+    expect(workspace).toContain("<MorningReview");
+    expect(morningReview).toContain("Morning Review");
+    expect(morningReview).toContain("Keep");
+    expect(morningReview).toContain("Revert");
+    expect(reasoning).toContain("Keep Dream map in the ledger");
+    expect(reasoning).toContain("<ReasoningGraph");
+  });
+
   it("explains the day, Dream, and morning rhythm on the landing page", () => {
     const landing = readFileSync("app/page.tsx", "utf8");
 

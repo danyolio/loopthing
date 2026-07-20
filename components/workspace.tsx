@@ -25,6 +25,7 @@ import {
   LoaderCircle,
   MessageSquare,
   Moon,
+  Network,
   PanelRightClose,
   PanelRightOpen,
   Play,
@@ -34,8 +35,11 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import { DreamChangeNotice } from "@/components/dream-change-notice";
+import { DecisionMemoryCard, type DecisionAlert } from "@/components/decision-memory-card";
 import { EditorToolbar } from "@/components/editor-toolbar";
 import { InviteDialog } from "@/components/invite-dialog";
+import { MorningReview } from "@/components/morning-review";
+import { ReasoningWorkspace } from "@/components/reasoning-workspace";
 import { VersionHistory } from "@/components/version-history";
 import {
   WorkspaceItemForm,
@@ -73,7 +77,9 @@ import {
   dreamHighlightPluginKey,
 } from "@/lib/dream-highlight-plugin";
 import {
-  dreamChangedAfterBlockIndexes,
+  dreamBlockChanges,
+  textBlocks,
+  type DreamBlockChange,
   latestDreamChangeSet,
 } from "@/lib/dream-highlights";
 import { replaceCanonicalDocument } from "@/lib/canonical-document";
@@ -91,6 +97,7 @@ type RailTab =
   | "decisions"
   | "comments"
   | "branches"
+  | "reasoning"
   | "history";
 
 const railTabs: { id: RailTab; label: string; icon: typeof Sparkles }[] = [
@@ -100,6 +107,7 @@ const railTabs: { id: RailTab; label: string; icon: typeof Sparkles }[] = [
   { id: "decisions", label: "Decisions", icon: CircleDot },
   { id: "comments", label: "Notes & feedback", icon: MessageSquare },
   { id: "branches", label: "Branches", icon: GitBranch },
+  { id: "reasoning", label: "Thinking", icon: Network },
   { id: "history", label: "Versions", icon: History },
 ];
 
@@ -192,6 +200,10 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
   const [hiddenDreamVersionId, setHiddenDreamVersionId] = useState<
     string | null
   >(null);
+  const [morningReviewOpen, setMorningReviewOpen] = useState(false);
+  const [dreamChangeReviews, setDreamChangeReviews] = useState(
+    initialData.dreamChangeReviews,
+  );
   const [runs, setRuns] = useState(initialData.runs);
   const [insights, setInsights] = useState(initialData.insights);
   const [items, setItems] = useState({
@@ -218,7 +230,7 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
   const dreamChangedSections = useMemo(
     () =>
       latestDream
-        ? dreamChangedAfterBlockIndexes(
+        ? dreamBlockChanges(
             latestDreamBefore,
             latestDreamAfter,
           ).length
@@ -662,6 +674,89 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
     }
   }
 
+  async function revertDreamChange(change: DreamBlockChange) {
+    if (!editor || !editable) return;
+    const currentBlocks = textBlocks(
+      editor.getText({ blockSeparator: "\n\n" }),
+    );
+    const matchIndex = change.afterText
+      ? currentBlocks.findIndex((block) => block === change.afterText)
+      : -1;
+
+    if (change.kind === "removed") {
+      currentBlocks.splice(
+        Math.min(change.beforeIndex ?? currentBlocks.length, currentBlocks.length),
+        0,
+        change.beforeText,
+      );
+    } else if (matchIndex === -1) {
+      throw new Error(
+        "This passage has changed again since the Dream. Restore the full Before version from Versions instead.",
+      );
+    } else if (change.kind === "added") {
+      currentBlocks.splice(matchIndex, 1);
+    } else {
+      currentBlocks[matchIndex] = change.beforeText;
+    }
+
+    replaceCanonicalDocument(editor, currentBlocks.join("\n\n"));
+    await saveCheckpoint("restored");
+  }
+
+  async function addMorningReviewComment(
+    change: DreamBlockChange,
+    note: string,
+  ) {
+    const { data, error } = await createClient()
+      .from("comments")
+      .insert({
+        project_id: initialData.project.id,
+        document_id: initialData.document.id,
+        body: `${note}\n\nDream passage: “${change.afterText || change.beforeText}”`,
+        anchor: {
+          kind: "dream_change",
+          dream_version_id: latestDream?.after.id,
+          block_key: change.blockKey,
+        },
+        author_id: initialData.user.id,
+      })
+      .select("*")
+      .single();
+    if (error || !data) throw error ?? new Error("Could not save feedback.");
+    setItems((current) => ({ ...current, comments: [data, ...current.comments] }));
+  }
+
+  async function branchDreamChange(change: DreamBlockChange) {
+    if (!latestDream) return;
+    const excerpt = (change.afterText || change.beforeText).slice(0, 72);
+    const { data, error } = await createClient()
+      .from("branches")
+      .insert({
+        project_id: initialData.project.id,
+        document_id: initialData.document.id,
+        base_checkpoint_id: getText(latestDream.before, "checkpoint_id") || null,
+        title: `Dream alternative: ${excerpt}${excerpt.length === 72 ? "…" : ""}`,
+        rationale: "Preserved during Morning Review for separate development.",
+        proposed_content_text: latestDreamAfter,
+        created_by: initialData.user.id,
+      })
+      .select("*")
+      .single();
+    if (error || !data) throw error ?? new Error("Could not create branch.");
+    setItems((current) => ({ ...current, branches: [data, ...current.branches] }));
+  }
+
+  function onDreamReviewSaved(review: WorkspaceData["dreamChangeReviews"][number]) {
+    setDreamChangeReviews((current) => [
+      review,
+      ...current.filter(
+        (item) =>
+          item.dream_version_id !== review.dream_version_id ||
+          item.block_key !== review.block_key,
+      ),
+    ]);
+  }
+
   const rail = (
     <Rail
       activeTab={tab}
@@ -793,8 +888,32 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
                       highlightsVisible ? latestDream?.after.id ?? null : null,
                     )
                   }
+                  onOpenReview={() => setMorningReviewOpen(true)}
                   onOpenVersions={openVersions}
                 />
+                {latestDream && (
+                  <MorningReview
+                    open={morningReviewOpen}
+                    onOpenChange={setMorningReviewOpen}
+                    projectId={initialData.project.id}
+                    userId={initialData.user.id}
+                    dreamVersion={latestDream.after}
+                    beforeText={latestDreamBefore}
+                    afterText={latestDreamAfter}
+                    insight={insights.find(
+                      (insight) =>
+                        insight.id === getText(latestDream.after, "insight_id") ||
+                        insight.loop_run_id ===
+                          getText(latestDream.after, "loop_run_id"),
+                    )}
+                    initialReviews={dreamChangeReviews}
+                    editable={editable}
+                    onRevert={revertDreamChange}
+                    onComment={addMorningReviewComment}
+                    onBranch={branchDreamChange}
+                    onReviewSaved={onDreamReviewSaved}
+                  />
+                )}
                 <EditorContent editor={editor} />
               </>
             )}
@@ -815,6 +934,49 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
       </Sheet>
     </main>
   );
+}
+
+function decisionAlertsFor(
+  decision: ThinkingItem,
+  insights: LoopInsight[],
+): DecisionAlert[] {
+  const statement = getText(decision, "statement").trim().toLowerCase();
+  return insights.flatMap((insight) => {
+    if (!Array.isArray(insight.decision_alerts)) return [];
+    return insight.decision_alerts.flatMap((value) => {
+      if (!value || typeof value !== "object") return [];
+      const alert = value as Record<string, unknown>;
+      const decisionId =
+        typeof alert.decisionId === "string" ? alert.decisionId : null;
+      const decisionStatement =
+        typeof alert.decisionStatement === "string"
+          ? alert.decisionStatement
+          : "";
+      if (
+        decisionId !== decision.id &&
+        decisionStatement.trim().toLowerCase() !== statement
+      ) {
+        return [];
+      }
+      if (
+        alert.severity !== "watch" &&
+        alert.severity !== "reconsider"
+      ) {
+        return [];
+      }
+      return [{
+        decisionId,
+        decisionStatement,
+        severity: alert.severity,
+        reason: typeof alert.reason === "string" ? alert.reason : "",
+        conflictingEvidence: asStrings(alert.conflictingEvidence),
+        smallestExperiment:
+          typeof alert.smallestExperiment === "string"
+            ? alert.smallestExperiment
+            : "",
+      } satisfies DecisionAlert];
+    });
+  });
 }
 
 function Rail({
@@ -848,7 +1010,12 @@ function Rail({
   dreamApplication: "idle" | "applying" | "applied" | "failed";
   currentCheckpointId: string | null;
 }) {
-  const itemTab = activeTab !== "loops" && activeTab !== "history" ? activeTab : null;
+  const itemTab =
+    activeTab !== "loops" &&
+    activeTab !== "history" &&
+    activeTab !== "reasoning"
+      ? activeTab
+      : null;
   const itemKind: ItemKind | null = itemTab
     ? itemKindForCollection(itemTab as ItemCollection)
     : null;
@@ -886,6 +1053,16 @@ function Rail({
               dreamApplication={dreamApplication}
             />
           )}
+          {activeTab === "reasoning" && (
+            <ReasoningWorkspace
+              projectId={initialData.project.id}
+              userId={initialData.user.id}
+              editable={editable}
+              initialNodes={initialData.reasoningNodes}
+              initialEdges={initialData.reasoningEdges}
+              insights={insights}
+            />
+          )}
           {itemKind && (editable || itemKind === "comment") && (
             <WorkspaceItemForm
               key={itemKind}
@@ -899,15 +1076,24 @@ function Rail({
           )}
           {itemTab &&
             (items[itemTab].length ? (
-              items[itemTab].map((item) => (
-                <ThinkingCard
-                  key={item.id}
-                  item={item}
-                  kind={itemTab}
-                  editable={editable}
-                  onAcceptBranch={onAcceptBranch}
-                />
-              ))
+              items[itemTab].map((item) =>
+                itemTab === "decisions" ? (
+                  <DecisionMemoryCard
+                    key={item.id}
+                    item={item}
+                    editable={editable}
+                    alerts={decisionAlertsFor(item, insights)}
+                  />
+                ) : (
+                  <ThinkingCard
+                    key={item.id}
+                    item={item}
+                    kind={itemTab}
+                    editable={editable}
+                    onAcceptBranch={onAcceptBranch}
+                  />
+                ),
+              )
             ) : (
               <EmptyPanel tab={itemTab} />
             ))}
@@ -1273,7 +1459,7 @@ function ThinkingCard({
   onAcceptBranch,
 }: {
   item: ThinkingItem;
-  kind: Exclude<RailTab, "loops" | "history">;
+  kind: Exclude<RailTab, "loops" | "reasoning" | "history">;
   editable: boolean;
   onAcceptBranch: (item: ThinkingItem) => void;
 }) {

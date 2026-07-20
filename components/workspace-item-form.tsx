@@ -29,6 +29,10 @@ export function WorkspaceItemForm({
   const [primary, setPrimary] = useState("");
   const [secondary, setSecondary] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [alternatives, setAlternatives] = useState("");
+  const [assumptions, setAssumptions] = useState("");
+  const [reconsiderWhen, setReconsiderWhen] = useState("");
+  const [reviewAt, setReviewAt] = useState("");
   const [saving, setSaving] = useState(false);
 
   const labels = {
@@ -90,6 +94,16 @@ export function WorkspaceItemForm({
           project_id: projectId,
           statement: primary.trim(),
           rationale: secondary.trim(),
+          alternatives: alternatives
+            .split("\n")
+            .map((value) => value.trim())
+            .filter(Boolean),
+          assumptions: assumptions
+            .split("\n")
+            .map((value) => value.trim())
+            .filter(Boolean),
+          reconsider_when: reconsiderWhen.trim(),
+          review_at: reviewAt ? new Date(`${reviewAt}T09:00:00`).toISOString() : null,
           created_by: userId,
         })
         .select("*")
@@ -130,6 +144,10 @@ export function WorkspaceItemForm({
     setPrimary("");
     setSecondary("");
     setFile(null);
+    setAlternatives("");
+    setAssumptions("");
+    setReconsiderWhen("");
+    setReviewAt("");
     onCreated(kind, data);
     toast.success(
       `${
@@ -162,6 +180,37 @@ export function WorkspaceItemForm({
         rows={2}
         required={(kind === "source" && !file) || kind === "branch"}
       />
+      {kind === "decision" && (
+        <div className="space-y-2 border-t pt-2">
+          <Textarea
+            value={alternatives}
+            onChange={(event) => setAlternatives(event.target.value)}
+            placeholder="Alternatives rejected (one per line)"
+            rows={2}
+          />
+          <Textarea
+            value={assumptions}
+            onChange={(event) => setAssumptions(event.target.value)}
+            placeholder="Assumptions this decision depends on (one per line)"
+            rows={2}
+          />
+          <Textarea
+            value={reconsiderWhen}
+            onChange={(event) => setReconsiderWhen(event.target.value)}
+            placeholder="Reconsider this decision when…"
+            rows={2}
+          />
+          <label className="block text-[11px] font-medium text-muted-foreground">
+            Review date (optional)
+            <Input
+              className="mt-1"
+              type="date"
+              value={reviewAt}
+              onChange={(event) => setReviewAt(event.target.value)}
+            />
+          </label>
+        </div>
+      )}
       {kind === "source" && (
         <Input
           type="file"

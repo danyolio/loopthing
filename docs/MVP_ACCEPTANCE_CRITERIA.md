@@ -26,7 +26,16 @@
 11. The main document highlights the latest Dream's changes in purple and
     later human additions in green, with controls to hide the highlighting or
     open the full version diff.
-12. Weekly Loops use the same durable workflow for broader review.
+12. Morning Review lets a person keep, revert, comment on, or branch each
+    overnight change. Every action is recorded against the Dream version.
+13. A reasoning ledger separates facts, evidence, claims, assumptions,
+    hypotheses, preferences, questions, risks, proposals, experiments, and
+    decisions.
+14. A reasoning map renders the same ledger as a directed graph. Human input is
+    green and Dream development is purple.
+15. Decisions retain rationale, rejected alternatives, assumptions, a review
+    date, and an explicit condition for reconsideration.
+16. Weekly Loops use the same durable workflow for broader review.
 
 ## Measurable acceptance criteria
 
@@ -58,7 +67,19 @@
   preserved.
 - Dream review: changes from the latest Dream are purple and later human
   additions are green in the main document by default; people can hide or show
-  them and open Versions for removed text and the complete diff.
+  them, review each change individually, and open Versions for removed text and
+  the complete diff.
+- Morning Review: each Dream block can be kept, reverted, turned into feedback
+  for the next Dream, or preserved as a branch; the chosen disposition
+  survives reload.
+- Reasoning ledger: typed reasoning objects and their directed relationships
+  are durable project context, protected by project RLS, and supplied to both
+  manual and scheduled Loops.
+- Decision memory: each decision can record rejected alternatives, assumptions,
+  reconsideration conditions, and a review date. A Loop can flag genuinely
+  conflicting new evidence and propose the smallest useful test.
+- Reasoning map: the ledger and the latest immutable Dream reasoning snapshot
+  render as an Argo-style DAG with clear source colour and labelled edges.
 - Invitations: an Owner can create or refresh up to 20 email-bound invitation
   links in one request without weakening the existing project-level RLS rules.
 - Security: secrets remain server-only, uploads use a private bucket, cron

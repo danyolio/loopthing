@@ -66,8 +66,41 @@ export type LoopInsight = {
   next_action: string;
   thinking_evolution: string;
   change_attribution: unknown;
+  change_details: unknown;
+  reasoning_model: unknown;
+  decision_alerts: unknown;
   accepted_at: string | null;
   created_at: string;
+};
+
+export type ReasoningNode = ThinkingItem & {
+  project_id: string;
+  stable_key: string | null;
+  node_type: string;
+  label: string;
+  detail: string;
+  status: string;
+  confidence: number | null;
+  origin: "human" | "dream";
+};
+
+export type ReasoningEdge = ThinkingItem & {
+  project_id: string;
+  from_node_id: string;
+  to_node_id: string;
+  relation: string;
+  origin: "human" | "dream";
+};
+
+export type DreamChangeReview = ThinkingItem & {
+  project_id: string;
+  dream_version_id: string;
+  block_key: string;
+  before_text: string;
+  after_text: string;
+  status: "kept" | "reverted" | "commented" | "branched";
+  note: string;
+  reviewed_by: string;
 };
 
 export type WorkspaceData = {
@@ -84,6 +117,9 @@ export type WorkspaceData = {
   decisions: ThinkingItem[];
   comments: ThinkingItem[];
   branches: ThinkingItem[];
+  reasoningNodes: ReasoningNode[];
+  reasoningEdges: ReasoningEdge[];
+  dreamChangeReviews: DreamChangeReview[];
   versions: ThinkingItem[];
   runs: LoopRun[];
   insights: LoopInsight[];

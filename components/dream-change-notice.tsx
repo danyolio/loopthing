@@ -1,10 +1,11 @@
-import { Highlighter, History } from "lucide-react";
+import { Highlighter, History, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type DreamChangeNoticeProps = {
   changedSections: number;
   highlightsVisible: boolean;
   onToggleHighlights: () => void;
+  onOpenReview: () => void;
   onOpenVersions: () => void;
 };
 
@@ -12,6 +13,7 @@ export function DreamChangeNotice({
   changedSections,
   highlightsVisible,
   onToggleHighlights,
+  onOpenReview,
   onOpenVersions,
 }: DreamChangeNoticeProps) {
   if (!changedSections) return null;
@@ -50,6 +52,15 @@ export function DreamChangeNotice({
           </div>
         </div>
         <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            size="sm"
+            className="h-7 bg-violet-700 text-white hover:bg-violet-800"
+            onClick={onOpenReview}
+          >
+            <ListChecks />
+            Morning Review
+          </Button>
           <Button
             type="button"
             variant="ghost"

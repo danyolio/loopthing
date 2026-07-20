@@ -5,6 +5,7 @@ import {
   itemKindForCollection,
 } from "@/lib/workspace-items";
 import {
+  dreamBlockChanges,
   dreamChangedAfterBlockIndexes,
   dreamChangedCurrentBlockIndexes,
   humanChangedCurrentBlockIndexes,
@@ -59,6 +60,32 @@ describe("workspace contracts", () => {
         "Open with a concrete example.",
       ]),
     ).toEqual([3]);
+  });
+
+  it("turns changed, added, and removed Dream blocks into reviewable actions", () => {
+    expect(
+      dreamBlockChanges(
+        "Keep.\n\nRewrite me.\n\nRemove me.",
+        "Keep.\n\nRewritten.\n\nAdd me.",
+      ),
+    ).toEqual([
+      {
+        blockKey: "changed:1:1",
+        kind: "changed",
+        beforeIndex: 1,
+        afterIndex: 1,
+        beforeText: "Rewrite me.",
+        afterText: "Rewritten.",
+      },
+      {
+        blockKey: "changed:2:2",
+        kind: "changed",
+        beforeIndex: 2,
+        afterIndex: 2,
+        beforeText: "Remove me.",
+        afterText: "Add me.",
+      },
+    ]);
   });
 
   it("does not mislabel a Dream section after a person rewrites it", () => {

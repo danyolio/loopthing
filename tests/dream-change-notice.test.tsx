@@ -8,6 +8,7 @@ import { DreamChangeNotice } from "@/components/dream-change-notice";
 describe("Dream change notice", () => {
   it("explains the highlights and exposes both review controls", () => {
     const onToggleHighlights = vi.fn();
+    const onOpenReview = vi.fn();
     const onOpenVersions = vi.fn();
 
     render(
@@ -15,6 +16,7 @@ describe("Dream change notice", () => {
         changedSections={3}
         highlightsVisible
         onToggleHighlights={onToggleHighlights}
+        onOpenReview={onOpenReview}
         onOpenVersions={onOpenVersions}
       />,
     );
@@ -25,9 +27,11 @@ describe("Dream change notice", () => {
     fireEvent.click(
       screen.getByRole("button", { name: /hide highlights/i }),
     );
+    fireEvent.click(screen.getByRole("button", { name: /morning review/i }));
     fireEvent.click(screen.getByRole("button", { name: /open versions/i }));
 
     expect(onToggleHighlights).toHaveBeenCalledOnce();
+    expect(onOpenReview).toHaveBeenCalledOnce();
     expect(onOpenVersions).toHaveBeenCalledOnce();
   });
 });

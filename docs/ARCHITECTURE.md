@@ -1,4 +1,4 @@
-# Loop Thing architecture
+# Loopthing architecture
 
 ## Deployment
 
@@ -42,6 +42,17 @@
   matching Dream changes are purple, while blocks added or rewritten by people
   after that Dream are green. The source labels are presentation-only; hiding
   them never mutates Yjs content.
+- Morning Review derives stable block changes from the linked pre-Dream and
+  post-Dream versions. A disposition is stored in `dream_change_reviews`.
+  Reverts create a new canonical checkpoint, feedback becomes green project
+  input for the next Dream, and branches preserve the full Dream version.
+- `reasoning_nodes` and `reasoning_edges` are the durable human-approved
+  reasoning ledger. Sources, questions, and decisions synchronise into it.
+  Each Loop also stores an immutable `reasoning_model` snapshot with its
+  insight. The interface renders both through one directed-graph model.
+- Decisions retain rejected alternatives, assumptions, reconsideration
+  conditions, and review dates. Each Loop can store a `decision_alerts`
+  snapshot when supplied evidence undermines one of those conditions.
 - An Owner can create or refresh up to 20 invitations in one atomic database
   operation. Each invitation has its own email-bound, expiring token.
 - Daily Dreams run around 03:00 AEST / 04:00 AEDT, only when activity has
