@@ -69,6 +69,10 @@
   additions are green in the main document by default; people can hide or show
   them, review each change individually, and open Versions for removed text and
   the complete diff.
+- Human deletions: passages removed or rewritten after the latest Dream appear
+  as red strikethroughs beneath the working document, update as collaborators
+  edit, remain absent from canonical content, and are treated as direction by
+  the next Loop.
 - Morning Review: each Dream block can be kept, reverted, turned into feedback
   for the next Dream, or preserved as a branch; the chosen disposition
   survives reload.

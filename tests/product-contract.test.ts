@@ -131,6 +131,10 @@ describe("product invariants", () => {
 
   it("distinguishes Dream changes from human additions in the document", () => {
     const workspace = readFileSync("components/workspace.tsx", "utf8");
+    const deletedMaterial = readFileSync(
+      "components/deleted-material-tray.tsx",
+      "utf8",
+    );
     const plugin = readFileSync("lib/dream-highlight-plugin.ts", "utf8");
     const styles = readFileSync("app/globals.css", "utf8");
 
@@ -142,6 +146,12 @@ describe("product invariants", () => {
     expect(styles).toContain(".tiptap .human-change-highlight");
     expect(styles).toContain("#e9d5ff");
     expect(styles).toContain("#bbf7d0");
+    expect(workspace).toContain("<DeletedMaterialTray");
+    expect(deletedMaterial).toContain("<del");
+    expect(deletedMaterial).toContain("Removed since the last Dream");
+    expect(CORE_SYSTEM_PROMPT).toContain(
+      "Do not restore removed passages merely because they existed",
+    );
   });
 
   it("ships durable review, reasoning, and decision-memory primitives", () => {

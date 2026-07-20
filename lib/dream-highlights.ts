@@ -14,6 +14,11 @@ export type DreamBlockChange = {
   afterText: string;
 };
 
+export type HumanDeletedBlock = {
+  dreamIndex: number;
+  text: string;
+};
+
 function textOf(item: ThinkingItem | undefined, key: string) {
   const value = item?.[key];
   return typeof value === "string" ? value : "";
@@ -184,6 +189,23 @@ export function humanChangedCurrentBlockIndexes(
 
   return normalizedCurrentBlocks.flatMap((_, currentIndex) =>
     unchangedCurrentIndexes.has(currentIndex) ? [] : [currentIndex],
+  );
+}
+
+export function humanDeletedDreamBlocks(
+  dreamAfter: string,
+  currentBlocks: string[],
+): HumanDeletedBlock[] {
+  const dreamBlocks = textBlocks(dreamAfter);
+  const normalizedCurrentBlocks = currentBlocks.map(normalizeBlock);
+  const retainedDreamIndexes = new Set(
+    matchingIndexes(dreamBlocks, normalizedCurrentBlocks).map(
+      ([dreamIndex]) => dreamIndex,
+    ),
+  );
+
+  return dreamBlocks.flatMap((text, dreamIndex) =>
+    retainedDreamIndexes.has(dreamIndex) ? [] : [{ dreamIndex, text }],
   );
 }
 

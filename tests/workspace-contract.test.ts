@@ -9,6 +9,7 @@ import {
   dreamChangedAfterBlockIndexes,
   dreamChangedCurrentBlockIndexes,
   humanChangedCurrentBlockIndexes,
+  humanDeletedDreamBlocks,
 } from "@/lib/dream-highlights";
 import { diffTextByLine } from "@/lib/text-diff";
 
@@ -117,5 +118,17 @@ describe("workspace contracts", () => {
         ],
       ),
     ).toEqual([0]);
+  });
+
+  it("preserves deleted and rewritten Dream passages for the redline tray", () => {
+    expect(
+      humanDeletedDreamBlocks(
+        "Thesis\n\nKeep this.\n\nDelete this.\n\nRewrite this.",
+        ["Thesis", "Keep this.", "Rewritten by a person."],
+      ),
+    ).toEqual([
+      { dreamIndex: 2, text: "Delete this." },
+      { dreamIndex: 3, text: "Rewrite this." },
+    ]);
   });
 });

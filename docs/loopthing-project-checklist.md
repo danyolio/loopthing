@@ -98,6 +98,8 @@ production on 20 July 2026.
 - [x] Highlight the latest Dream's changes in purple and later human additions
   in green directly in the main document, with controls to hide them or open
   the full version diff.
+- [x] Show passages deleted or rewritten after the latest Dream as redlines
+  beneath the canonical document and treat their removal as human direction.
 - [x] Add a persistent Morning Review for keeping, reverting, commenting on, or
   branching each Dream change.
 - [x] Add a durable typed reasoning ledger and an Argo-style DAG using green
@@ -183,6 +185,9 @@ production on 20 July 2026.
   rewrites render in green, and saved feedback is green in the context rail.
   Hide/show removes and restores the decorations without changing canonical
   content.
+- Human deletion redlines: full deletions and rewrites are derived from the
+  latest Dream version, rendered below rather than reinserted into the
+  canonical document, and supplied to the next Loop as intentional direction.
 - Morning Review, reasoning ledger, DAG, and decision memory: passed release
   verification. The production schema, backfill, RLS policies, and matching
   foreign-key indexes are live; the production build and browser checks pass;

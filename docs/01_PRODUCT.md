@@ -47,6 +47,9 @@ reflection, and revision:
 - Human edits remain canonical until a person explicitly accepts a proposal.
 - Significant alternatives become branches rather than silent rewrites.
 - History must show what changed, when, by whom, and why.
+- Material deleted or rewritten after a Dream stays out of the canonical
+  document but remains visible as a redline beneath it. A later Dream must
+  treat that removal as human direction instead of casually restoring it.
 - Decisions must retain their rationale, rejected alternatives, assumptions,
   and the evidence that should cause the team to reconsider.
 - The reasoning map must show how evidence supports or challenges claims and

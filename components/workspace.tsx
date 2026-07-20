@@ -36,6 +36,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { DreamChangeNotice } from "@/components/dream-change-notice";
 import { DecisionMemoryCard, type DecisionAlert } from "@/components/decision-memory-card";
+import { DeletedMaterialTray } from "@/components/deleted-material-tray";
 import { EditorToolbar } from "@/components/editor-toolbar";
 import { InviteDialog } from "@/components/invite-dialog";
 import { MorningReview } from "@/components/morning-review";
@@ -915,6 +916,12 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
                   />
                 )}
                 <EditorContent editor={editor} />
+                {workspaceReady && latestDreamAfter && (
+                  <DeletedMaterialTray
+                    editor={editor}
+                    dreamAfter={latestDreamAfter}
+                  />
+                )}
               </>
             )}
           </div>

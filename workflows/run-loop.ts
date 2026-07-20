@@ -254,6 +254,7 @@ Success means:
 - use whyItMatters for an honest critique of what remains weak, flabby, unsupported, or unresolved
 - use whatChanged for the concrete changes made to the document
 - use changeAttribution.directives only for changes traceable to explicit human notes, feedback, decisions, questions, or direct edits
+- compare the current document with the latest supplied Dream proposal; treat passages people deleted or rewrote as direction, and do not casually resurrect them
 - use changeAttribution.independent for editorial or analytical choices you made without an explicit instruction
 - use changeAttribution.preserved for important arguments, passages, or constraints you intentionally left intact
 - use changeDetails to connect each material rewrite to a short excerpt, its reason, its provenance, and the exact source IDs that prompted it
@@ -278,6 +279,7 @@ Success means:
 - leave the canonical document unchanged
 - propose content only when it creates a genuinely clearer next state
 - identify which changes follow explicit human direction, which are your own editorial choices, and what you intentionally preserved
+- compare the current document with the latest supplied Dream proposal; treat passages people deleted or rewrote as direction, and do not casually resurrect them
 - use changeDetails to explain the provenance and source IDs behind each material proposed change
 - return a compact reasoning graph rather than a flat summary
 - flag recorded decisions only when new evidence actually undermines their assumptions or reconsideration conditions
