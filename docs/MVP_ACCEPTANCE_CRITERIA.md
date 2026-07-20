@@ -9,35 +9,38 @@
    collaborators, and records immutable checkpoints.
 4. They add a source, unresolved question, decision, loose note, or significant
    alternative branch beside the document.
-5. They run a light Loop and see durable progress stages.
-6. Loopthing returns passage, section, and document-level strengths, critiques,
+5. They select exact document text, attach a comment, and see the passage
+   marked in green. Clicking the marker or comment moves between the text and
+   its thread.
+6. They run a light Loop and see durable progress stages.
+7. Loopthing returns passage, section, and document-level strengths, critiques,
    questions, conjectures, tensions, connections, and possibilities.
-7. The canonical document remains unchanged until an Owner or Editor explicitly
+8. The canonical document remains unchanged until an Owner or Editor explicitly
    accepts the proposal.
-8. If there is new activity, the nightly Dream follows the new threads,
+9. If there is new activity, the nightly Dream follows the new threads,
    evaluates what is strong and weak, and leaves thoughtful interventions. A
    rewrite is optional.
-9. People can reply to, dismiss, resolve, or incorporate the criticism. Those
+10. People can reply to, dismiss, resolve, or incorporate the criticism. Those
    responses become human input for the next Dream.
-10. When the Dream proposes a rewrite, the first Owner or Editor to open the
+11. When the Dream proposes a rewrite, the first Owner or Editor to open the
     project wakes it into the document as a new immutable version. The previous
     version remains restorable.
-11. Versions presents any Dream rewrite as a Before → After change set, with a
+12. Versions presents any Dream rewrite as a Before → After change set, with a
     document diff separating explicit human direction from Loopthing's own
     editorial development.
-12. The main document highlights the latest Dream's changes in purple and
+13. The main document highlights the latest Dream's changes in purple and
     later human additions in green, with controls to hide the highlighting or
     open the full version diff.
-13. Morning Review lets a person keep, revert, comment on, or branch each
+14. Morning Review lets a person keep, revert, comment on, or branch each
     overnight change. Every action is recorded against the Dream version.
-14. A reasoning ledger separates facts, evidence, claims, assumptions,
+15. A reasoning ledger separates facts, evidence, claims, assumptions,
     hypotheses, preferences, questions, risks, proposals, experiments, and
     decisions.
-15. A reasoning map renders the same ledger as a directed graph. Human input is
+16. A reasoning map renders the same ledger as a directed graph. Human input is
     green and Dream development is purple.
-16. Decisions retain rationale, rejected alternatives, assumptions, a review
+17. Decisions retain rationale, rejected alternatives, assumptions, a review
     date, and an explicit condition for reconsideration.
-17. Weekly Loops use the same durable workflow for broader review.
+18. Weekly Loops use the same durable workflow for broader review.
 
 ## Measurable acceptance criteria
 
@@ -54,6 +57,10 @@
   with author, reason, sequence, and timestamp.
 - Thinking objects: sources, private uploads, questions, decisions, comments,
   and branches can be created and revisited beside the document.
+- Human inline comments: every project member can select document text, attach
+  a comment, reopen it from a green document marker, locate it from the
+  Comments rail, and resolve their own comment. Owners can resolve any comment.
+  Resolving removes the active decoration without deleting the durable input.
 - Loops: manual, daily, and weekly modes share one Zod-validated structured
   output schema and store their progress and result.
 - Critique: each Loop can return specific positive and negative judgment,

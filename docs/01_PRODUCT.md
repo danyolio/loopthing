@@ -34,17 +34,19 @@ reflection, and revision:
 ## Core loop
 
 1. Add unfinished material whenever it emerges.
-2. Keep sources, questions, decisions, comments, and branches attached to the
+2. Highlight exact text to leave a human comment, or add a broader project
+   note. Both become material for the next Dream.
+3. Keep sources, questions, decisions, comments, and branches attached to the
    project.
-3. Run a Loop, or let a scheduled Loop review what changed.
-4. Read Loopthing's passage, section, and document-level interventions:
+4. Run a Loop, or let a scheduled Loop review what changed.
+5. Read Loopthing's passage, section, and document-level interventions:
    strengths, critiques, questions, conjectures, tensions, connections, and
    possibilities.
-5. Reply, dismiss, resolve, or incorporate each intervention. Responses become
+6. Reply, dismiss, resolve, or incorporate each intervention. Responses become
    material for the next Dream.
-6. When a Dream proposes a revision, review each overnight change: keep it,
+7. When a Dream proposes a revision, review each overnight change: keep it,
    revert it, respond with feedback, or preserve the Dream as a branch.
-7. Revisit the reasoning ledger to see facts, claims, assumptions,
+8. Revisit the reasoning ledger to see facts, claims, assumptions,
    hypotheses, questions, risks, and decisions as distinct objects.
 
 ## Product principles
@@ -57,6 +59,9 @@ reflection, and revision:
   judgment should protect the strongest ideas and passages from needless edits.
 - Feedback belongs at the level it evaluates: exact passage, named section, or
   whole document.
+- People can select document text and attach their own green comment without
+  changing the canonical document. Resolving the comment removes its active
+  mark but preserves the contribution as project history and Dream context.
 - Human edits remain canonical until a person explicitly accepts a proposal.
 - Significant alternatives become branches rather than silent rewrites.
 - History must show what changed, when, by whom, and why.

@@ -72,6 +72,9 @@ production on 20 July 2026.
   section, and document-level comments embedded in the workspace.
 - [x] Let members reply to, resolve, dismiss, or incorporate AI criticism and
   feed those responses into the next Dream.
+- [x] Let every project member highlight exact document text, attach a durable
+  human comment, move between its green marker and Comments rail, and resolve
+  it without deleting its value to the next Dream.
 
 ## Authentication, data, and permissions
 

@@ -16,8 +16,8 @@ reviews, long-form writing such as essays and blog posts, and hiring decisions.
   invitations, and private Storage
 - Tiptap with Yjs, IndexedDB recovery, Hocuspocus WebSockets, awareness, and
   immutable checkpoints
-- Sources and uploads, questions, decisions, comments, branches, review,
-  restoration, and history
+- Sources and uploads, questions, decisions, comments anchored to selected
+  document text, branches, review, restoration, and history
 - Passage, section, and document-level AI conjecture and criticism, including
   specific positive judgment and durable human responses
 - Light, daily, and weekly Loops on Vercel Workflow DevKit

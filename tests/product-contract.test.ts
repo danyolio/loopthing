@@ -148,6 +148,37 @@ describe("product invariants", () => {
     expect(workflow).toContain("critique_comments: result.critiqueComments");
   });
 
+  it("lets every project member anchor human comments to selected document text", () => {
+    const migration = readFileSync(
+      "supabase/migrations/20260719024832_loopthing_mvp.sql",
+      "utf8",
+    );
+    const workspace = readFileSync("components/workspace.tsx", "utf8");
+    const composer = readFileSync(
+      "components/inline-comment-composer.tsx",
+      "utf8",
+    );
+    const panel = readFileSync(
+      "components/human-comments-panel.tsx",
+      "utf8",
+    );
+    const plugin = readFileSync(
+      "lib/human-comment-anchor-plugin.ts",
+      "utf8",
+    );
+
+    expect(migration).toContain("anchor jsonb not null default '{}'::jsonb");
+    expect(migration).toContain("create policy comments_insert_member");
+    expect(workspace).toContain("<InlineCommentComposer");
+    expect(workspace).toContain("<HumanCommentsPanel");
+    expect(composer).toContain("Comment on selected text");
+    expect(composer).toContain("Add comment");
+    expect(plugin).toContain('class: "human-comment-anchor"');
+    expect(plugin).toContain("dataset.humanCommentId");
+    expect(panel).toContain("Resolve");
+    expect(panel).toContain("Locate");
+  });
+
   it("creates several secure email-bound invitations in one request", () => {
     const route = readFileSync("app/api/invitations/route.ts", "utf8");
     const dialog = readFileSync("components/invite-dialog.tsx", "utf8");

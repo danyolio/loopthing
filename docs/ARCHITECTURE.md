@@ -50,6 +50,13 @@
   `critique_reviews` stores the team's response and disposition. A database
   trigger mirrors that response into ordinary human project comments so it
   counts as activity and becomes context for the next Dream.
+- Human inline comments reuse `comments.anchor`. The anchor stores the selected
+  quote, nearby context, and original ProseMirror position hints. The client
+  resolves the quote against the current document and renders an unresolved
+  green decoration and marker without inserting comment metadata into Yjs.
+  Owners can resolve any comment; other members can resolve their own. The
+  durable comment remains part of Loop context after its active mark is
+  resolved.
 - Morning Review derives stable block changes from the linked pre-Dream and
   post-Dream versions. A disposition is stored in `dream_change_reviews`.
   Reverts create a new canonical checkpoint, feedback becomes green project

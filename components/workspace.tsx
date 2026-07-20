@@ -40,6 +40,8 @@ import { DreamChangeNotice } from "@/components/dream-change-notice";
 import { DecisionMemoryCard, type DecisionAlert } from "@/components/decision-memory-card";
 import { DeletedMaterialTray } from "@/components/deleted-material-tray";
 import { EditorToolbar } from "@/components/editor-toolbar";
+import { HumanCommentsPanel } from "@/components/human-comments-panel";
+import { InlineCommentComposer } from "@/components/inline-comment-composer";
 import { InviteDialog } from "@/components/invite-dialog";
 import { MorningReview } from "@/components/morning-review";
 import { ReasoningWorkspace } from "@/components/reasoning-workspace";
@@ -89,6 +91,15 @@ import {
   dreamHighlightPluginKey,
 } from "@/lib/dream-highlight-plugin";
 import {
+  createHumanCommentAnchorPlugin,
+  humanCommentAnchorPluginKey,
+} from "@/lib/human-comment-anchor-plugin";
+import {
+  parseHumanComments,
+  type HumanComment,
+  type HumanTextCommentAnchor,
+} from "@/lib/human-comments";
+import {
   dreamBlockChanges,
   textBlocks,
   type DreamBlockChange,
@@ -119,7 +130,7 @@ const railTabs: { id: RailTab; label: string; icon: typeof Sparkles }[] = [
   { id: "sources", label: "Sources", icon: Link2 },
   { id: "questions", label: "Questions", icon: Lightbulb },
   { id: "decisions", label: "Decisions", icon: CircleDot },
-  { id: "comments", label: "Notes & feedback", icon: MessageSquare },
+  { id: "comments", label: "Comments", icon: MessageSquare },
   { id: "branches", label: "Branches", icon: GitBranch },
   { id: "reasoning", label: "Thinking", icon: Network },
   { id: "history", label: "Versions", icon: History },
@@ -218,6 +229,9 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
   const [selectedCritiqueKey, setSelectedCritiqueKey] = useState<string | null>(
     null,
   );
+  const [selectedHumanCommentId, setSelectedHumanCommentId] = useState<
+    string | null
+  >(null);
   const [dreamChangeReviews, setDreamChangeReviews] = useState(
     initialData.dreamChangeReviews,
   );
@@ -268,6 +282,10 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
     () => parseCritiqueComments(activeCritiqueInsight?.critique_comments),
     [activeCritiqueInsight],
   );
+  const humanComments = useMemo(
+    () => parseHumanComments(items.comments),
+    [items.comments],
+  );
 
   const openCritique = useCallback((commentKey?: string) => {
     setSelectedCritiqueKey(commentKey ?? null);
@@ -283,6 +301,25 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
     setSelectedCritiqueKey(commentKey);
     const marker = [...document.querySelectorAll<HTMLElement>("[data-critique-key]")]
       .find((element) => element.dataset.critiqueKey === commentKey);
+    marker?.scrollIntoView({ behavior: "smooth", block: "center" });
+    marker?.focus({ preventScroll: true });
+  }, []);
+
+  const openHumanComment = useCallback((commentId: string) => {
+    setSelectedHumanCommentId(commentId);
+    setTab("comments");
+    if (window.matchMedia("(min-width: 1024px)").matches) {
+      setRailOpen(true);
+    } else {
+      setMobileRail(true);
+    }
+  }, []);
+
+  const locateHumanComment = useCallback((commentId: string) => {
+    setSelectedHumanCommentId(commentId);
+    const marker = [
+      ...document.querySelectorAll<HTMLElement>("[data-human-comment-id]"),
+    ].find((element) => element.dataset.humanCommentId === commentId);
     marker?.scrollIntoView({ behavior: "smooth", block: "center" });
     marker?.focus({ preventScroll: true });
   }, []);
@@ -415,6 +452,28 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
       }
     };
   }, [critiqueComments, editor, openCritique]);
+
+  useEffect(() => {
+    if (
+      !editor ||
+      !humanComments.some((comment) => comment.anchor && !comment.resolvedAt)
+    ) {
+      return;
+    }
+
+    editor.registerPlugin(
+      createHumanCommentAnchorPlugin({
+        comments: humanComments,
+        onSelect: openHumanComment,
+      }),
+    );
+
+    return () => {
+      if (!editor.isDestroyed) {
+        editor.unregisterPlugin(humanCommentAnchorPluginKey);
+      }
+    };
+  }, [editor, humanComments, openHumanComment]);
 
   useEffect(() => {
     if (!editor || !localReady || !remoteReady || seeded.current) return;
@@ -728,6 +787,62 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
     }));
   }
 
+  async function addInlineComment(
+    body: string,
+    anchor: HumanTextCommentAnchor,
+  ) {
+    const { data, error } = await createClient()
+      .from("comments")
+      .insert({
+        project_id: initialData.project.id,
+        document_id: initialData.document.id,
+        author_id: initialData.user.id,
+        body,
+        anchor,
+      })
+      .select("*")
+      .single();
+    if (error || !data) {
+      toast.error(error?.message ?? "Could not add this comment.");
+      return false;
+    }
+
+    setItems((current) => ({
+      ...current,
+      comments: [data, ...current.comments],
+    }));
+    openHumanComment(data.id);
+    toast.success("Comment added to the selected text.");
+    return true;
+  }
+
+  async function resolveHumanComment(
+    comment: HumanComment,
+    resolved: boolean,
+  ) {
+    const { data, error } = await createClient()
+      .from("comments")
+      .update({
+        resolved_at: resolved ? new Date().toISOString() : null,
+        resolved_by: resolved ? initialData.user.id : null,
+      })
+      .eq("id", comment.id)
+      .select("*")
+      .single();
+    if (error || !data) {
+      toast.error(error?.message ?? "Could not update this comment.");
+      return;
+    }
+
+    setItems((current) => ({
+      ...current,
+      comments: current.comments.map((item) =>
+        item.id === data.id ? data : item,
+      ),
+    }));
+    toast.success(resolved ? "Comment resolved." : "Comment reopened.");
+  }
+
   function openVersions() {
     setTab("history");
     if (window.matchMedia("(min-width: 1024px)").matches) {
@@ -854,6 +969,11 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
       onSelectCritique={setSelectedCritiqueKey}
       onLocateCritique={locateCritique}
       onCritiqueReviewSaved={onCritiqueReviewSaved}
+      humanComments={humanComments}
+      selectedHumanCommentId={selectedHumanCommentId}
+      onSelectHumanComment={setSelectedHumanCommentId}
+      onLocateHumanComment={locateHumanComment}
+      onResolveHumanComment={resolveHumanComment}
     />
   );
 
@@ -999,7 +1119,13 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
                     onReviewSaved={onDreamReviewSaved}
                   />
                 )}
-                <EditorContent editor={editor} />
+                <div className="relative">
+                  <InlineCommentComposer
+                    editor={editor}
+                    onSubmit={addInlineComment}
+                  />
+                  <EditorContent editor={editor} />
+                </div>
                 {workspaceReady && latestDreamAfter && (
                   <DeletedMaterialTray
                     editor={editor}
@@ -1092,6 +1218,11 @@ function Rail({
   onSelectCritique,
   onLocateCritique,
   onCritiqueReviewSaved,
+  humanComments,
+  selectedHumanCommentId,
+  onSelectHumanComment,
+  onLocateHumanComment,
+  onResolveHumanComment,
 }: {
   activeTab: RailTab;
   setActiveTab: (tab: RailTab) => void;
@@ -1114,6 +1245,14 @@ function Rail({
   onSelectCritique: (key: string) => void;
   onLocateCritique: (key: string) => void;
   onCritiqueReviewSaved: (review: CritiqueReview) => void;
+  humanComments: HumanComment[];
+  selectedHumanCommentId: string | null;
+  onSelectHumanComment: (id: string) => void;
+  onLocateHumanComment: (id: string) => void;
+  onResolveHumanComment: (
+    comment: HumanComment,
+    resolved: boolean,
+  ) => void;
 }) {
   const itemTab =
     activeTab !== "loops" &&
@@ -1193,7 +1332,19 @@ function Rail({
               onCreated={onCreated}
             />
           )}
+          {itemTab === "comments" && (
+            <HumanCommentsPanel
+              comments={humanComments}
+              selectedId={selectedHumanCommentId}
+              userId={initialData.user.id}
+              isOwner={initialData.role === "owner"}
+              onSelect={onSelectHumanComment}
+              onLocate={onLocateHumanComment}
+              onResolve={onResolveHumanComment}
+            />
+          )}
           {itemTab &&
+            itemTab !== "comments" &&
             (items[itemTab].length ? (
               items[itemTab].map((item) =>
                 itemTab === "decisions" ? (
