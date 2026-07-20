@@ -48,6 +48,7 @@ const insight: LoopInsight = {
   change_details: [],
   reasoning_model: { nodes: [], edges: [] },
   decision_alerts: [],
+  critique_comments: [],
   accepted_at: "2026-07-19T11:57:51.000Z",
   created_at: "2026-07-19T11:57:51.000Z",
 };

@@ -63,6 +63,26 @@ const validResult = {
     ],
   },
   decisionAlerts: [],
+  critiqueComments: [
+    {
+      commentKey: "protect-opening",
+      kind: "strength",
+      scope: "passage",
+      anchorText: "Loop Thing initially serves teams",
+      sectionTitle: null,
+      comment: "This is specific enough to give the rest of the argument a test.",
+      suggestedNextStep: "Keep this sentence intact while testing the audience.",
+    },
+    {
+      commentKey: "test-solo-countercase",
+      kind: "question",
+      scope: "document",
+      anchorText: null,
+      sectionTitle: null,
+      comment: "Does narrowing to teams discard a stronger solo-user counterexample?",
+      suggestedNextStep: null,
+    },
+  ],
 };
 
 describe("Loop structured output", () => {
@@ -76,6 +96,32 @@ describe("Loop structured output", () => {
         ...validResult,
         nextAction: "",
         evidence: [{ ...validResult.evidence[0], support: "proves" }],
+      }),
+    ).toThrow();
+  });
+
+  it("requires exact-location metadata for anchored criticism", () => {
+    expect(() =>
+      loopResultSchema.parse({
+        ...validResult,
+        critiqueComments: [
+          {
+            ...validResult.critiqueComments[0],
+            anchorText: null,
+          },
+        ],
+      }),
+    ).toThrow();
+
+    expect(() =>
+      loopResultSchema.parse({
+        ...validResult,
+        critiqueComments: [
+          {
+            ...validResult.critiqueComments[0],
+            kind: "compliment",
+          },
+        ],
       }),
     ).toThrow();
   });

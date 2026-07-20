@@ -69,8 +69,19 @@ export type LoopInsight = {
   change_details: unknown;
   reasoning_model: unknown;
   decision_alerts: unknown;
+  critique_comments: unknown;
   accepted_at: string | null;
   created_at: string;
+};
+
+export type CritiqueReview = ThinkingItem & {
+  project_id: string;
+  loop_insight_id: string;
+  comment_key: string;
+  status: "open" | "resolved" | "dismissed" | "incorporated";
+  response: string;
+  reviewed_by: string;
+  reviewed_at: string;
 };
 
 export type ReasoningNode = ThinkingItem & {
@@ -120,6 +131,7 @@ export type WorkspaceData = {
   reasoningNodes: ReasoningNode[];
   reasoningEdges: ReasoningEdge[];
   dreamChangeReviews: DreamChangeReview[];
+  critiqueReviews: CritiqueReview[];
   versions: ThinkingItem[];
   runs: LoopRun[];
   insights: LoopInsight[];

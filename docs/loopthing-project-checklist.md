@@ -12,7 +12,10 @@ production on 20 July 2026.
 - People add raw notes, sources, questions, voice transcripts, and loose
   conjecture without waiting for a polished brief.
 - Each overnight Dream follows the new material, challenges the reasoning, and
-  rewrites the document into a stronger next state.
+  develops it through conjecture and criticism. Rewriting is optional.
+- Loopthing leaves specific comments on exact passages, named sections, and the
+  document as a whole. Criticism includes what is strong and should be
+  protected, not only what is weak.
 - The document is the primary working surface.
 - Manual Loop output remains a proposal until a person accepts it. A scheduled
   daily Dream is authorised to become current after the prior version is
@@ -65,6 +68,10 @@ production on 20 July 2026.
   on the landing page.
 - [x] Show a localised countdown to the next daily Dream in each project.
 - [x] Let a new project start blank so its first Dream can develop raw input.
+- [x] Make conjecture and criticism the primary Loop output, with passage,
+  section, and document-level comments embedded in the workspace.
+- [x] Let members reply to, resolve, dismiss, or incorporate AI criticism and
+  feed those responses into the next Dream.
 
 ## Authentication, data, and permissions
 
@@ -112,8 +119,10 @@ production on 20 July 2026.
 
 ## AI and durable Loops
 
-- [x] Add `GOOGLE_GENERATIVE_AI_API_KEY` to local and production server secrets
-  without committing its value.
+- [x] Create local and production `GOOGLE_GENERATIVE_AI_API_KEY` secret slots
+  without committing a value.
+- [ ] Restore a non-empty `GOOGLE_GENERATIVE_AI_API_KEY` in Vercel Preview and
+  Production. The variable currently exists with an empty value.
 - [x] Build Gemini and OpenAI/Codex provider selection against one structured
   output schema.
 - [x] Verify a real Gemini Loop in production.
@@ -126,6 +135,8 @@ production on 20 July 2026.
 - [x] Skip daily Dreams when nothing new was contributed.
 - [x] Produce an overnight Dream report with strengths, critique, changes,
   questions, and one thread to follow.
+- [x] Let a daily Dream return thoughtful criticism without forcing a document
+  rewrite.
 - [x] Persist per-change rationale and source provenance, a compact reasoning
   graph, and decision-reconsideration alerts with every Loop.
 - [x] Apply a complete Dream rewrite atomically while preserving the prior Yjs
@@ -166,6 +177,14 @@ production on 20 July 2026.
   insights and Dreams use their own `dream:` run identity.
 - Production cron secret: verified against the database hash and corrected in
   Vercel; an authenticated production invocation started the controlled Dream.
+- Critique-first Dream: schema, prompt, persistence, passage and section
+  anchoring, document-level commentary, positive criticism, replies, and
+  dispositions passed local typecheck, lint, unit, component, production-build,
+  and browser verification. The production database migration, RLS policies,
+  same-project foreign keys, and response-to-next-Dream trigger passed
+  controlled verification without leaving test rows.
+- Critique-first real Gemini call: pending restoration of the currently empty
+  Vercel Gemini key.
 - OpenAI/Codex real provider call: pending API key.
 - Supabase advisor: no critical findings; one password-protection warning that
   is not used by the current passwordless-only flow.

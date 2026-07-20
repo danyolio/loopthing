@@ -11,7 +11,13 @@ describe("product invariants", () => {
     expect(CORE_SYSTEM_PROMPT).toContain("Never invent evidence");
     expect(CORE_SYSTEM_PROMPT).toContain("single most useful next action");
     expect(CORE_SYSTEM_PROMPT).toContain(
-      "scheduled daily Dream is the explicit exception",
+      "rewriting is optional and must not displace more useful criticism",
+    );
+    expect(CORE_SYSTEM_PROMPT).toContain(
+      "Use conjecture and criticism as the primary way",
+    );
+    expect(CORE_SYSTEM_PROMPT).toContain(
+      "specific positive judgment",
     );
   });
 
@@ -72,7 +78,7 @@ describe("product invariants", () => {
     expect(migration).toContain("essay, article, or thesis");
   });
 
-  it("ships daily Dreams as complete, restorable document versions", () => {
+  it("ships daily Dreams as critique-first reviews with optional restorable rewrites", () => {
     const migration = readFileSync(
       "supabase/migrations/20260719113226_add_overnight_dreams.sql",
       "utf8",
@@ -97,7 +103,10 @@ describe("product invariants", () => {
     expect(migration).toContain("reason <> 'dream'");
     expect(migration).toContain("new_activity");
     expect(workflow).toContain("Run the overnight Dream");
-    expect(workflow).toContain("complete rewritten document");
+    expect(workflow).toContain(
+      "make conjecture and criticism the primary work of the Dream",
+    );
+    expect(workflow).toContain("proposal may be null");
     expect(schedule).toContain('"schedule": "0 17 * * *"');
     expect(provenanceMigration).toContain(
       "add column is_dream boolean not null default false",
@@ -108,6 +117,35 @@ describe("product invariants", () => {
     expect(changeSetMigration).toContain("'pre_dream'");
     expect(changeSetMigration).toContain("base_version_id");
     expect(changeSetMigration).toContain("change_attribution");
+  });
+
+  it("embeds durable multilevel AI critique in the document and project rail", () => {
+    const migration = readFileSync(
+      "supabase/migrations/20260720051604_dream_critique_comments.sql",
+      "utf8",
+    );
+    const workspace = readFileSync("components/workspace.tsx", "utf8");
+    const panel = readFileSync("components/critique-panel.tsx", "utf8");
+    const plugin = readFileSync("lib/critique-anchor-plugin.ts", "utf8");
+    const workflow = readFileSync("workflows/run-loop.ts", "utf8");
+
+    expect(migration).toContain(
+      "add column critique_comments jsonb not null",
+    );
+    expect(migration).toContain("create table public.critique_reviews");
+    expect(migration).toContain(
+      "alter table public.critique_reviews enable row level security",
+    );
+    expect(migration).toContain("sync_critique_review_comment");
+    expect(workspace).toContain("<CritiqueNotice");
+    expect(workspace).toContain("<CritiquePanel");
+    expect(workspace).toContain("createCritiqueAnchorPlugin");
+    expect(plugin).toContain('class: "ai-critique-passage-anchor"');
+    expect(plugin).toContain('class: "ai-critique-section-anchor"');
+    expect(panel).toContain("Conjecture + criticism");
+    expect(panel).toContain("Strength");
+    expect(panel).toContain("Dismiss");
+    expect(workflow).toContain("critique_comments: result.critiqueComments");
   });
 
   it("creates several secure email-bound invitations in one request", () => {
@@ -198,8 +236,10 @@ describe("product invariants", () => {
     expect(landing).toContain("Loopthing stays quiet by day");
     expect(landing).toContain("dreams on the new material overnight");
     expect(landing).toContain("Wake up to a");
-    expect(landing).toContain("Every version is preserved");
-    expect(landing).toContain("Overnight Dream report");
+    expect(landing).toContain("every earlier version remain intact");
+    expect(landing).toContain("Dream commentary");
+    expect(landing).toContain("Strength · on this passage");
+    expect(landing).toContain("It rewrites only when a rewrite is useful");
   });
 
   it("does not offer an OAuth provider that is disabled in production", () => {

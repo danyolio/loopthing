@@ -19,12 +19,12 @@ const mechanics = [
   {
     icon: Moon,
     title: "Loopthing dreams overnight.",
-    body: "It follows the new threads, tests them against what came before, critiques weak reasoning, and rewrites the whole document.",
+    body: "It follows the new threads and leaves considered comments: what is strong, what is weak, what conflicts, and what might be possible. It only proposes a rewrite when the work calls for one.",
   },
   {
     icon: Sunrise,
-    title: "Review what changed.",
-    body: "Keep or revert each Dream change, leave feedback for the next night, or preserve the alternative as a branch. The reasoning and every earlier version remain intact.",
+    title: "Respond and develop it.",
+    body: "Reply to the criticism, dismiss it, use it in the work, or follow a new conjecture. If the Dream proposed changes, review them separately. The reasoning and every earlier version remain intact.",
   },
 ];
 
@@ -97,8 +97,9 @@ export default function Home() {
                 Work alone or with a team. Drop notes, sources, questions, and
                 loose conjecture as they come. Loopthing stays quiet by day,
                 then dreams on the new material overnight. Wake up to a
-                rewritten document, an honest critique, and new questions.
-                Every version is preserved.
+                considered reading of the work: comments on exact passages,
+                broader criticism, new conjectures, and questions worth
+                following. It rewrites only when a rewrite is useful.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -140,7 +141,7 @@ export default function Home() {
             <p className="max-w-2xl text-base leading-8 text-white/55 lg:justify-self-end">
               Most tools ask for a clean prompt. Loopthing gives unfinished
               work time to accumulate, connect, and change. It does the
-              synthesis overnight, after the day’s thinking is done.
+              close reading overnight, after the day’s thinking is done.
             </p>
           </div>
 
@@ -166,8 +167,12 @@ export default function Home() {
                     Current thesis
                   </p>
                   <p className="mt-2 max-w-xl text-base leading-7 text-white/80">
-                    Great work does not appear fully formed. It develops through
-                    fragments, contradiction, time, and return.
+                    <span className="rounded bg-violet-400/15 px-1 py-0.5 shadow-[inset_0_-2px_0_rgba(196,181,253,0.7)]">
+                      Great work does not appear fully formed.
+                    </span>{" "}
+                    It develops through fragments, contradiction, time, and
+                    return.
+                    <sup className="ml-1 text-violet-300">✦</sup>
                   </p>
                 </div>
                 <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-3">
@@ -203,21 +208,22 @@ export default function Home() {
               <aside className="bg-[#191b18] p-6 sm:p-10">
                 <p className="flex items-center gap-2 text-xs uppercase tracking-[0.17em] text-white/38">
                   <Moon className="size-3.5" />
-                  Overnight Dream report
+                  Dream commentary
                 </p>
                 <div className="mt-9 space-y-8">
                   <div>
                     <p className="text-[0.68rem] uppercase tracking-[0.15em] text-white/32">
-                      What became stronger
+                      Strength · on this passage
                     </p>
-                    <p className="mt-2 text-lg leading-7 text-white/85">
-                      The piece now argues that incubation is a working method,
-                      not a delay.
+                    <p className="mt-2 text-sm leading-7 text-white/75">
+                      “Great work does not appear fully formed” is the cleanest
+                      statement of the argument. Protect it. It gives the rest
+                      of the piece something exact to prove.
                     </p>
                   </div>
                   <div>
                     <p className="text-[0.68rem] uppercase tracking-[0.15em] text-white/32">
-                      Honest critique
+                      Critique · whole document
                     </p>
                     <p className="mt-2 text-sm leading-7 text-white/58">
                       The opening still treats speed as the enemy. The sharper
@@ -226,16 +232,16 @@ export default function Home() {
                   </div>
                   <div className="rounded-2xl border border-[var(--signal)]/20 bg-[var(--signal)]/[0.07] p-5">
                     <p className="text-[0.68rem] uppercase tracking-[0.15em] text-[var(--signal)]">
-                      Question for today
+                      Conjecture · current thesis
                     </p>
                     <p className="mt-2 text-sm leading-7 text-white/75">
-                      What does slow thinking make possible that another prompt
-                      cannot?
+                      Incubation may not be a delay before the work. It may be
+                      one of the instruments of the work.
                     </p>
                   </div>
                   <div className="flex items-center justify-between border-t border-white/10 pt-5 text-xs text-white/38">
-                    <span>Version 08 preserved</span>
-                    <span className="text-[var(--signal)]">Version 09 current</span>
+                    <span>Document left intact</span>
+                    <span className="text-violet-300">3 comments to consider</span>
                   </div>
                 </div>
               </aside>

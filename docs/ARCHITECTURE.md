@@ -32,16 +32,24 @@
 - Scheduled database functions are additionally gated by the SHA-256 hash of `CRON_SECRET`.
 - Manual AI output never mutates canonical content directly. An accepted
   proposal is recorded with the accepting user and source Loop.
-- A completed daily Dream returns a full rewrite. The first Owner or Editor to
-  open the project applies its Yjs state atomically. The exact pre-Dream
-  checkpoint and resulting checkpoint become a linked change set with a line
-  diff and attribution separating human direction, Loopthing's independent
-  choices, and preserved material. Either state can be restored as a new
-  immutable version. The client compares the latest pair at block level and
-  applies non-persistent ProseMirror decorations to the current document:
-  matching Dream changes are purple, while blocks added or rewritten by people
-  after that Dream are green. The source labels are presentation-only; hiding
-  them never mutates Yjs content.
+- A completed daily Dream returns structured conjecture and criticism. It may
+  also return a full rewrite. The first Owner or Editor to open a proposed
+  rewrite applies its Yjs state atomically. Every Dream can instead leave
+  critique without changing the document. When a rewrite exists, the exact
+  pre-Dream checkpoint and resulting checkpoint become a linked change set
+  with a line diff and attribution separating human direction, Loopthing's
+  independent choices, and preserved material. Either state can be restored
+  as a new immutable version. The client compares the latest pair at block
+  level and applies non-persistent ProseMirror decorations to the current
+  document: matching Dream changes are purple, while blocks added or rewritten
+  by people after that Dream are green. The source labels are
+  presentation-only; hiding them never mutates Yjs content.
+- `loop_insights.critique_comments` preserves immutable Dream interventions at
+  passage, section, or document scope. Exact passage and heading anchors become
+  ProseMirror decorations and markers without entering canonical Yjs content.
+  `critique_reviews` stores the team's response and disposition. A database
+  trigger mirrors that response into ordinary human project comments so it
+  counts as activity and becomes context for the next Dream.
 - Morning Review derives stable block changes from the linked pre-Dream and
   post-Dream versions. A disposition is stored in `dream_change_reviews`.
   Reverts create a new canonical checkpoint, feedback becomes green project

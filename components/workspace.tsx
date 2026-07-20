@@ -34,6 +34,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { CritiqueNotice } from "@/components/critique-notice";
+import { CritiquePanel } from "@/components/critique-panel";
 import { DreamChangeNotice } from "@/components/dream-change-notice";
 import { DecisionMemoryCard, type DecisionAlert } from "@/components/decision-memory-card";
 import { DeletedMaterialTray } from "@/components/deleted-material-tray";
@@ -67,12 +69,21 @@ import {
 } from "@/components/ui/tooltip";
 import type {
   AIProvider,
+  CritiqueReview,
   LoopInsight,
   LoopRun,
   Project,
   ThinkingItem,
   WorkspaceData,
 } from "@/lib/domain";
+import {
+  createCritiqueAnchorPlugin,
+  critiqueAnchorPluginKey,
+} from "@/lib/critique-anchor-plugin";
+import {
+  latestCritiqueInsight,
+  parseCritiqueComments,
+} from "@/lib/critiques";
 import {
   createDreamHighlightPlugin,
   dreamHighlightPluginKey,
@@ -93,6 +104,7 @@ import {
 
 type RailTab =
   | "loops"
+  | "critique"
   | "sources"
   | "questions"
   | "decisions"
@@ -103,6 +115,7 @@ type RailTab =
 
 const railTabs: { id: RailTab; label: string; icon: typeof Sparkles }[] = [
   { id: "loops", label: "Dream", icon: Moon },
+  { id: "critique", label: "Critique", icon: Sparkles },
   { id: "sources", label: "Sources", icon: Link2 },
   { id: "questions", label: "Questions", icon: Lightbulb },
   { id: "decisions", label: "Decisions", icon: CircleDot },
@@ -202,8 +215,14 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
     string | null
   >(null);
   const [morningReviewOpen, setMorningReviewOpen] = useState(false);
+  const [selectedCritiqueKey, setSelectedCritiqueKey] = useState<string | null>(
+    null,
+  );
   const [dreamChangeReviews, setDreamChangeReviews] = useState(
     initialData.dreamChangeReviews,
+  );
+  const [critiqueReviews, setCritiqueReviews] = useState(
+    initialData.critiqueReviews,
   );
   const [runs, setRuns] = useState(initialData.runs);
   const [insights, setInsights] = useState(initialData.insights);
@@ -241,6 +260,32 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
   const highlightsVisible =
     Boolean(latestDream) &&
     hiddenDreamVersionId !== latestDream?.after.id;
+  const activeCritiqueInsight = useMemo(
+    () => latestCritiqueInsight(insights),
+    [insights],
+  );
+  const critiqueComments = useMemo(
+    () => parseCritiqueComments(activeCritiqueInsight?.critique_comments),
+    [activeCritiqueInsight],
+  );
+
+  const openCritique = useCallback((commentKey?: string) => {
+    setSelectedCritiqueKey(commentKey ?? null);
+    setTab("critique");
+    if (window.matchMedia("(min-width: 1024px)").matches) {
+      setRailOpen(true);
+    } else {
+      setMobileRail(true);
+    }
+  }, []);
+
+  const locateCritique = useCallback((commentKey: string) => {
+    setSelectedCritiqueKey(commentKey);
+    const marker = [...document.querySelectorAll<HTMLElement>("[data-critique-key]")]
+      .find((element) => element.dataset.critiqueKey === commentKey);
+    marker?.scrollIntoView({ behavior: "smooth", block: "center" });
+    marker?.focus({ preventScroll: true });
+  }, []);
 
   useEffect(() => {
     const persistence = new IndexeddbPersistence(
@@ -353,6 +398,23 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
     latestDreamAfter,
     latestDreamBefore,
   ]);
+
+  useEffect(() => {
+    if (!editor || !critiqueComments.length) return;
+
+    editor.registerPlugin(
+      createCritiqueAnchorPlugin({
+        comments: critiqueComments,
+        onSelect: openCritique,
+      }),
+    );
+
+    return () => {
+      if (!editor.isDestroyed) {
+        editor.unregisterPlugin(critiqueAnchorPluginKey);
+      }
+    };
+  }, [critiqueComments, editor, openCritique]);
 
   useEffect(() => {
     if (!editor || !localReady || !remoteReady || seeded.current) return;
@@ -758,6 +820,17 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
     ]);
   }
 
+  function onCritiqueReviewSaved(review: CritiqueReview) {
+    setCritiqueReviews((current) => [
+      review,
+      ...current.filter(
+        (item) =>
+          item.loop_insight_id !== review.loop_insight_id ||
+          item.comment_key !== review.comment_key,
+      ),
+    ]);
+  }
+
   const rail = (
     <Rail
       activeTab={tab}
@@ -774,6 +847,13 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
       onRestore={restoreCheckpoint}
       dreamApplication={dreamApplication}
       currentCheckpointId={currentCheckpointId}
+      critiqueComments={critiqueComments}
+      critiqueInsight={activeCritiqueInsight}
+      critiqueReviews={critiqueReviews}
+      selectedCritiqueKey={selectedCritiqueKey}
+      onSelectCritique={setSelectedCritiqueKey}
+      onLocateCritique={locateCritique}
+      onCritiqueReviewSaved={onCritiqueReviewSaved}
     />
   );
 
@@ -881,6 +961,10 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
               </div>
             ) : (
               <>
+                <CritiqueNotice
+                  comments={critiqueComments}
+                  onOpen={() => openCritique()}
+                />
                 <DreamChangeNotice
                   changedSections={dreamChangedSections}
                   highlightsVisible={highlightsVisible}
@@ -1001,6 +1085,13 @@ function Rail({
   onRestore,
   dreamApplication,
   currentCheckpointId,
+  critiqueComments,
+  critiqueInsight,
+  critiqueReviews,
+  selectedCritiqueKey,
+  onSelectCritique,
+  onLocateCritique,
+  onCritiqueReviewSaved,
 }: {
   activeTab: RailTab;
   setActiveTab: (tab: RailTab) => void;
@@ -1016,9 +1107,17 @@ function Rail({
   onRestore: (checkpoint: ThinkingItem) => void;
   dreamApplication: "idle" | "applying" | "applied" | "failed";
   currentCheckpointId: string | null;
+  critiqueComments: ReturnType<typeof parseCritiqueComments>;
+  critiqueInsight: LoopInsight | undefined;
+  critiqueReviews: CritiqueReview[];
+  selectedCritiqueKey: string | null;
+  onSelectCritique: (key: string) => void;
+  onLocateCritique: (key: string) => void;
+  onCritiqueReviewSaved: (review: CritiqueReview) => void;
 }) {
   const itemTab =
     activeTab !== "loops" &&
+    activeTab !== "critique" &&
     activeTab !== "history" &&
     activeTab !== "reasoning"
       ? activeTab
@@ -1068,6 +1167,19 @@ function Rail({
               initialNodes={initialData.reasoningNodes}
               initialEdges={initialData.reasoningEdges}
               insights={insights}
+            />
+          )}
+          {activeTab === "critique" && (
+            <CritiquePanel
+              comments={critiqueComments}
+              insight={critiqueInsight}
+              reviews={critiqueReviews}
+              selectedKey={selectedCritiqueKey}
+              projectId={initialData.project.id}
+              userId={initialData.user.id}
+              onSelect={onSelectCritique}
+              onLocate={onLocateCritique}
+              onReviewSaved={onCritiqueReviewSaved}
             />
           )}
           {itemKind && (editable || itemKind === "comment") && (
@@ -1164,7 +1276,7 @@ function LoopPanel({
           <Progress value={activeRun.progress_percent} className="mt-3 h-1.5" />
           <p className="mt-3 text-xs leading-5 text-muted-foreground">
             {activeRun.is_dream
-              ? "Loopthing is following threads, testing the reasoning, and composing the next version."
+              ? "Loopthing is following threads, testing the reasoning, and developing conjecture and criticism."
               : "The Loop is durable. You can leave this page and return without losing its progress."}
           </p>
         </div>
@@ -1197,7 +1309,8 @@ function LoopPanel({
           </p>
           <p className="mt-2 text-xs leading-5 text-muted-foreground">
             Loopthing will stay out of the way, dream on it overnight, and
-            return with a rewritten document, a critique, and new questions.
+            return with comments, conjectures, criticism, and questions. It
+            will only propose a rewrite when the work calls for one.
           </p>
         </div>
       )}
@@ -1250,7 +1363,7 @@ function DreamSchedule({
           </p>
           <p className="mt-2 text-xs leading-5 text-white/55">
             Runs daily when there is new work. No new activity, no needless
-            rewrite.
+            Dream.
           </p>
         </div>
         <div className="shrink-0 text-right">
@@ -1283,6 +1396,8 @@ function DreamSchedule({
 
 function DreamReport({ insight }: { insight: LoopInsight }) {
   const questions = asStrings(insight.unresolved);
+  const proposal = asProposal(insight.proposal);
+  const critiqueCount = parseCritiqueComments(insight.critique_comments).length;
 
   return (
     <article className="rounded-xl border border-[var(--signal-strong)]/20 bg-[var(--signal)]/[0.055] p-4">
@@ -1310,10 +1425,23 @@ function DreamReport({ insight }: { insight: LoopInsight }) {
 
       <section className="mt-5 border-t pt-4">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          Honest critique
+          Editorial judgment
         </p>
         <p className="mt-2 text-sm leading-6">{insight.why_it_matters}</p>
       </section>
+
+      {critiqueCount > 0 && (
+        <section className="mt-5 rounded-lg border border-violet-600/15 bg-violet-50/60 p-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-violet-800">
+            Conjecture + criticism
+          </p>
+          <p className="mt-1 text-xs leading-5 text-violet-950/75">
+            {critiqueCount} specific{" "}
+            {critiqueCount === 1 ? "intervention is" : "interventions are"}{" "}
+            embedded in the document and Critique panel.
+          </p>
+        </section>
+      )}
 
       {asStrings(insight.what_changed).length > 0 && (
         <section className="mt-5">
@@ -1359,7 +1487,12 @@ function DreamReport({ insight }: { insight: LoopInsight }) {
       </div>
 
       <p className="mt-3 flex items-center gap-1.5 text-xs text-[var(--signal-strong)]">
-        {insight.accepted_at ? (
+        {!proposal ? (
+          <>
+            <Check className="size-3.5" />
+            Document left intact; comments added for review
+          </>
+        ) : insight.accepted_at ? (
           <>
             <Check className="size-3.5" />
             Rewritten document preserved as a new version

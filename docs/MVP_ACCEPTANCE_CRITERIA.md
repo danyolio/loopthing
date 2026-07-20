@@ -10,32 +10,34 @@
 4. They add a source, unresolved question, decision, loose note, or significant
    alternative branch beside the document.
 5. They run a light Loop and see durable progress stages.
-6. Loopthing returns structured insight: what changed, why it matters,
-   unresolved issues, evidence links, a complete proposed revision, and one
-   next action.
+6. Loopthing returns passage, section, and document-level strengths, critiques,
+   questions, conjectures, tensions, connections, and possibilities.
 7. The canonical document remains unchanged until an Owner or Editor explicitly
    accepts the proposal.
 8. If there is new activity, the nightly Dream follows the new threads,
-   critiques weak reasoning, and returns a complete rewrite.
-9. The first Owner or Editor to open the project wakes the Dream into the
-   document as a new immutable version. The previous version remains
-   restorable.
-10. Versions presents the Dream as a Before → After change set, with a document
-    diff separating explicit human direction from Loopthing's own editorial
-    development.
-11. The main document highlights the latest Dream's changes in purple and
+   evaluates what is strong and weak, and leaves thoughtful interventions. A
+   rewrite is optional.
+9. People can reply to, dismiss, resolve, or incorporate the criticism. Those
+   responses become human input for the next Dream.
+10. When the Dream proposes a rewrite, the first Owner or Editor to open the
+    project wakes it into the document as a new immutable version. The previous
+    version remains restorable.
+11. Versions presents any Dream rewrite as a Before → After change set, with a
+    document diff separating explicit human direction from Loopthing's own
+    editorial development.
+12. The main document highlights the latest Dream's changes in purple and
     later human additions in green, with controls to hide the highlighting or
     open the full version diff.
-12. Morning Review lets a person keep, revert, comment on, or branch each
+13. Morning Review lets a person keep, revert, comment on, or branch each
     overnight change. Every action is recorded against the Dream version.
-13. A reasoning ledger separates facts, evidence, claims, assumptions,
+14. A reasoning ledger separates facts, evidence, claims, assumptions,
     hypotheses, preferences, questions, risks, proposals, experiments, and
     decisions.
-14. A reasoning map renders the same ledger as a directed graph. Human input is
+15. A reasoning map renders the same ledger as a directed graph. Human input is
     green and Dream development is purple.
-15. Decisions retain rationale, rejected alternatives, assumptions, a review
+16. Decisions retain rationale, rejected alternatives, assumptions, a review
     date, and an explicit condition for reconsideration.
-16. Weekly Loops use the same durable workflow for broader review.
+17. Weekly Loops use the same durable workflow for broader review.
 
 ## Measurable acceptance criteria
 
@@ -54,6 +56,12 @@
   and branches can be created and revisited beside the document.
 - Loops: manual, daily, and weekly modes share one Zod-validated structured
   output schema and store their progress and result.
+- Critique: each Loop can return specific positive and negative judgment,
+  questions, conjectures, tensions, connections, and possibilities at passage,
+  section, or document scope. Anchored comments appear directly in the editor.
+- Critique response: members can reply to, resolve, dismiss, or incorporate an
+  intervention. The disposition survives reload and becomes context for the
+  next Dream.
 - Human control: manual AI output remains a proposal until a person accepts it.
   Daily Dreams are explicitly authorised to become current after the prior
   document is preserved as a linked, restorable version.
@@ -61,8 +69,8 @@
   for projects with new activity, and the morning report names what became
   stronger, what remains weak, what changed, the open questions, and one next
   thread.
-- Dream provenance: each applied Dream pairs the exact pre-Dream checkpoint with
-  the rewritten checkpoint, exposes a Git-style line diff, and identifies
+- Dream provenance: each applied rewrite pairs the exact pre-Dream checkpoint
+  with the rewritten checkpoint, exposes a Git-style line diff, and identifies
   changes directed by people, developed by Loopthing, or deliberately
   preserved.
 - Dream review: changes from the latest Dream are purple and later human

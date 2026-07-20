@@ -93,6 +93,59 @@ export const decisionAlertSchema = z.object({
   smallestExperiment: z.string().min(1).max(1000),
 });
 
+export const critiqueCommentSchema = z
+  .object({
+    commentKey: z
+      .string()
+      .min(1)
+      .max(120)
+      .describe("A stable, unique slug for this intervention within the Loop."),
+    kind: z.enum([
+      "strength",
+      "critique",
+      "question",
+      "conjecture",
+      "tension",
+      "connection",
+      "possibility",
+    ]),
+    scope: z.enum(["passage", "section", "document"]),
+    anchorText: z
+      .string()
+      .min(1)
+      .max(500)
+      .nullable()
+      .describe(
+        "For passage comments, an exact verbatim quote from the document the person will review. Null otherwise.",
+      ),
+    sectionTitle: z
+      .string()
+      .min(1)
+      .max(300)
+      .nullable()
+      .describe(
+        "For section comments, the exact section heading. It may also orient a passage comment.",
+      ),
+    comment: z.string().min(1).max(1800),
+    suggestedNextStep: z.string().min(1).max(1000).nullable(),
+  })
+  .superRefine((comment, context) => {
+    if (comment.scope === "passage" && !comment.anchorText) {
+      context.addIssue({
+        code: "custom",
+        path: ["anchorText"],
+        message: "Passage comments require an exact anchor.",
+      });
+    }
+    if (comment.scope === "section" && !comment.sectionTitle) {
+      context.addIssue({
+        code: "custom",
+        path: ["sectionTitle"],
+        message: "Section comments require an exact heading.",
+      });
+    }
+  });
+
 export const loopResultSchema = z.object({
   materialChange: z.boolean(),
   summary: z.string().min(1),
@@ -107,6 +160,7 @@ export const loopResultSchema = z.object({
   changeDetails: z.array(changeDetailSchema).max(24),
   reasoning: reasoningModelSchema,
   decisionAlerts: z.array(decisionAlertSchema).max(12),
+  critiqueComments: z.array(critiqueCommentSchema).max(16),
 });
 
 export const startLoopSchema = z.object({

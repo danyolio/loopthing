@@ -18,6 +18,8 @@ reviews, long-form writing such as essays and blog posts, and hiring decisions.
   immutable checkpoints
 - Sources and uploads, questions, decisions, comments, branches, review,
   restoration, and history
+- Passage, section, and document-level AI conjecture and criticism, including
+  specific positive judgment and durable human responses
 - Light, daily, and weekly Loops on Vercel Workflow DevKit
 - Selectable Gemini or OpenAI synthesis through one Zod-validated output
   contract

@@ -244,11 +244,20 @@ critiques, voice transcripts, and unfinished conjecture.
 Success means:
 - follow promising threads before forcing them into an outline
 - push conjectures far enough to reveal what is useful, weak, or surprising
+- make conjecture and criticism the primary work of the Dream; rewriting is secondary
+- use critiqueComments for 3 to 10 consequential interventions when the material supports them
+- include specific positive criticism through strength comments that explain what works and what should be protected
+- use passage comments for exact sentences, section comments for a named part, and document comments for broad editorial judgment
+- for passage comments, anchorText must be an exact verbatim quote from the document the person will review
+- for section comments, sectionTitle must match the heading exactly
+- ask questions that could unlock the work, not questions that merely request more detail
+- do not manufacture a full rewrite when thoughtful comments would advance the work more honestly
 - distinguish evidence, assumptions, decisions, and unresolved questions
 - preserve the authors' intent and voice while making the prose direct and exact
 - omit needless words; prefer active language and memorable rhythm without ornament
-- return a proposal containing the complete rewritten document in Markdown
-- set proposal.isSignificantBranch to false; the previous document is preserved as a version
+- proposal may be null; return a complete rewritten document only when the accumulated thinking genuinely warrants a new state
+- when proposal is not null, set proposal.isSignificantBranch to false and anchor critiqueComments to that proposed document because it is what the person will review
+- when proposal is null, anchor critiqueComments to the current canonical document
 - bootstrap a coherent first document when the current document is nearly empty
 - use summary for what became stronger
 - use whyItMatters for an honest critique of what remains weak, flabby, unsupported, or unresolved
@@ -275,9 +284,13 @@ ${JSON.stringify(context)}`;
 
 Success means:
 - identify only material changes supported by the supplied state
+- make conjecture and criticism the primary intervention
+- return specific positive criticism as well as challenges, questions, tensions, connections, and possibilities
+- put feedback at the right level through critiqueComments: exact passage, named section, or whole document
+- use exact verbatim anchorText for passage comments and exact sectionTitle for section comments
 - distinguish evidence, assumptions, decisions, and unresolved questions
 - leave the canonical document unchanged
-- propose content only when it creates a genuinely clearer next state
+- propose content only when it creates a genuinely clearer next state; a useful Loop may return comments with no rewrite
 - identify which changes follow explicit human direction, which are your own editorial choices, and what you intentionally preserved
 - compare the current document with the latest supplied Dream proposal; treat passages people deleted or rewrote as direction, and do not casually resurrect them
 - use changeDetails to explain the provenance and source IDs behind each material proposed change
@@ -313,9 +326,17 @@ ${JSON.stringify(context)}`;
   if (
     input.scheduled &&
     input.loopType === "daily" &&
-    (!output.proposal || output.proposal.isSignificantBranch)
+    !output.proposal &&
+    output.critiqueComments.length === 0
   ) {
-    throw new Error("The overnight Dream did not return a complete rewrite");
+    throw new Error("The overnight Dream returned neither critique nor a proposal");
+  }
+  if (
+    input.scheduled &&
+    input.loopType === "daily" &&
+    output.proposal?.isSignificantBranch
+  ) {
+    throw new Error("The overnight Dream returned a branch instead of a reviewable document");
   }
 
   return { result: output, provider, model };
@@ -355,6 +376,7 @@ async function persistResult(
         change_details: result.changeDetails,
         reasoning_model: result.reasoning,
         decision_alerts: result.decisionAlerts,
+        critique_comments: result.critiqueComments,
       },
       { onConflict: "loop_run_id" },
     );
@@ -390,8 +412,8 @@ export async function runLoopWorkflow(input: LoopWorkflowInput) {
   try {
     await updateProgress(input, "collecting", "Collecting project context", 15);
     const context = await collectContext(input);
-    await updateProgress(input, "analysing", "Connecting changes and evidence", 40);
-    await updateProgress(input, "synthesising", "Synthesising the next clearer state", 65);
+    await updateProgress(input, "analysing", "Reading for strengths, tensions, and openings", 40);
+    await updateProgress(input, "synthesising", "Developing conjecture and criticism", 65);
     const synthesis = await synthesise(context, input);
     await updateProgress(input, "saving", "Saving structured insight", 88);
     await persistResult(

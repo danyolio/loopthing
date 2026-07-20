@@ -26,6 +26,7 @@ export default async function ProjectPage({
     reasoningNodesResult,
     reasoningEdgesResult,
     dreamChangeReviewsResult,
+    critiqueReviewsResult,
     versionsResult,
     runsResult,
     insightsResult,
@@ -76,6 +77,11 @@ export default async function ProjectPage({
       .order("created_at", { ascending: true }),
     supabase
       .from("dream_change_reviews")
+      .select("*")
+      .eq("project_id", projectId)
+      .order("reviewed_at", { ascending: false }),
+    supabase
+      .from("critique_reviews")
       .select("*")
       .eq("project_id", projectId)
       .order("reviewed_at", { ascending: false }),
@@ -131,6 +137,7 @@ export default async function ProjectPage({
     reasoningNodes: reasoningNodesResult.data ?? [],
     reasoningEdges: reasoningEdgesResult.data ?? [],
     dreamChangeReviews: dreamChangeReviewsResult.data ?? [],
+    critiqueReviews: critiqueReviewsResult.data ?? [],
     versions: (versionsResult.data ?? []).map((version) => {
       const checkpoint = Array.isArray(version.yjs_checkpoints)
         ? version.yjs_checkpoints[0]
