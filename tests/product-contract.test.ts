@@ -129,7 +129,7 @@ describe("product invariants", () => {
     );
   });
 
-  it("highlights the latest Dream changes in the main document", () => {
+  it("distinguishes Dream changes from human additions in the document", () => {
     const workspace = readFileSync("components/workspace.tsx", "utf8");
     const plugin = readFileSync("lib/dream-highlight-plugin.ts", "utf8");
     const styles = readFileSync("app/globals.css", "utf8");
@@ -137,7 +137,10 @@ describe("product invariants", () => {
     expect(workspace).toContain("<DreamChangeNotice");
     expect(workspace).toContain("createDreamHighlightPlugin");
     expect(plugin).toContain('class: "dream-change-highlight"');
+    expect(plugin).toContain('class: "human-change-highlight"');
     expect(styles).toContain(".tiptap .dream-change-highlight");
+    expect(styles).toContain(".tiptap .human-change-highlight");
+    expect(styles).toContain("#e9d5ff");
     expect(styles).toContain("#bbf7d0");
   });
 

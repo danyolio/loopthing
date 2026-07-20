@@ -141,7 +141,14 @@ export function WorkspaceItemForm({
   }
 
   return (
-    <form onSubmit={submit} className="space-y-2 rounded-xl border bg-muted/30 p-3">
+    <form
+      onSubmit={submit}
+      className={
+        kind === "comment"
+          ? "space-y-2 rounded-xl border border-emerald-600/20 bg-emerald-50/55 p-3"
+          : "space-y-2 rounded-xl border bg-muted/30 p-3"
+      }
+    >
       <Input
         value={primary}
         onChange={(event) => setPrimary(event.target.value)}

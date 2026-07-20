@@ -19,9 +19,9 @@ describe("Dream change notice", () => {
       />,
     );
 
-    expect(
-      screen.getByText(/3 sections changed.*highlighted in the document/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/3 sections changed/i)).toBeInTheDocument();
+    expect(screen.getByText("Dream changes")).toBeInTheDocument();
+    expect(screen.getByText("Your additions")).toBeInTheDocument();
     fireEvent.click(
       screen.getByRole("button", { name: /hide highlights/i }),
     );

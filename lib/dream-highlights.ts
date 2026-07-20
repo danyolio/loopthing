@@ -100,6 +100,23 @@ export function dreamChangedCurrentBlockIndexes(
   });
 }
 
+export function humanChangedCurrentBlockIndexes(
+  dreamAfter: string,
+  currentBlocks: string[],
+) {
+  const dreamBlocks = textBlocks(dreamAfter);
+  const normalizedCurrentBlocks = currentBlocks.map(normalizeBlock);
+  const unchangedCurrentIndexes = new Set(
+    matchingIndexes(dreamBlocks, normalizedCurrentBlocks).map(
+      ([, currentIndex]) => currentIndex,
+    ),
+  );
+
+  return normalizedCurrentBlocks.flatMap((_, currentIndex) =>
+    unchangedCurrentIndexes.has(currentIndex) ? [] : [currentIndex],
+  );
+}
+
 export function latestDreamChangeSet(
   versions: ThinkingItem[],
 ): DreamChangeSet | null {

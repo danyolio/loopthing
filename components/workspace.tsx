@@ -1289,9 +1289,21 @@ function ThinkingCard({
   const status = getText(item, "status");
 
   return (
-    <article className="rounded-xl border p-4">
+    <article
+      className={
+        kind === "comments"
+          ? "rounded-xl border border-emerald-600/20 bg-emerald-50/55 p-4"
+          : "rounded-xl border p-4"
+      }
+    >
       <div className="flex items-center justify-between gap-3">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.13em] text-muted-foreground">
+        <span
+          className={
+            kind === "comments"
+              ? "text-[11px] font-semibold uppercase tracking-[0.13em] text-emerald-800"
+              : "text-[11px] font-semibold uppercase tracking-[0.13em] text-muted-foreground"
+          }
+        >
           {kind === "comments"
             ? "note"
             : itemKindForCollection(kind as ItemCollection)}

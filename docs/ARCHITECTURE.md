@@ -38,8 +38,10 @@
   diff and attribution separating human direction, Loopthing's independent
   choices, and preserved material. Either state can be restored as a new
   immutable version. The client compares the latest pair at block level and
-  applies non-persistent ProseMirror decorations to matching changed sections
-  in the current document; hiding the highlights never mutates Yjs content.
+  applies non-persistent ProseMirror decorations to the current document:
+  matching Dream changes are purple, while blocks added or rewritten by people
+  after that Dream are green. The source labels are presentation-only; hiding
+  them never mutates Yjs content.
 - An Owner can create or refresh up to 20 invitations in one atomic database
   operation. Each invitation has its own email-bound, expiring token.
 - Daily Dreams run around 03:00 AEST / 04:00 AEDT, only when activity has

@@ -23,9 +23,9 @@
 10. Versions presents the Dream as a Before → After change set, with a document
     diff separating explicit human direction from Loopthing's own editorial
     development.
-11. The main document highlights the latest Dream's changed sections in soft
-    green, with controls to hide the highlighting or open the full version
-    diff.
+11. The main document highlights the latest Dream's changes in purple and
+    later human additions in green, with controls to hide the highlighting or
+    open the full version diff.
 12. Weekly Loops use the same durable workflow for broader review.
 
 ## Measurable acceptance criteria
@@ -56,9 +56,9 @@
   the rewritten checkpoint, exposes a Git-style line diff, and identifies
   changes directed by people, developed by Loopthing, or deliberately
   preserved.
-- Dream review: changed sections from the latest Dream are highlighted in the
-  main document by default; people can hide or show them and open Versions for
-  removed text and the complete diff.
+- Dream review: changes from the latest Dream are purple and later human
+  additions are green in the main document by default; people can hide or show
+  them and open Versions for removed text and the complete diff.
 - Invitations: an Owner can create or refresh up to 20 email-bound invitation
   links in one request without weakening the existing project-level RLS rules.
 - Security: secrets remain server-only, uploads use a private bucket, cron

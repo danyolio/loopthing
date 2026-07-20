@@ -203,6 +203,22 @@
 
 .tiptap .dream-change-highlight {
   border-radius: 0.35rem;
+  background: color-mix(in oklab, #e9d5ff 68%, transparent);
+  box-shadow: -3px 0 0 color-mix(in oklab, #9333ea 72%, transparent);
+  margin-inline: -0.45rem;
+  padding-inline: 0.45rem;
+  transition:
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.dark .tiptap .dream-change-highlight {
+  background: color-mix(in oklab, #a855f7 17%, transparent);
+  box-shadow: -3px 0 0 color-mix(in oklab, #c084fc 68%, transparent);
+}
+
+.tiptap .human-change-highlight {
+  border-radius: 0.35rem;
   background: color-mix(in oklab, #bbf7d0 62%, transparent);
   box-shadow: -3px 0 0 color-mix(in oklab, #16a34a 76%, transparent);
   margin-inline: -0.45rem;
@@ -212,7 +228,7 @@
     box-shadow 160ms ease;
 }
 
-.dark .tiptap .dream-change-highlight {
+.dark .tiptap .human-change-highlight {
   background: color-mix(in oklab, #22c55e 15%, transparent);
   box-shadow: -3px 0 0 color-mix(in oklab, #4ade80 68%, transparent);
 }

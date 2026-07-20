@@ -1,7 +1,10 @@
 import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
-import { dreamChangedCurrentBlockIndexes } from "@/lib/dream-highlights";
+import {
+  dreamChangedCurrentBlockIndexes,
+  humanChangedCurrentBlockIndexes,
+} from "@/lib/dream-highlights";
 
 type TextBlock = {
   node: ProseMirrorNode;
@@ -26,12 +29,17 @@ function buildDecorations({
     if (node.isTextblock) blocks.push({ node, position });
   });
 
-  const changedIndexes = dreamChangedCurrentBlockIndexes(
+  const currentBlocks = blocks.map(({ node }) => node.textContent);
+  const dreamChangedIndexes = dreamChangedCurrentBlockIndexes(
     before,
     after,
-    blocks.map(({ node }) => node.textContent),
+    currentBlocks,
   );
-  const decorations = changedIndexes.flatMap((index) => {
+  const humanChangedIndexes = humanChangedCurrentBlockIndexes(
+    after,
+    currentBlocks,
+  );
+  const decorations = dreamChangedIndexes.flatMap((index) => {
     const block = blocks[index];
     if (!block) return [];
     return [
@@ -40,11 +48,27 @@ function buildDecorations({
         block.position + block.node.nodeSize,
         {
           class: "dream-change-highlight",
-          "data-dream-change": "added",
+          "data-change-source": "dream",
         },
       ),
     ];
   });
+  decorations.push(
+    ...humanChangedIndexes.flatMap((index) => {
+      const block = blocks[index];
+      if (!block) return [];
+      return [
+        Decoration.node(
+          block.position,
+          block.position + block.node.nodeSize,
+          {
+            class: "human-change-highlight",
+            "data-change-source": "human",
+          },
+        ),
+      ];
+    }),
+  );
 
   return DecorationSet.create(doc, decorations);
 }

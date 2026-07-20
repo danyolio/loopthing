@@ -7,6 +7,7 @@ import {
 import {
   dreamChangedAfterBlockIndexes,
   dreamChangedCurrentBlockIndexes,
+  humanChangedCurrentBlockIndexes,
 } from "@/lib/dream-highlights";
 import { diffTextByLine } from "@/lib/text-diff";
 
@@ -61,12 +62,33 @@ describe("workspace contracts", () => {
   });
 
   it("does not mislabel a Dream section after a person rewrites it", () => {
+    const currentBlocks = ["Thesis", "I rewrote the opening myself."];
+
     expect(
       dreamChangedCurrentBlockIndexes(
         "Thesis\n\nAn abstract opening.",
         "Thesis\n\nOpen with a concrete example.",
-        ["Thesis", "I rewrote the opening myself."],
+        currentBlocks,
       ),
     ).toEqual([]);
+    expect(
+      humanChangedCurrentBlockIndexes(
+        "Thesis\n\nOpen with a concrete example.",
+        currentBlocks,
+      ),
+    ).toEqual([1]);
+  });
+
+  it("marks additions made after the latest Dream as human changes", () => {
+    expect(
+      humanChangedCurrentBlockIndexes(
+        "Thesis\n\nOpen with a concrete example.",
+        [
+          "A new human note.",
+          "Thesis",
+          "Open with a concrete example.",
+        ],
+      ),
+    ).toEqual([0]);
   });
 });

@@ -16,13 +16,13 @@ afterEach(() => {
   editor = null;
 });
 
-describe("Dream document highlighting", () => {
-  it("decorates changed Dream sections and removes them when hidden", () => {
+describe("document change highlighting", () => {
+  it("distinguishes Dream changes from later human additions", () => {
     editor = new Editor({
       element: document.createElement("div"),
       extensions: [StarterKit],
       content:
-        "<h1>Thesis</h1><p>Keep this.</p><p>Open with a concrete example.</p>",
+        "<h1>Thesis</h1><p>Keep this.</p><p>Open with a concrete example.</p><p>A human follow-up.</p>",
     });
     editor.registerPlugin(
       createDreamHighlightPlugin({
@@ -36,10 +36,18 @@ describe("Dream document highlighting", () => {
     );
     expect(highlighted).toHaveLength(1);
     expect(highlighted[0]).toHaveTextContent("Open with a concrete example.");
+    const humanHighlighted = editor.view.dom.querySelectorAll(
+      ".human-change-highlight",
+    );
+    expect(humanHighlighted).toHaveLength(1);
+    expect(humanHighlighted[0]).toHaveTextContent("A human follow-up.");
 
     editor.unregisterPlugin(dreamHighlightPluginKey);
     expect(
       editor.view.dom.querySelectorAll(".dream-change-highlight"),
+    ).toHaveLength(0);
+    expect(
+      editor.view.dom.querySelectorAll(".human-change-highlight"),
     ).toHaveLength(0);
   });
 });
