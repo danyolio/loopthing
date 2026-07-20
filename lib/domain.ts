@@ -65,6 +65,7 @@ export type LoopInsight = {
   proposal: unknown;
   next_action: string;
   thinking_evolution: string;
+  change_attribution: unknown;
   accepted_at: string | null;
   created_at: string;
 };

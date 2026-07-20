@@ -22,6 +22,11 @@ const validResult = {
   },
   nextAction: "Test the revised promise with two active strategy teams.",
   thinkingEvolution: "The framing moved from general knowledge work to continuity of judgment.",
+  changeAttribution: {
+    directives: ["Narrow the initial audience to active strategy teams."],
+    independent: ["Reordered the evidence before the product implication."],
+    preserved: ["Kept the continuity-of-judgment framing."],
+  },
 };
 
 describe("Loop structured output", () => {

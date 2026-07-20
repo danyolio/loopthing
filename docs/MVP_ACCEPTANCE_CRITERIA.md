@@ -20,7 +20,10 @@
 9. The first Owner or Editor to open the project wakes the Dream into the
    document as a new immutable version. The previous version remains
    restorable.
-10. Weekly Loops use the same durable workflow for broader review.
+10. Versions presents the Dream as a Before → After change set, with a document
+    diff separating explicit human direction from Loopthing's own editorial
+    development.
+11. Weekly Loops use the same durable workflow for broader review.
 
 ## Measurable acceptance criteria
 
@@ -46,6 +49,12 @@
   for projects with new activity, and the morning report names what became
   stronger, what remains weak, what changed, the open questions, and one next
   thread.
+- Dream provenance: each applied Dream pairs the exact pre-Dream checkpoint with
+  the rewritten checkpoint, exposes a Git-style line diff, and identifies
+  changes directed by people, developed by Loopthing, or deliberately
+  preserved.
+- Invitations: an Owner can create or refresh up to 20 email-bound invitation
+  links in one request without weakening the existing project-level RLS rules.
 - Security: secrets remain server-only, uploads use a private bucket, cron
   validates its bearer secret, and advisors have no unresolved critical
   findings.

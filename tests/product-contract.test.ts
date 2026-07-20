@@ -87,6 +87,10 @@ describe("product invariants", () => {
       "supabase/migrations/20260719121000_separate_dream_run_identity.sql",
       "utf8",
     );
+    const changeSetMigration = readFileSync(
+      "supabase/migrations/20260720000953_dream_change_sets_and_batch_invitations.sql",
+      "utf8",
+    );
 
     expect(migration).toContain("create or replace function public.apply_daily_dream");
     expect(migration).toContain("'dream'");
@@ -101,6 +105,28 @@ describe("product invariants", () => {
     expect(provenanceMigration).toContain("true");
     expect(identityMigration).toContain("'dream:' || a.id::text");
     expect(identityMigration).toContain("and lr.is_dream");
+    expect(changeSetMigration).toContain("'pre_dream'");
+    expect(changeSetMigration).toContain("base_version_id");
+    expect(changeSetMigration).toContain("change_attribution");
+  });
+
+  it("creates several secure email-bound invitations in one request", () => {
+    const route = readFileSync("app/api/invitations/route.ts", "utf8");
+    const dialog = readFileSync("components/invite-dialog.tsx", "utf8");
+    const migration = readFileSync(
+      "supabase/migrations/20260720000953_dream_change_sets_and_batch_invitations.sql",
+      "utf8",
+    );
+
+    expect(route).toContain("emails: z.array(z.email()).min(1).max(20)");
+    expect(route).toContain('rpc("create_or_refresh_invitations"');
+    expect(dialog).toContain(
+      "Separate addresses with commas, spaces, or new lines.",
+    );
+    expect(dialog).toContain("Copy all");
+    expect(migration).toContain(
+      "create or replace function public.create_or_refresh_invitations",
+    );
   });
 
   it("explains the day, Dream, and morning rhythm on the landing page", () => {

@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 
 const inviteSchema = z.object({
   projectId: z.uuid(),
-  email: z.email(),
+  emails: z.array(z.email()).min(1).max(20),
   role: z.enum(["editor", "viewer"]),
 });
 
@@ -29,18 +29,39 @@ export async function POST(request: Request) {
     return Response.json({ error: "Owner access required" }, { status: 403 });
   }
 
-  const token = randomBytes(32).toString("base64url");
-  const tokenHash = createHash("sha256").update(token).digest("hex");
-  const { error } = await supabase.from("invitations").insert({
-    project_id: parsed.data.projectId,
-    email: parsed.data.email.toLowerCase(),
-    role: parsed.data.role,
-    token_hash: tokenHash,
-    invited_by: authData.user.id,
+  const emails = [
+    ...new Set(parsed.data.emails.map((email) => email.trim().toLowerCase())),
+  ];
+  const invitations = emails.map((email) => {
+    const token = randomBytes(32).toString("base64url");
+    return {
+      email,
+      token,
+      tokenHash: createHash("sha256").update(token).digest("hex"),
+      role: parsed.data.role,
+    };
   });
-  if (error) {
-    return Response.json({ error: error.message }, { status: 400 });
+
+  const { data, error } = await supabase.rpc("create_or_refresh_invitations", {
+    p_project_id: parsed.data.projectId,
+    p_invitations: invitations.map(({ email, role, tokenHash }) => ({
+      email,
+      role,
+      tokenHash,
+    })),
+  });
+  if (error || data?.length !== invitations.length) {
+    return Response.json(
+      { error: error?.message ?? "Not every invitation could be created." },
+      { status: 400 },
+    );
   }
 
-  return Response.json({ url: `${new URL(request.url).origin}/invite/${token}` });
+  const origin = new URL(request.url).origin;
+  return Response.json({
+    invitations: invitations.map(({ email, token }) => ({
+      email,
+      url: `${origin}/invite/${token}`,
+    })),
+  });
 }

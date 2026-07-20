@@ -35,7 +35,7 @@ export function WorkspaceItemForm({
     source: ["Source title or claim", "URL, excerpt, or note"],
     question: ["Open question", "Why it matters"],
     decision: ["Decision or proposal", "Rationale"],
-    comment: ["Loose note, conjecture, or critique", "Optional context"],
+    comment: ["Feedback, direction, loose note, or conjecture", "Optional context"],
     branch: ["Branch title", "Why this alternative matters"],
   } as const;
 
@@ -131,7 +131,13 @@ export function WorkspaceItemForm({
     setSecondary("");
     setFile(null);
     onCreated(kind, data);
-    toast.success(`${kind[0].toUpperCase()}${kind.slice(1)} saved.`);
+    toast.success(
+      `${
+        kind === "comment"
+          ? "Note"
+          : `${kind[0].toUpperCase()}${kind.slice(1)}`
+      } saved.`,
+    );
   }
 
   return (
@@ -158,7 +164,7 @@ export function WorkspaceItemForm({
       )}
       <Button size="sm" disabled={saving}>
         {saving && <LoaderCircle className="animate-spin" />}
-        Save {kind}
+        Save {kind === "comment" ? "note" : kind}
       </Button>
     </form>
   );

@@ -64,7 +64,7 @@ export default async function ProjectPage({
     supabase
       .from("document_versions")
       .select(
-        "id,label,source,rationale,created_at,created_by,checkpoint_id,loop_run_id,insight_id,yjs_checkpoints(plain_text,reason,sequence)",
+        "id,label,source,rationale,created_at,created_by,checkpoint_id,loop_run_id,insight_id,base_version_id,yjs_checkpoints(plain_text,reason,sequence)",
       )
       .eq("project_id", projectId)
       .order("created_at", { ascending: false })

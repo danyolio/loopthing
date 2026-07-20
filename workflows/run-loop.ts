@@ -188,6 +188,9 @@ Success means:
 - use summary for what became stronger
 - use whyItMatters for an honest critique of what remains weak, flabby, unsupported, or unresolved
 - use whatChanged for the concrete changes made to the document
+- use changeAttribution.directives only for changes traceable to explicit human notes, feedback, decisions, questions, or direct edits
+- use changeAttribution.independent for editorial or analytical choices you made without an explicit instruction
+- use changeAttribution.preserved for important arguments, passages, or constraints you intentionally left intact
 - use unresolved for open questions that can keep the next day's thinking moving
 - use thinkingEvolution to explain how the thesis or direction developed
 - choose one compelling next thread as nextAction
@@ -205,6 +208,7 @@ Success means:
 - distinguish evidence, assumptions, decisions, and unresolved questions
 - leave the canonical document unchanged
 - propose content only when it creates a genuinely clearer next state
+- identify which changes follow explicit human direction, which are your own editorial choices, and what you intentionally preserved
 - when proposing content, return the complete revised canonical document in Markdown; do not return a fragment or repeat the proposal title outside the document
 - use a significant branch only for a material alternative
 - choose one smallest useful next action
@@ -273,6 +277,7 @@ async function persistResult(
         proposal: result.proposal ?? {},
         next_action: result.nextAction,
         thinking_evolution: result.thinkingEvolution,
+        change_attribution: result.changeAttribution,
       },
       { onConflict: "loop_run_id" },
     );

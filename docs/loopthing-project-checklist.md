@@ -1,7 +1,7 @@
 # Loopthing project specification and build checklist
 
 Only completed and verified work is checked. This file was last verified against
-production on 19 July 2026.
+production on 20 July 2026.
 
 ## Product specification
 
@@ -71,6 +71,7 @@ production on 19 July 2026.
 - [x] Configure Supabase passwordless email authentication and production
   redirects for `loopthing.ai`.
 - [x] Create project memberships and invitations.
+- [x] Let an Owner create or refresh several email-bound invitations at once.
 - [x] Enforce Owner, Editor, and Viewer policies with RLS on every exposed
   project table.
 - [x] Verify that a Viewer cannot edit thinking objects but can comment.
@@ -92,6 +93,8 @@ production on 19 July 2026.
 - [x] Replace checkpoint noise in the project context with named,
   human-readable document versions.
 - [x] Preserve each Dream rewrite as a version linked to its Loop and insight.
+- [x] Present every Dream as a restorable Before → After change set with a
+  line-by-line diff and explicit change attribution.
 - [ ] Add shared Redis before relying on realtime collaboration across multiple
   simultaneous Vercel instances.
 
@@ -155,5 +158,13 @@ production on 19 July 2026.
 - Overnight Dream migrations: applied; after the controlled run, the next
   production Dream is scheduled for 03:00 Melbourne time on 21 July and
   new-activity gating is active.
+- Dream change sets: passed in production on a real project. The exact
+  pre-Dream and post-Dream checkpoints are paired and independently restorable;
+  the review shows a line diff, explicit human direction, Loopthing's
+  independent changes, and the proposed next step.
+- Batch invitations: passed. The production interface accepts up to 20
+  addresses, the API and Owner-only database function create separate
+  email-bound links atomically, and a two-address database verification was
+  rolled back without leaving test invitations.
 - npm audit: no high or critical findings; two moderate PostCSS findings in the
   installed Next.js release.

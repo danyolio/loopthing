@@ -33,8 +33,13 @@
 - Manual AI output never mutates canonical content directly. An accepted
   proposal is recorded with the accepting user and source Loop.
 - A completed daily Dream returns a full rewrite. The first Owner or Editor to
-  open the project applies its Yjs state atomically, creating an immutable
-  version linked to the Dream before it becomes current.
+  open the project applies its Yjs state atomically. The exact pre-Dream
+  checkpoint and resulting checkpoint become a linked change set with a line
+  diff and attribution separating human direction, Loopthing's independent
+  choices, and preserved material. Either state can be restored as a new
+  immutable version.
+- An Owner can create or refresh up to 20 invitations in one atomic database
+  operation. Each invitation has its own email-bound, expiring token.
 - Daily Dreams run around 03:00 AEST / 04:00 AEDT, only when activity has
   occurred since the previous Dream. The interface shows the exact next run in
   the viewer's local time.

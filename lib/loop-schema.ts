@@ -18,6 +18,21 @@ export const proposalSchema = z.object({
   isSignificantBranch: z.boolean(),
 });
 
+export const changeAttributionSchema = z.object({
+  directives: z
+    .array(z.string())
+    .max(12)
+    .describe("Changes traceable to explicit human notes, feedback, or decisions."),
+  independent: z
+    .array(z.string())
+    .max(12)
+    .describe("Editorial or analytical changes the model chose without a directive."),
+  preserved: z
+    .array(z.string())
+    .max(12)
+    .describe("Important material deliberately left intact."),
+});
+
 export const loopResultSchema = z.object({
   materialChange: z.boolean(),
   summary: z.string().min(1),
@@ -28,6 +43,7 @@ export const loopResultSchema = z.object({
   proposal: proposalSchema.nullable(),
   nextAction: z.string().min(1),
   thinkingEvolution: z.string(),
+  changeAttribution: changeAttributionSchema,
 });
 
 export const startLoopSchema = z.object({

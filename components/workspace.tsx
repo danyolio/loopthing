@@ -28,7 +28,6 @@ import {
   PanelRightClose,
   PanelRightOpen,
   Play,
-  RotateCcw,
   Save,
   Sparkles,
 } from "lucide-react";
@@ -36,6 +35,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { EditorToolbar } from "@/components/editor-toolbar";
 import { InviteDialog } from "@/components/invite-dialog";
+import { VersionHistory } from "@/components/version-history";
 import {
   WorkspaceItemForm,
   type ItemKind,
@@ -89,7 +89,7 @@ const railTabs: { id: RailTab; label: string; icon: typeof Sparkles }[] = [
   { id: "sources", label: "Sources", icon: Link2 },
   { id: "questions", label: "Questions", icon: Lightbulb },
   { id: "decisions", label: "Decisions", icon: CircleDot },
-  { id: "comments", label: "Notes", icon: MessageSquare },
+  { id: "comments", label: "Notes & feedback", icon: MessageSquare },
   { id: "branches", label: "Branches", icon: GitBranch },
   { id: "history", label: "Versions", icon: History },
 ];
@@ -128,6 +128,36 @@ function asProposal(value: unknown) {
   };
 }
 
+function normalizeVersion(version: Record<string, unknown>): ThinkingItem {
+  const relation = version.yjs_checkpoints;
+  const checkpoint = Array.isArray(relation) ? relation[0] : relation;
+  const checkpointRecord =
+    checkpoint && typeof checkpoint === "object"
+      ? (checkpoint as Record<string, unknown>)
+      : null;
+  const id = typeof version.id === "string" ? version.id : crypto.randomUUID();
+  const createdAt =
+    typeof version.created_at === "string"
+      ? version.created_at
+      : new Date().toISOString();
+  return {
+    ...version,
+    id,
+    created_at: createdAt,
+    plain_text:
+      typeof checkpointRecord?.plain_text === "string"
+        ? checkpointRecord.plain_text
+        : "",
+    reason:
+      typeof checkpointRecord?.reason === "string"
+        ? checkpointRecord.reason
+        : typeof version.source === "string"
+          ? version.source
+          : "",
+    sequence: checkpointRecord?.sequence ?? null,
+  };
+}
+
 export function Workspace({ initialData }: { initialData: WorkspaceData }) {
   const [ydoc] = useState(() => new Y.Doc());
   const [provider, setProvider] = useState<HocuspocusProvider | null>(null);
@@ -146,6 +176,9 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
   const [saving, setSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(
     new Date(initialData.document.updated_at),
+  );
+  const [currentCheckpointId, setCurrentCheckpointId] = useState(
+    initialData.document.current_checkpoint_id,
   );
   const [runs, setRuns] = useState(initialData.runs);
   const [insights, setInsights] = useState(initialData.insights);
@@ -293,7 +326,8 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
       const update = Y.encodeStateAsUpdate(ydoc);
       const plainText = editor.getText({ blockSeparator: "\n\n" });
       const appliedAt = new Date().toISOString();
-      const { data, error } = await createClient().rpc("apply_daily_dream", {
+      const supabase = createClient();
+      const { data, error } = await supabase.rpc("apply_daily_dream", {
         p_insight_id: pendingDailyDream.id,
         p_state_base64: bytesToBase64(update),
         p_plain_text: plainText,
@@ -315,21 +349,33 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
             : item,
         ),
       );
+      const { data: versionRows } = await supabase
+        .from("document_versions")
+        .select(
+          "id,label,source,rationale,created_at,created_by,checkpoint_id,loop_run_id,insight_id,base_version_id,yjs_checkpoints(plain_text,reason,sequence)",
+        )
+        .eq("loop_run_id", pendingDailyDream.loop_run_id)
+        .order("created_at", { ascending: false });
+      const createdVersions: ThinkingItem[] = (
+        (versionRows ?? []) as unknown as Record<string, unknown>[]
+      ).map(normalizeVersion);
+      const currentDreamVersion = createdVersions.find(
+        (version) => version.id === String(data),
+      );
+      if (currentDreamVersion) {
+        setCurrentCheckpointId(getText(currentDreamVersion, "checkpoint_id"));
+      }
       setItems((current) => ({
         ...current,
-        history: [
-          {
-            id: String(data),
-            label: "Overnight Dream",
-            source: "dream",
-            rationale: proposal.rationale,
-            plain_text: plainText,
-            created_at: appliedAt,
-            insight_id: pendingDailyDream.id,
-            loop_run_id: pendingDailyDream.loop_run_id,
-          },
-          ...current.history,
-        ],
+        history: createdVersions.length
+          ? [
+              ...createdVersions,
+              ...current.history.filter(
+                (version) =>
+                  !createdVersions.some((created) => created.id === version.id),
+              ),
+            ]
+          : current.history,
       }));
       applyingDream.current = null;
       setDreamApplication("applied");
@@ -359,6 +405,7 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
         return;
       }
       setLastSavedAt(new Date());
+      setCurrentCheckpointId(String(data));
       if (reason !== "autosave") {
         setItems((current) => ({
           ...current,
@@ -561,6 +608,7 @@ export function Workspace({ initialData }: { initialData: WorkspaceData }) {
       onAcceptBranch={acceptBranch}
       onRestore={restoreCheckpoint}
       dreamApplication={dreamApplication}
+      currentCheckpointId={currentCheckpointId}
     />
   );
 
@@ -702,6 +750,7 @@ function Rail({
   onAcceptBranch,
   onRestore,
   dreamApplication,
+  currentCheckpointId,
 }: {
   activeTab: RailTab;
   setActiveTab: (tab: RailTab) => void;
@@ -716,6 +765,7 @@ function Rail({
   onAcceptBranch: (branch: ThinkingItem) => void;
   onRestore: (checkpoint: ThinkingItem) => void;
   dreamApplication: "idle" | "applying" | "applied" | "failed";
+  currentCheckpointId: string | null;
 }) {
   const itemTab = activeTab !== "loops" && activeTab !== "history" ? activeTab : null;
   const itemKind: ItemKind | null = itemTab
@@ -781,70 +831,13 @@ function Rail({
               <EmptyPanel tab={itemTab} />
             ))}
           {activeTab === "history" &&
-            (items.history.length ? (
-              items.history.map((version, index) => (
-                <div key={version.id} className="rounded-xl border p-4">
-                  <div className="flex items-center justify-between">
-                    <Badge
-                      variant={
-                        getText(version, "source") === "dream"
-                          ? "default"
-                          : "secondary"
-                      }
-                      className={
-                        getText(version, "source") === "dream"
-                          ? "bg-[var(--signal-strong)]"
-                          : ""
-                      }
-                    >
-                      {getText(version, "source") === "dream" && (
-                        <Moon className="size-3" />
-                      )}
-                      {getText(version, "label", "reason").replaceAll("_", " ") ||
-                        "Version"}
-                    </Badge>
-                    <span className="text-[11px] text-muted-foreground">
-                      {formatDistanceToNow(new Date(getText(version, "created_at")), {
-                        addSuffix: true,
-                      })}
-                    </span>
-                  </div>
-                  {getText(version, "rationale") && (
-                    <p className="mt-3 text-xs font-medium leading-5">
-                      {getText(version, "rationale")}
-                    </p>
-                  )}
-                  <p className="mt-3 line-clamp-3 text-xs leading-5 text-muted-foreground">
-                    {getText(version, "plain_text") || "Preserved document state"}
-                  </p>
-                  {items.history[index + 1] && (
-                    <p className="mt-2 font-mono text-[10px] text-muted-foreground">
-                      {getText(version, "plain_text").length -
-                        getText(items.history[index + 1], "plain_text").length >=
-                      0
-                        ? "+"
-                        : ""}
-                      {getText(version, "plain_text").length -
-                        getText(items.history[index + 1], "plain_text").length}{" "}
-                      characters from previous version
-                    </p>
-                  )}
-                  {editable && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="mt-2 -ml-2"
-                      onClick={() => onRestore(version)}
-                    >
-                      <RotateCcw />
-                      Restore as a new version
-                    </Button>
-                  )}
-                </div>
-              ))
-            ) : (
-              <EmptyPanel tab="history" />
-            ))}
+            <VersionHistory
+              versions={items.history}
+              insights={insights}
+              currentCheckpointId={currentCheckpointId}
+              editable={editable}
+              onRestore={onRestore}
+            />}
         </div>
       </ScrollArea>
     </div>
