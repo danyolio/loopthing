@@ -1,7 +1,7 @@
 # Loopthing project specification and build checklist
 
 Only completed and verified work is checked. This file was last verified against
-production on 20 July 2026.
+production on 21 July 2026.
 
 ## Product specification
 
@@ -87,6 +87,8 @@ production on 20 July 2026.
 - [x] Keep graph nodes fixed-height and scannable with distinct Human,
   Document, Dream, and Review fills; move prose and records into a click
   inspector that does not overlap the desktop canvas.
+- [x] Use the supplied Loopthing wordmark and purple loop mark consistently in
+  product chrome, authentication, browser metadata, and social previews.
 
 ## Authentication, data, and permissions
 
