@@ -1,4 +1,5 @@
 import { start } from "workflow/api";
+import { resolveAIModel } from "@/lib/ai-models";
 import { startLoopSchema } from "@/lib/loop-schema";
 import { log } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/server";
@@ -59,10 +60,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const model =
-    provider === "openai"
-      ? process.env.OPENAI_MODEL || "gpt-5.6-sol"
-      : process.env.GOOGLE_GENERATIVE_AI_MODEL || "gemini-3.5-flash";
+  const model = resolveAIModel(provider);
   const idempotencyKey = `manual:${parsed.data.projectId}:${authData.user.id}:${crypto.randomUUID()}`;
   const { data: loopRun, error: insertError } = await supabase
     .from("loop_runs")

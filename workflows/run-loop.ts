@@ -2,6 +2,7 @@ import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
 import { createClient } from "@supabase/supabase-js";
 import { generateText, Output } from "ai";
+import { resolveAIModel } from "@/lib/ai-models";
 import { CORE_SYSTEM_PROMPT } from "@/lib/core-prompt";
 import type { AIProvider, LoopStatus, LoopType } from "@/lib/domain";
 import { log } from "@/lib/logger";
@@ -223,10 +224,7 @@ async function synthesise(
       ? context.project.ai_provider
       : input.provider;
   const provider = input.scheduled ? projectProvider : input.provider;
-  const model =
-    provider === "openai"
-      ? process.env.OPENAI_MODEL || "gpt-5.6-sol"
-      : process.env.GOOGLE_GENERATIVE_AI_MODEL || "gemini-3.5-flash";
+  const model = resolveAIModel(provider);
 
   if (provider === "openai" && !process.env.OPENAI_API_KEY) {
     throw new Error("OPENAI_API_KEY is not configured");

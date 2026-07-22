@@ -1,7 +1,7 @@
 # Loopthing project specification and build checklist
 
 Only completed and verified work is checked. This file was last verified against
-production on 21 July 2026.
+production on 22 July 2026.
 
 ## Product specification
 
@@ -35,8 +35,9 @@ production on 21 July 2026.
   reconnection, and IndexedDB recovery.
 - Immutable Yjs checkpoints preserve canonical history; derived plain text
   provides Loop context, previews, and diffs.
-- Gemini is the live synthesis provider through the Vercel AI SDK. OpenAI is
-  implemented as an optional provider and requires a server-side API key.
+- Gemini 3.6 Flash is the default live synthesis model through the Vercel AI
+  SDK. OpenAI is implemented as an optional provider and requires a server-side
+  API key.
 - Zod validates every structured Loop result.
 - Vercel hosts Next.js, the WebSocket endpoint, cron, and retryable Workflow
   DevKit jobs. Supabase remains the durable system of record.
@@ -143,6 +144,8 @@ production on 21 July 2026.
   Production. The variable currently exists with an empty value.
 - [x] Build Gemini and OpenAI/Codex provider selection against one structured
   output schema.
+- [x] Use Gemini 3.6 Flash as the shared default for manual Loops and scheduled
+  Dreams while preserving explicit model overrides.
 - [x] Verify a real Gemini Loop in production.
 - [x] Ensure an accepted full-document proposal replaces rather than appends to
   the canonical document.
