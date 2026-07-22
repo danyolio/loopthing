@@ -247,5 +247,10 @@ production on 22 July 2026.
   unindexed foreign keys. Newly created indexes are reported as unused until
   production traffic exercises them. The existing password-protection warning
   remains inapplicable to the passwordless-only flow.
-- npm audit: no high or critical findings; two moderate PostCSS findings in the
-  installed Next.js release.
+- Gemini 3.6 Flash default: the stable Google model ID is shared by manual
+  Loops and scheduled Dreams, covered by resolver tests, configured in Vercel
+  Preview and Production, and deployed successfully. A real synthesis remains
+  pending restoration of the Gemini API key.
+- npm audit: no critical findings. The current advisory database reports three
+  high and four moderate transitive findings, including Sharp/libvips and
+  fast-uri; dependency remediation remains separate from this model update.
