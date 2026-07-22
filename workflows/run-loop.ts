@@ -2,9 +2,11 @@ import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
 import { createClient } from "@supabase/supabase-js";
 import { generateText, Output } from "ai";
+import { FatalError } from "workflow";
 import { resolveAIModel } from "@/lib/ai-models";
 import { CORE_SYSTEM_PROMPT } from "@/lib/core-prompt";
 import type { AIProvider, LoopStatus, LoopType } from "@/lib/domain";
+import { formatLoopFailure, loopErrorMetadata } from "@/lib/loop-errors";
 import { log } from "@/lib/logger";
 import { loopResultSchema, type LoopResult } from "@/lib/loop-schema";
 
@@ -80,7 +82,14 @@ async function updateProgress(
       .eq("id", input.loopId);
     if (error) throw error;
   }
-  log("info", "loop.progress", { loopId: input.loopId, status, stage, percent });
+  log(status === "failed" ? "error" : "info", "loop.progress", {
+    loopId: input.loopId,
+    projectId: input.projectId,
+    status,
+    stage,
+    percent,
+    errorMessage,
+  });
 }
 
 async function collectContext(input: LoopWorkflowInput): Promise<LoopContext> {
@@ -226,11 +235,21 @@ async function synthesise(
   const provider = input.scheduled ? projectProvider : input.provider;
   const model = resolveAIModel(provider);
 
+  if (input.scheduled) {
+    const { error } = await supabaseClient().rpc("record_scheduled_loop_runtime", {
+      p_secret: process.env.CRON_SECRET!,
+      p_loop_id: input.loopId,
+      p_provider: provider,
+      p_model: model,
+    });
+    if (error) throw error;
+  }
+
   if (provider === "openai" && !process.env.OPENAI_API_KEY) {
-    throw new Error("OPENAI_API_KEY is not configured");
+    throw new FatalError("OPENAI_API_KEY is not configured");
   }
   if (provider === "google" && !process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-    throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not configured");
+    throw new FatalError("GOOGLE_GENERATIVE_AI_API_KEY is not configured");
   }
 
   const dailyDreamPrompt = `Run the overnight Dream over the supplied project state.
@@ -306,20 +325,48 @@ ${JSON.stringify(context)}`;
       ? dailyDreamPrompt
       : standardLoopPrompt;
 
-  const { output } = await generateText({
-    model:
-      provider === "openai"
-        ? openai.responses(model)
-        : google(model),
-    system: CORE_SYSTEM_PROMPT,
-    prompt,
-    output: Output.object({ schema: loopResultSchema }),
-    maxRetries: 2,
-    providerOptions:
-      provider === "openai"
-        ? { openai: { reasoningEffort: "medium" } }
-        : undefined,
+  log("info", "loop.synthesis.started", {
+    loopId: input.loopId,
+    projectId: input.projectId,
+    provider,
+    model,
+    scheduled: input.scheduled,
+    loopType: input.loopType,
   });
+
+  let output: LoopResult;
+  try {
+    ({ output } = await generateText({
+      model:
+        provider === "openai"
+          ? openai.responses(model)
+          : google(model),
+      system: CORE_SYSTEM_PROMPT,
+      prompt,
+      output: Output.object({ schema: loopResultSchema }),
+      maxRetries: 2,
+      providerOptions:
+        provider === "openai"
+          ? { openai: { reasoningEffort: "medium" } }
+          : undefined,
+    }));
+  } catch (error) {
+    const message = formatLoopFailure(error, {
+      stage: "AI synthesis",
+      provider,
+      model,
+    });
+    log("error", "loop.synthesis.failed", {
+      loopId: input.loopId,
+      projectId: input.projectId,
+      provider,
+      model,
+      ...loopErrorMetadata(error),
+    });
+    // generateText already applies its own bounded retries. Do not let the
+    // workflow engine multiply those model calls by retrying the whole step.
+    throw new FatalError(message);
+  }
 
   if (
     input.scheduled &&
@@ -327,14 +374,18 @@ ${JSON.stringify(context)}`;
     !output.proposal &&
     output.critiqueComments.length === 0
   ) {
-    throw new Error("The overnight Dream returned neither critique nor a proposal");
+    throw new FatalError(
+      "The overnight Dream returned neither critique nor a proposal",
+    );
   }
   if (
     input.scheduled &&
     input.loopType === "daily" &&
     output.proposal?.isSignificantBranch
   ) {
-    throw new Error("The overnight Dream returned a branch instead of a reviewable document");
+    throw new FatalError(
+      "The overnight Dream returned a branch instead of a reviewable document",
+    );
   }
 
   return { result: output, provider, model };
@@ -407,12 +458,17 @@ async function persistResult(
 export async function runLoopWorkflow(input: LoopWorkflowInput) {
   "use workflow";
 
+  let failureStage = "startup";
   try {
+    failureStage = "project context collection";
     await updateProgress(input, "collecting", "Collecting project context", 15);
     const context = await collectContext(input);
+    failureStage = "analysis";
     await updateProgress(input, "analysing", "Reading for strengths, tensions, and openings", 40);
     await updateProgress(input, "synthesising", "Developing conjecture and criticism", 65);
+    failureStage = "AI synthesis";
     const synthesis = await synthesise(context, input);
+    failureStage = "result persistence";
     await updateProgress(input, "saving", "Saving structured insight", 88);
     await persistResult(
       input,
@@ -422,8 +478,13 @@ export async function runLoopWorkflow(input: LoopWorkflowInput) {
     );
     return { loopId: input.loopId, status: "complete" as const };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown Loop failure";
+    const message = formatLoopFailure(error, {
+      stage: failureStage,
+      provider: input.provider,
+    });
     await updateProgress(input, "failed", "Stopped safely", 100, message);
-    return { loopId: input.loopId, status: "failed" as const, error: message };
+    // Keep the database status user-readable while also making the durable
+    // workflow ledger accurately report a failed run.
+    throw new Error(message);
   }
 }

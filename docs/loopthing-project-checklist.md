@@ -71,6 +71,9 @@ production on 22 July 2026.
 - [x] Let a new project start blank so its first Dream can develop raw input.
 - [x] Make conjecture and criticism the primary Loop output, with passage,
   section, and document-level comments embedded in the workspace.
+- [x] Headline the latest Loop as persistent overall editorial feedback in
+  Project Context, with the broad read, current direction, and links to its
+  specific comments, without another model call.
 - [x] Let members reply to, resolve, dismiss, or incorporate AI criticism and
   feed those responses into the next Dream.
 - [x] Let every project member highlight exact document text, attach a durable
@@ -140,8 +143,8 @@ production on 22 July 2026.
 
 - [x] Create local and production `GOOGLE_GENERATIVE_AI_API_KEY` secret slots
   without committing a value.
-- [ ] Restore a non-empty `GOOGLE_GENERATIVE_AI_API_KEY` in Vercel Preview and
-  Production. The variable currently exists with an empty value.
+- [x] Restore a non-empty `GOOGLE_GENERATIVE_AI_API_KEY` in Vercel Preview and
+  Production.
 - [x] Build Gemini and OpenAI/Codex provider selection against one structured
   output schema.
 - [x] Use Gemini 3.6 Flash as the shared default for manual Loops and scheduled
@@ -151,6 +154,9 @@ production on 22 July 2026.
   the canonical document.
 - [x] Build and verify light, daily, and weekly Loops with durable progress,
   idempotency, and stored insights.
+- [x] Preserve the Workflow run ID, provider, and model for scheduled Dreams;
+  retain safe stage-specific provider failures; and prevent Workflow retries
+  from multiplying the AI SDK's bounded synthesis retries.
 - [x] Verify Vercel cron authentication and the daily/weekly schedule advance.
 - [x] Schedule daily Dreams inside the Melbourne overnight window.
 - [x] Skip daily Dreams when nothing new was contributed.
@@ -204,8 +210,7 @@ production on 22 July 2026.
   and browser verification. The production database migration, RLS policies,
   same-project foreign keys, and response-to-next-Dream trigger passed
   controlled verification without leaving test rows.
-- Critique-first real Gemini call: pending restoration of the currently empty
-  Vercel Gemini key.
+- Critique-first real Gemini call: passed in production on Gemini 3.6 Flash.
 - OpenAI/Codex real provider call: pending API key.
 - Supabase advisor: no critical findings; one password-protection warning that
   is not used by the current passwordless-only flow.
@@ -249,8 +254,12 @@ production on 22 July 2026.
   remains inapplicable to the passwordless-only flow.
 - Gemini 3.6 Flash default: the stable Google model ID is shared by manual
   Loops and scheduled Dreams, covered by resolver tests, configured in Vercel
-  Preview and Production, and deployed successfully. A real synthesis remains
-  pending restoration of the Gemini API key.
+  Preview and Production, deployed successfully, and verified with a real
+  synthesis.
+- Loop failure observability: the only recent failed Dream was traced to the
+  synthesis step after context collection succeeded. Its Workflow run is now
+  linked to the database row, the stale “latest failure” notice is fixed, and
+  future failures retain stage, provider, model, and a safe specific message.
 - npm audit: no critical findings. The current advisory database reports three
   high and four moderate transitive findings, including Sharp/libvips and
   fast-uri; dependency remediation remains separate from this model update.

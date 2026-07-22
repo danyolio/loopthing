@@ -148,6 +148,41 @@ describe("product invariants", () => {
     expect(workflow).toContain("critique_comments: result.critiqueComments");
   });
 
+  it("headlines the latest Loop's overall editorial direction in project context", () => {
+    const workspace = readFileSync("components/workspace.tsx", "utf8");
+    const feedback = readFileSync(
+      "components/overall-feedback-card.tsx",
+      "utf8",
+    );
+
+    expect(workspace).toContain("<OverallFeedbackCard");
+    expect(feedback).toContain("Overall feedback");
+    expect(feedback).toContain("Editorial read");
+    expect(feedback).toContain("Direction now");
+    expect(feedback).toContain("MessageResponse");
+  });
+
+  it("keeps scheduled failures inspectable without multiplying model retries", () => {
+    const migration = readFileSync(
+      "supabase/migrations/20260722010000_loop_runtime_observability.sql",
+      "utf8",
+    );
+    const cron = readFileSync("app/api/cron/loops/route.ts", "utf8");
+    const workflow = readFileSync("workflows/run-loop.ts", "utf8");
+    const workspace = readFileSync("components/workspace.tsx", "utf8");
+
+    expect(migration).toContain("record_scheduled_loop_workflow");
+    expect(migration).toContain("record_scheduled_loop_runtime");
+    expect(cron).toContain('"record_scheduled_loop_workflow"');
+    expect(workflow).toContain('"record_scheduled_loop_runtime"');
+    expect(workflow).toContain("throw new FatalError(message)");
+    expect(workflow).toContain("throw new Error(message)");
+    expect(workspace).toContain('runs[0]?.status === "failed"');
+    expect(workspace).not.toContain(
+      'runs.find((run) => run.status === "failed")',
+    );
+  });
+
   it("lets every project member anchor human comments to selected document text", () => {
     const migration = readFileSync(
       "supabase/migrations/20260719024832_loopthing_mvp.sql",

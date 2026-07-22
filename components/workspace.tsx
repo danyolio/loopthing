@@ -45,6 +45,7 @@ import { HumanCommentsPanel } from "@/components/human-comments-panel";
 import { InlineCommentComposer } from "@/components/inline-comment-composer";
 import { InviteDialog } from "@/components/invite-dialog";
 import { MorningReview } from "@/components/morning-review";
+import { OverallFeedbackCard } from "@/components/overall-feedback-card";
 import { ProjectThread } from "@/components/project-thread";
 import { ReasoningWorkspace } from "@/components/reasoning-workspace";
 import { VersionHistory } from "@/components/version-history";
@@ -1385,6 +1386,13 @@ function Rail({
       </div>
       <ScrollArea className="min-h-0 flex-1">
         <div className="space-y-4 p-4">
+          {insights[0] && (
+            <OverallFeedbackCard
+              insight={insights[0]}
+              onOpenCritique={() => setActiveTab("critique")}
+              onOpenLoop={() => setActiveTab("loops")}
+            />
+          )}
           {activeTab === "loops" && (
             <LoopPanel
               runs={runs}
@@ -1496,6 +1504,8 @@ function LoopPanel({
   const activeRun = runs.find(
     (run) => run.status !== "complete" && run.status !== "failed",
   );
+  const failedRun =
+    !activeRun && runs[0]?.status === "failed" ? runs[0] : null;
   const runById = new Map(runs.map((run) => [run.id, run]));
   const dailyInsights = insights.filter(
     (insight) => runById.get(insight.loop_run_id)?.is_dream === true,
@@ -1529,12 +1539,11 @@ function LoopPanel({
           </p>
         </div>
       )}
-      {runs.find((run) => run.status === "failed") && !activeRun && (
+      {failedRun && (
         <div className="rounded-xl border border-destructive/25 bg-destructive/5 p-4 text-sm">
           <p className="font-semibold">The latest Loop stopped safely.</p>
           <p className="mt-1 text-xs leading-5 text-muted-foreground">
-            {runs.find((run) => run.status === "failed")?.error_message ||
-              "No canonical work was changed."}
+            {failedRun.error_message || "No canonical work was changed."}
           </p>
         </div>
       )}
